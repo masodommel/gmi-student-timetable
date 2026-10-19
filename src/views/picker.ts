@@ -95,19 +95,21 @@ export async function selectClass(id: string, { preserveWeek = true }: { preserv
         controller.signal,
       ));
     if (controller.signal.aborted) return;
-    if (dataset.class.id !== id || !Array.isArray(dataset.events)) throw new Error('Invalid class dataset');
-    cache.set(id, dataset);
-    state.events = dataset.events;
-    state.loading = false;
-    render();
-    if (pickerOpen) elements.main.focus();
-    toast(`${selected.name} timetable loaded.`);
+    if (dataset.class.id === id && Array.isArray(dataset.events)) {
+      cache.set(id, dataset);
+      state.events = dataset.events;
+      state.loading = false;
+      render();
+      if (pickerOpen) elements.main.focus();
+      toast(`${selected.name} timetable loaded.`);
+      return;
+    }
   } catch (error) {
     if (isAbort(error)) return;
-    state.loading = false;
-    state.error = 'We couldn’t load this class’s timetable. Check your connection and try again.';
-    render();
   }
+  state.loading = false;
+  state.error = 'We couldn’t load this class’s timetable. Check your connection and try again.';
+  render();
 }
 
 export function initPicker(): void {
