@@ -1,2 +1,4 @@
+* text=auto eol=lf
+
 # Preserve generated iCalendar bytes. Folded content can end with meaningful spaces.
 *.ics -text -diff
