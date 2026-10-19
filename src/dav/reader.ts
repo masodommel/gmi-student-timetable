@@ -15,7 +15,7 @@ function expect(condition: unknown): asserts condition {
   if (!condition) throw failure();
 }
 
-const reference = (value: number): number => (value === -1 ? -1 : value >>> 0);
+const reference = (value: number): number => (value === 0xffffffff ? -1 : value);
 
 class Reader {
   readonly bytes: Uint8Array;
@@ -170,7 +170,7 @@ function dateSerial(value: number): string {
 
 // A 64-bit mask marks active weeks; cleared bit positions become week offsets.
 function activeBits(mask: bigint): number[] {
-  return Array.from({ length: 64 }, (_, bit) => bit).filter((bit) => !(mask & (1n << BigInt(bit))));
+  return [...mask.toString(2).padStart(64, '0')].reverse().flatMap((bit, offset) => (bit === '0' ? [offset] : []));
 }
 
 // Counts precede their record as a tagged integer, so probe the known encodings.
@@ -292,7 +292,7 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
     const id = reader.u32();
     expect(!lessonIds.has(id));
     lessonIds.add(id);
-    const refs = Array.from({ length: 4 }, () => reference(reader.i32()));
+    const refs = Array.from({ length: 4 }, () => reference(reader.u32()));
     const count = reader.count(1000),
       slots: DavSlot[] = [];
     for (let slotIndex = 0; slotIndex < count; slotIndex++) {
@@ -311,8 +311,8 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
           layout.subarray(10, 17).every((value) => value === 0),
       );
       expect(reader.value() === 0 && reader.value() === 0);
-      const room = reference(reader.i32()),
-        lecturer = reference(reader.i32());
+      const room = reference(reader.u32()),
+        lecturer = reference(reader.u32());
       reader.i32();
       slots.push({ offset: rawStart, id: slotId, day: layout[0], period: layout[1], flag: layout[17], room, lecturer });
     }
@@ -323,7 +323,7 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
     const noteOffset = reader.position;
     const note = reader.text();
     const noteEnd = reader.position;
-    const subject = reference(reader.i32());
+    const subject = reference(reader.u32());
     reader.i32();
     reader.skipValue();
     reader.skipValue();
