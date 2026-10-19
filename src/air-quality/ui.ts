@@ -75,11 +75,11 @@ export function initAirQuality(): void {
         cache: 'no-store',
         signal: AbortSignal.timeout(10000),
       });
-      if (!response.ok) throw new Error('Reading request failed');
-      const candidate: unknown = await response.json();
-      if (!isSnapshot(candidate)) throw new Error('Invalid reading');
-      snapshot = candidate;
-      error = false;
+      const candidate: unknown = response.ok ? await response.json() : null;
+      if (isSnapshot(candidate)) {
+        snapshot = candidate;
+        error = false;
+      } else error = true;
     } catch {
       error = true;
     } finally {
