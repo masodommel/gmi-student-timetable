@@ -16,6 +16,8 @@ const paths = {
   external: '<path d="M14 3h7v7m0-7L10 14M10 3H3v18h18v-7"/>',
   book: '<path d="M3 3h7l2 2 2-2h7v16h-7l-2 2-2-2H3V3Zm9 2v16"/>',
 };
-export function icon(name, className = '') {
-  return `<svg class="icon ${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.calendar}</svg>`;
+export type IconName = keyof typeof paths;
+export function icon(name: string | undefined, className = ''): string {
+  const path = name && name in paths ? paths[name as IconName] : paths.calendar;
+  return `<svg class="icon ${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
 }
