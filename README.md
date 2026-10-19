@@ -36,7 +36,7 @@ All event times use `Asia/Kuala_Lumpur` (UTC+8). Each calendar contains the full
 
 ## Local development
 
-Requires Node.js 22+ and Python 3 for data checks.
+Requires Node.js 22+ and Python 3 for data checks. The app, tests and Node tooling are written in TypeScript. `npm test` typechecks the app and tooling first; `npm run build` compiles the browser modules with `tsc` and copies the static assets into `dist/`.
 
 ```sh
 npm ci
@@ -114,7 +114,7 @@ The attachment received on 14 October 2026 has the same SHA-256 as the previousl
 Decode a new compatible source, generate all class/lecturer datasets and calendars, and record its explicit revision and date:
 
 ```sh
-node scripts/prepare_dav.mjs '/path/to/timetable.dav' R04D 2026-10-15
+npx tsx scripts/prepare_dav.ts '/path/to/timetable.dav' R04D 2026-10-15
 DAV_REFERENCE_FILE='/path/to/timetable.dav' npm test
 PLAYWRIGHT_CHANNEL=chrome npm run test:e2e
 npm run build
@@ -147,7 +147,7 @@ The source's `RECORD_DT` is a Malaysian wall-clock string without an offset; the
 Readings older than three hours show “Outdated reading” and remain labelled as last-known information. After 24 hours the number is hidden as unavailable. Source/network failures preserve the last successfully retrieved observation without resetting its timestamp. A station request failure is independent of timetable loading. Browser refresh retrieves the latest published snapshot; it cannot force a new DOE observation. Open tabs check snapshots about every 15 minutes while visible and re-evaluate freshness each minute without repeating unchanged screen-reader announcements.
 
 ```sh
-node scripts/update-air-quality.mjs
+npm run update:air
 npm run build
 ```
 

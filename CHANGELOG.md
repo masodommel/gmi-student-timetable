@@ -1,5 +1,13 @@
 # Changelog
 
+## 20 October 2026 - TypeScript migration
+
+- Rewrote the browser modules, unit tests, browser tests and Node scripts in TypeScript with `strict` enabled; the Python data checks are unchanged.
+- Kept the plain-`tsc` static build: `npm run build` emits the same module-per-file layout into `dist/` without a bundler.
+- Added `tsx` for running TypeScript Node scripts; `npm test` now typechecks the app and tooling before running the data checks and unit tests.
+- Added `npm run typecheck` and `npm run update:air`; the Pages workflow now refreshes air quality through the npm script.
+- No timetable data, calendar output, DAV parsing/editing behavior or browser rendering changed.
+
 ## 18 October 2026 - Compact campus updates
 
 - Replaced the initially expanded haze and air-quality panels with one collapsed Air & campus updates strip, giving the timetable substantially more space.
