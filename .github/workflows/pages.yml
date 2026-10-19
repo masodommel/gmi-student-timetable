@@ -25,7 +25,7 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm test
-      - run: node scripts/update-air-quality.mjs
+      - run: npm run update:air
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,8 @@
+dist/
+public/
+test-results/
+playwright-report/
+node_modules/
+*.md
+package-lock.json
+.github/

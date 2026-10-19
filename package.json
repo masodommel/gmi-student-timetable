@@ -4,13 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "dev": "npm run build && node scripts/serve.mjs",
-    "test": "python3 tests/check_data.py && node --test tests/core.test.js tests/dav.test.js tests/class-search.test.js tests/advisories.test.js tests/air-quality.test.js",
-    "test:e2e": "playwright test"
+    "build": "tsx scripts/build.ts",
+    "dev": "npm run build && tsx scripts/serve.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run format:check && npm run typecheck && tsx scripts/check-data.ts && node --import tsx --test tests/core.test.ts tests/dav.test.ts tests/class-search.test.ts tests/advisories.test.ts tests/air-quality.test.ts",
+    "test:e2e": "playwright test",
+    "update:air": "tsx scripts/update-air-quality.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@playwright/test": "^1.64.0"
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.5",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
