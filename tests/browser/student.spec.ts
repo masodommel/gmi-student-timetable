@@ -2,13 +2,15 @@ import { test, expect } from '@playwright/test';
 import { readFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const classId = '99178435';
-const expectedClass = JSON.parse(await readFile(new URL(`../../public/data/${classId}.json`,import.meta.url),'utf8')).class;
+const expectedClass = JSON.parse(
+  await readFile(new URL(`../../public/data/${classId}.json`, import.meta.url), 'utf8'),
+).class;
 const selectedUrl = `?class=${classId}&week=2026-10-12`;
 const qa = fileURLToPath(new URL('../../../../work/student-qa/', import.meta.url));
 
 test('student chooses a class, browses lessons, and downloads only its calendar', async ({ page }) => {
-  const errors = [];
-  page.on('pageerror', error => errors.push(error.message));
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('./?week=2026-10-12');
   await page.getByRole('button', { name: 'Find my class' }).click();
   await page.getByRole('searchbox', { name: 'Search classes' }).fill('SEM 3 DMCH 1');
@@ -69,7 +71,9 @@ test('mobile adapts to day agenda and keeps calendar export reachable', async ({
 
 test('failed schedule requests offer retry rather than a blank planner', async ({ page }) => {
   let fail = true;
-  await page.route(`**/data/${classId}.json`, route => fail ? route.fulfill({ status: 503, body: 'Unavailable' }) : route.continue());
+  await page.route(`**/data/${classId}.json`, (route) =>
+    fail ? route.fulfill({ status: 503, body: 'Unavailable' }) : route.continue(),
+  );
   await page.goto('./' + selectedUrl);
   await expect(page.getByText('Let’s try that again')).toBeVisible();
   fail = false;

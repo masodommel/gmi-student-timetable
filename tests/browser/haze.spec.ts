@@ -1,0 +1,35 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+test('haze precaution is accessible, collapsible and keeps class changes unconfirmed', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-18T03:00:00Z'));
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await page.locator('#conditions-toggle').click();
+  await expect(page.locator('#haze-advisory')).toBeVisible();
+  await expect(page.locator('#haze-details')).toContainText('N95');
+  await expect(page.locator('#haze-details')).toContainText('not a confirmed GMI');
+  await expect(page.locator('#haze-air-link')).toHaveAttribute('href', 'https://eqms.doe.gov.my/APIMS/main');
+  await page.getByRole('button', { name: 'Hide haze reminder' }).click();
+  await expect(page.locator('#haze-toggle')).toHaveAttribute('aria-expanded', 'false');
+  await page.reload();
+  await page.locator('#conditions-toggle').click();
+  await expect(page.locator('#haze-details')).toBeHidden();
+  await page.getByRole('button', { name: 'Show haze reminder' }).click();
+  await expect(page.locator('#haze-details')).toBeVisible();
+  const lesson = page.locator('.lesson').filter({ hasText: 'Confirm class delivery' }).first();
+  await expect(lesson).toBeVisible();
+  await lesson.click();
+  await expect(page.locator('.lesson-mode-notice')).toContainText('not confirmed online');
+  await page.keyboard.press('Escape');
+  await page.setViewportSize({ width: 320, height: 740 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(results.violations).toEqual([]);
+  await page.screenshot({ path: test.info().outputPath('haze-mobile.png'), fullPage: true });
+});
+test('expired haze precaution disappears without changing timetable data', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-26T03:00:00Z'));
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await expect(page.locator('.lesson').first()).toBeVisible();
+  await expect(page.locator('#haze-advisory')).toBeHidden();
+  await expect(page.locator('.mode-badge').filter({ hasText: 'Confirm class delivery' })).toHaveCount(0);
+});
