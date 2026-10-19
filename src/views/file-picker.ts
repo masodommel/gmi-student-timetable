@@ -23,11 +23,15 @@ export async function importFile(file: File | undefined): Promise<void> {
   if (!file) return;
   const sequence = ++importSequence;
   elements.fileError.hidden = true;
+  if (file.size > 20 * 1024 * 1024) {
+    elements.fileError.textContent = 'Choose a timetable file smaller than 20 MB.';
+    elements.fileError.hidden = false;
+    return;
+  }
   elements.fileProgress.hidden = false;
   elements.fileProgress.textContent = `Reading ${file.name} on your device…`;
   elements.fileInput.disabled = true;
   try {
-    if (file.size > 20 * 1024 * 1024) throw new Error('Choose a timetable file smaller than 20 MB.');
     const buffer = await file.arrayBuffer();
     const retainedBuffer = buffer.slice(0);
     if (sequence !== importSequence || !elements.fileDialog.open) return;
