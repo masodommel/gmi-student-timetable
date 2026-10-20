@@ -5,6 +5,41 @@ A responsive student timetable with class and lecturer views, lesson details, an
 - Live app: https://gmi-student-timetable.pages.dev/
 - Repository: https://github.com/masodommel/gmi-student-timetable
 
+GitHub Pages currently serves only a redirect to the production app. A separate development live page is planned but not enabled, so its URL is intentionally omitted here.
+
+## Tech stack
+
+The frontend is framework-free TypeScript with build-time-only dependencies. HTML, CSS and browser JavaScript are bundled and minified for a small static site.
+
+**Frontend**
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![esbuild](https://img.shields.io/badge/esbuild-FFCF00?style=flat-square&logo=esbuild&logoColor=black)
+![Web Worker](https://img.shields.io/badge/Web%20Worker-323330?style=flat-square&logo=javascript&logoColor=white)
+![Web Crypto](https://img.shields.io/badge/Web%20Crypto-005A9C?style=flat-square&logo=javascript&logoColor=white)
+![AVIF](https://img.shields.io/badge/AVIF-0B6E99?style=flat-square)
+
+**Build and test**
+
+![Node.js 22](https://img.shields.io/badge/Node.js%2022-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
+![npm](https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white)
+![Sharp](https://img.shields.io/badge/Sharp-99CC00?style=flat-square)
+![CSso](https://img.shields.io/badge/CSso-3C99DC?style=flat-square)
+![htmlnano](https://img.shields.io/badge/htmlnano-E34F26?style=flat-square)
+![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=flat-square&logo=prettier&logoColor=black)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)
+![node:test](https://img.shields.io/badge/node%3Atest-4B5563?style=flat-square&logo=nodedotjs&logoColor=white)
+![Python 3](https://img.shields.io/badge/Python%203-3776AB?style=flat-square&logo=python&logoColor=white)
+
+**Automation and hosting**
+
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-4285F4?style=flat-square&logo=googleappsscript&logoColor=white)
+![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-F38020?style=flat-square&logo=cloudflare&logoColor=white)
+![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-181717?style=flat-square&logo=github&logoColor=white)
+
 ## Fork and credits
 
 This repository is a fork of [lollllz/gmi-student-timetable](https://github.com/lollllz/gmi-student-timetable).
@@ -35,17 +70,17 @@ Timetable updates flow from Gmail to the public site without manual data commits
 2. It commits each new source to the private `masodommel/gmi-student-timetable-sources` repository as `sources/<hash16>.dav`, with a `sources/<hash16>.json` sidecar containing the original filename, message date, full SHA-256 and byte size.
 3. Successful threads receive a `TimetableSynced` label. Permanent failures receive `TimetableFailed`; transient failures stay unlabelled and retry on the next run.
 4. The private repository's `.github/workflows/notify.yml` workflow sends a `repository_dispatch` to the public `masodommel/gmi-student-timetable` repository. It also runs every 6 hours as a catch-up.
-5. The public `pages.yml` workflow checks out the private archive, pre-bakes the newest source, runs the tests, commits the derived `public/` data, builds, and uploads the build artifact for GitHub Pages. Cloudflare Pages builds and publishes the same `main` tree independently.
+5. The public `pages.yml` workflow checks out the private archive, pre-bakes the newest source, runs the tests, commits the derived `public/` data, builds, and updates the GitHub Pages redirect. Cloudflare Pages builds the same `main` tree when a watched production path changes.
 
-Source selection uses the revision date in the original filename first, then the email time, so a late-arriving older email cannot replace a newer revision. The workflow skips an already-published hash, refuses to roll back to an older revision unless manually forced, and skips corrupt or incomplete sources with a warning. Public `push` runs test, build and deploy the checked-in data without needing the private archive.
+Source selection uses the revision date in the original filename first, then the email time, so a late-arriving older email cannot replace a newer revision. The workflow skips an already-published hash, refuses to roll back to an older revision unless manually forced, and skips corrupt or incomplete sources with a warning. Public `push` runs tests and builds from the checked-in data without needing the private archive.
 
-The derived-data commit uses `[skip actions]` so it does not start another GitHub Actions run. Cloudflare Pages still builds every relevant `main` push, including that data commit.
+The derived-data commit uses `[skip actions]` so it does not start another GitHub Actions run. Cloudflare Pages still builds it because `public/**` is a production watch path.
 
 Raw DAV files stay in the private repository. The public repository and site publish derived data only; the original binary is never committed or served publicly. The workflow fails if a `.dav` is tracked publicly or appears in `public/` or `dist/`.
 
 Workflows:
 
-- `.github/workflows/pages.yml` (public): pre-bake, test, commit derived data, build, upload the dist artifact, and publish GitHub Pages.
+- `.github/workflows/pages.yml` (public): pre-bake, test, commit derived data, build, and publish the GitHub Pages redirect. A separate `dev` branch will handle the future development live page.
 - `.github/workflows/apps-script.yml` (public): push `apps-script/` changes with clasp.
 - `.github/workflows/notify.yml` (private): dispatch the public workflow on a new source, manually, or every 6 hours.
 
@@ -65,12 +100,39 @@ While the page is open, it checks for a newly published revision every 15 minute
 
 ## Deployment
 
-- Cloudflare Pages hosts the live site at https://gmi-student-timetable.pages.dev/.
-- The Cloudflare Pages production branch is `main`. There is no generated deployment branch.
-- Build command: `npm run build`. Build output directory: `dist`. Node version: 22 (`NODE_VERSION=22`).
-- Every relevant push to `main` is deployed by Cloudflare Pages. The repository workflow does not push to or force-update a deployment branch.
-- GitHub Pages is temporary. By default it serves a redirect to Cloudflare Pages that preserves the query string and hash. After one week, set the repository variable `GITHUB_PAGES_MODE` to `dev` to serve an unindexed development build from GitHub Pages instead. Leave it unset or set it to `redirect` for redirect mode.
+### Cloudflare Pages (production)
+
+- Production site: https://gmi-student-timetable.pages.dev/
+- Production branch: `main`. There is no generated deployment branch and no force-push deployment step.
+- Build command: `npm run build`. Build output directory: `dist`. Root directory: repository root. Node version: 22 (`NODE_VERSION=22`).
+- Automatic deployments are enabled for `main` only, and preview deployments are disabled. Pushes to development branches do not consume Cloudflare builds.
+- Production builds run only when one of these include paths changes:
+
+```text
+index.html
+styles.css
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.node.json
+src/**
+public/**
+scripts/**
+```
+
+- A new timetable source produces one derived-data commit under `public/`, which triggers one production build. Large code changes under `src/`, `scripts/` or the root build files also trigger one build.
+- Pushes that only touch `.github/`, `tests/`, `README.md`, `design/`, `apps-script/` or `github-pages/` do not trigger Cloudflare. The planned dev live page will cover those changes without consuming Cloudflare builds.
+- Cloudflare's free plan allows 500 builds per month. This path filter and the disabled preview deployments keep production well below that limit.
+- Keep Cloudflare's `[skip ci]` build-skipping behavior disabled so the `[skip actions]` derived-data commit still builds.
 - Cloudflare Pages compresses HTML, CSS, JavaScript and JSON with Brotli or Gzip at the edge.
+
+### GitHub Pages (redirect only for now)
+
+- GitHub Pages is currently configured for redirect mode. Its URL is intentionally omitted from this README so it is not mistaken for the production site.
+- It serves a small redirect page to Cloudflare Pages and preserves the query string and hash, keeping existing links working.
+- `GITHUB_PAGES_MODE` stays unset or set to `redirect` for now. Setting it to `dev` under **Settings → Secrets and variables → Actions → Variables** is reserved for the future development live page.
+- A separate, unindexed development live page is planned on a `dev` branch rather than `main`, so dev updates do not trigger Cloudflare builds. It is not enabled yet.
+- When that page is enabled, the dev build will write a disallow-all `robots.txt` and inject a `noindex` meta tag.
 
 The build uses esbuild for browser JavaScript, CSso for CSS and htmlnano for HTML. Generated JSON is whitespace-free and schema-compatible. The logo is a lossless AVIF served from `public/gmi-logo.avif`.
 
@@ -99,9 +161,19 @@ npm run test:e2e
 
 Set `PLAYWRIGHT_CHANNEL=chrome` to use an installed Chrome instead.
 
+## How the `.dav` timetable is reconstructed
+
+`src/dav/reader.ts` decodes a compatible legacy V30 file into the published schedule. The binary itself is never republished; only the derived data is committed.
+
+1. The decoder validates the `0x03` `V30` signature, the 20 MB limit and the little-endian tagged-value stream.
+2. It locates the calendar section and the class/staff/room/subject dictionary, reads the planning range from the header, and reads the period duration plus clock start times.
+3. It parses timetable patterns, lessons and slots. A 64-bit mask selects each lesson's week offsets, `CWnn` pattern names anchor weeks to ISO dates (4 January is always week 1), and each slot stores the weekday, period, room and lecturer.
+4. Each lesson is expanded across its active weeks, grouped by day/lecturer/room and merged into consecutive-period blocks. IDs are mapped to names, calendar exceptions are applied, and start/end times are emitted in `Asia/Kuala_Lumpur`.
+5. `scripts/prepare_dav.ts` writes compact class and lecturer JSON, the manifest and class-only `.ics` files. Local editing patches only the selected slot bytes and note text in a copy, re-decodes the result, and preserves every other byte on export.
+
 ## Data and deployment
 
-Generated class and lecturer datasets are checked in under `public/`. Normal updates are automated: the workflow selects the newest source from the private archive, regenerates derived data, tests it, commits `public/` and builds. Cloudflare Pages rebuilds `main` and publishes `dist/`; GitHub Pages serves the redirect or the development build.
+Generated class and lecturer datasets are checked in under `public/`. Normal updates are automated: the workflow selects the newest source from the private archive, regenerates derived data, tests it, commits `public/` and builds. Cloudflare Pages rebuilds when a watched production path changes. GitHub Pages currently refreshes the redirect only; the unindexed dev live page is planned for a separate `dev` branch.
 
 To regenerate manually from a compatible `.dav` source, run:
 
