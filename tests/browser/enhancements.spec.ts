@@ -26,15 +26,15 @@ test('lecturer timetable includes multiple classes and exports its own calendar 
   await page.reload();
   await expect(page.locator('#lecturer-mode')).toHaveAttribute('aria-pressed', 'true');
 });
-test('mobile source status sits inside the browse bar with the book icon first', async ({ page }) => {
+test('mobile source status sits inside the browse bar without the book icon', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./?class=99178435&week=2026-10-19');
   await expect(page.locator('#latest-timetable-label')).toHaveText('R04D · 15 Oct 2026');
   const browse = (await page.locator('#compact-class-button').boundingBox())!;
-  const book = (await page.locator('.file-source-row > div:first-child svg.icon').boundingBox())!;
   const revision = (await page.locator('#latest-timetable').boundingBox())!;
-  expect(book.x).toBeLessThan(revision.x);
-  expect(revision.y).toBeGreaterThan(browse.y);
+  await expect(page.locator('.file-source-row > div:first-child > span[data-icon="book"]')).toBeHidden();
+  expect(revision.y).toBeGreaterThanOrEqual(browse.y);
+  expect(revision.y + revision.height).toBeLessThanOrEqual(browse.y + browse.height);
   await expect(page.locator('.mobile-source-group')).toHaveCSS('display', 'flex');
 });
 test('desktop date area keeps the week controls fixed', async ({ page }) => {

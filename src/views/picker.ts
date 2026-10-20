@@ -47,9 +47,9 @@ function prepareClassPicker(): void {
   search.value = '';
   const details = state.manifest.classes.map((item) => classDetails(item.name));
   const filters: Array<[HTMLSelectElement, string[], string]> = [
-    [elements.programmeFilter, details.flatMap((item) => item.programmes), 'All programmes'],
-    [elements.semesterFilter, details.map((item) => item.semester), 'All semesters'],
-    [elements.groupFilter, details.map((item) => item.group), 'All groups'],
+    [elements.programmeFilter, details.flatMap((item) => item.programmes), 'Program'],
+    [elements.semesterFilter, details.map((item) => item.semester), 'Semester'],
+    [elements.groupFilter, details.map((item) => item.group), 'Group'],
   ];
   for (const [select, values, label] of filters) {
     const prefix =

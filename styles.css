@@ -159,8 +159,10 @@ strong {
 }
 .icon-pill {
   width: 38px;
+  height: 38px;
   min-width: 38px;
   min-height: 38px;
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
@@ -174,8 +176,8 @@ strong {
   border-color: #ced4da;
 }
 .icon-pill .icon {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
 }
 .info-pill {
   background: var(--accent-soft);
@@ -487,12 +489,14 @@ main {
   color: var(--accent-text);
 }
 .summary-item strong {
-  font-size: 19px;
+  font-size: 17px;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 .summary-label {
   font-size: 12px;
+  line-height: 1.2;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -907,7 +911,9 @@ main {
   line-height: 1.7;
 }
 .site-footer p {
-  max-width: 760px;
+  max-width: none;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .site-footer strong {
   color: var(--ink);
@@ -1398,7 +1404,7 @@ main {
     gap: 7px;
   }
   .summary-item strong {
-    font-size: 18px;
+    font-size: 17px;
   }
   .lesson h3 {
     font-size: 12px;
@@ -1504,8 +1510,10 @@ main {
   }
   .header-actions .icon-pill {
     width: 44px;
+    height: 44px;
     min-width: 44px;
     min-height: 44px;
+    padding: 0;
   }
   main {
     padding: 22px 17px 116px;
@@ -1542,10 +1550,10 @@ main {
     height: 15px;
   }
   .summary-item strong {
-    font-size: 17px;
+    font-size: 16px;
   }
   .summary-label {
-    font-size: 10px;
+    font-size: 11px;
   }
   .planner {
     border-radius: 15px;
@@ -1563,6 +1571,25 @@ main {
   .planner-actions {
     margin-left: auto;
     gap: 0;
+  }
+  .week-controls,
+  .planner-actions {
+    display: contents;
+  }
+  #previous-week {
+    order: 1;
+  }
+  .week-title {
+    order: 2;
+  }
+  #next-week {
+    order: 3;
+  }
+  .share-week {
+    order: 4;
+  }
+  #today-button {
+    order: 5;
   }
   .share-week {
     width: 44px;
@@ -1601,9 +1628,7 @@ main {
     display: none;
   }
   .planner-subbar {
-    padding: 0 13px 15px;
-    display: block;
-    border-bottom: 0;
+    display: none;
   }
   .schedule-context {
     display: none;
@@ -1860,16 +1885,29 @@ main {
     text-align: center;
   }
 }
-@media (max-width: 380px) {
+@media (max-width: 360px) {
   .planner-toolbar {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'prev date next' '. share today';
+    align-items: center;
   }
-  .week-controls {
-    flex: 1 0 100%;
+  #previous-week {
+    grid-area: prev;
   }
-  .planner-actions {
-    width: 100%;
-    justify-content: flex-end;
+  .week-title {
+    grid-area: date;
+  }
+  #next-week {
+    grid-area: next;
+  }
+  #share-button {
+    grid-area: share;
+    justify-self: end;
+  }
+  #today-button {
+    grid-area: today;
+    justify-self: end;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2048,6 +2086,7 @@ main {
 }
 @media (max-width: 700px) {
   .mobile-source-group {
+    position: relative;
     display: flex;
     flex-direction: column;
     margin: 0 0 16px;
@@ -2070,18 +2109,34 @@ main {
   }
   .mobile-source-group .file-source-row {
     margin: 0;
-    padding: 8px 16px 10px;
-    border-top: 1px solid var(--line);
+    padding: 0;
+    border-top: 0;
     font-size: 11px;
     gap: 8px;
   }
-  .mobile-source-group .file-source-row > div:first-child {
-    flex-wrap: nowrap;
-    gap: 7px;
+  .mobile-source-group .file-source-row:has(#dav-export:not([hidden]), #restore-source:not([hidden])) {
+    padding: 8px 16px 10px;
+    border-top: 1px solid var(--line);
   }
-  .mobile-source-group .file-source-row > div:first-child > .icon {
-    width: 15px;
-    height: 15px;
+  .mobile-source-group .file-source-row > div:first-child {
+    position: absolute;
+    top: 32px;
+    right: 44px;
+    transform: translateY(-50%);
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    gap: 6px;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .mobile-source-group .file-source-row > div:first-child #latest-timetable {
+    pointer-events: auto;
+  }
+  .mobile-source-group .file-source-row #file-source-label {
+    display: none;
+  }
+  .mobile-source-group .file-source-row > div:first-child > span[data-icon='book'] {
+    display: none;
   }
   .mobile-source-group .revision-notice {
     min-height: 30px;
@@ -2107,6 +2162,15 @@ main {
   }
   .local-file-note {
     font-size: 11px;
+  }
+}
+@media (max-width: 360px) {
+  .mobile-source-group .file-source-row > div:first-child {
+    right: 38px;
+  }
+  .mobile-source-group .file-source-row .revision-notice {
+    padding: 4px 8px;
+    font-size: 10px;
   }
 }
 
@@ -2207,6 +2271,13 @@ main {
   }
   .class-dialog .dialog-heading h2 {
     font-size: 22px;
+  }
+  .class-filters {
+    grid-template-columns: 1fr 1.15fr 0.85fr;
+  }
+  .class-filters select {
+    padding: 8px;
+    font-size: 13px;
   }
   .class-results {
     grid-template-columns: 1fr;
@@ -2426,9 +2497,6 @@ summary {
 }
 .theme-toggle {
   justify-content: center;
-  padding: 7px;
-  width: 38px;
-  min-width: 38px;
 }
 .theme-toggle .icon {
   width: 18px;
@@ -2438,7 +2506,9 @@ summary {
   .theme-toggle {
     width: 44px;
     min-width: 44px;
-    padding: 8px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
   }
 }
 :root[data-theme='dark'] {

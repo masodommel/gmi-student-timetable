@@ -32,9 +32,9 @@ export function renderSummary(events: TimetableEvent[]): void {
   const hours = events.reduce((sum, event) => sum + minutes(event.end) - minutes(event.start), 0) / 60;
   const rooms = new Set(events.map((event) => event.room).filter(Boolean)).size;
   elements.summary.innerHTML = [
-    { value: events.length, label: 'lessons', icon: 'book' },
-    { value: Number(hours.toFixed(1)), label: 'hours', icon: 'clock' },
-    { value: rooms, label: 'rooms', icon: 'pin' },
+    { value: events.length, label: 'Lessons', icon: 'book' },
+    { value: Number(hours.toFixed(1)), label: 'Hours', icon: 'clock' },
+    { value: rooms, label: 'Rooms', icon: 'pin' },
   ]
     .map((item) => summaryItem(item.value, item.label, item.icon))
     .join('');

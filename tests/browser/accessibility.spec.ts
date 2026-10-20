@@ -26,6 +26,6 @@ test('student timetable and dialogs meet automated WCAG A/AA checks', async ({ p
   await page.setViewportSize({ width: 320, height: 740 });
   await audit();
   await page.screenshot({ path: test.info().outputPath('mobile.png'), fullPage: true });
-  await page.locator('#compact-class-button').click();
+  await page.locator('#compact-class-button').click({ position: { x: 20, y: 32 } });
   await audit();
 });

@@ -12,6 +12,11 @@ test('student chooses a class, browses lessons, and downloads only its calendar'
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('./?week=2026-10-12');
+  const footerLines = await page.locator('.site-footer p').evaluate((element) => {
+    const style = getComputedStyle(element);
+    return element.getBoundingClientRect().height / Number.parseFloat(style.lineHeight);
+  });
+  expect(footerLines).toBeLessThan(1.5);
   await page.getByRole('button', { name: 'Find my class' }).click();
   await page.getByRole('searchbox', { name: 'Search classes' }).fill('SEM 3 DMCH 1');
   await page.locator(`[data-class-id="${classId}"]`).click();
@@ -19,6 +24,9 @@ test('student chooses a class, browses lessons, and downloads only its calendar'
   await expect(page.locator('#class-button')).toHaveAttribute('data-mode', 'class');
   await expect(page.locator('.week-grid')).toBeVisible();
   await expect(page.locator('.lesson').first()).toBeVisible();
+  await expect(page.locator('#subject-search')).toBeVisible();
+  await expect(page.locator('.file-source-row > div:first-child > span[data-icon="book"]')).toBeVisible();
+  await expect(page.locator('.summary-label')).toHaveText(['Lessons', 'Hours', 'Rooms']);
   await page.locator('.lesson').first().click();
   await expect(page.locator('#lesson-dialog')).toBeVisible();
   await expect(page.locator('#lesson-content')).toContainText('KUALA LUMPUR');
@@ -58,6 +66,11 @@ test('mobile adapts to day agenda and keeps calendar export reachable', async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./' + selectedUrl);
   await expect(page.locator('.agenda-list')).toBeVisible();
+  await expect(page.locator('#subject-search')).toBeHidden();
+  const share = (await page.locator('#share-button').boundingBox())!;
+  const today = (await page.locator('#today-button').boundingBox())!;
+  expect(share.x).toBeLessThan(today.x);
+  expect(Math.abs(share.y - today.y)).toBeLessThan(2);
   await page.locator('[data-day="2026-10-12"]').click();
   await expect(page.locator('.agenda-events .lesson').first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
