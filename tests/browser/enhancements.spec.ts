@@ -5,8 +5,11 @@ import { decodeDav } from '../../src/dav/index.js';
 
 test('lecturer timetable includes multiple classes and exports its own calendar and share URL', async ({ page }) => {
   await page.goto('./?class=99178435&week=2026-10-12');
-  await page.getByRole('button', { name: 'By lecturer', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Find a lecturer' })).toBeVisible();
+  await page.locator('#class-button').click();
+  await page.locator('#lecturer-mode').click();
+  await expect(page.getByRole('heading', { name: 'Find a Lecturer' })).toBeVisible();
+  await expect(page.locator('#class-button')).toHaveAttribute('data-mode', 'lecturer');
+  await expect(page.locator('#class-name')).toHaveText('Lecturer');
   await page.locator('#class-search').fill('AZIZ');
   await expect(page.locator('.class-option').first()).toBeVisible();
   await page.locator('.class-option').first().click();
@@ -23,10 +26,124 @@ test('lecturer timetable includes multiple classes and exports its own calendar 
   await page.reload();
   await expect(page.locator('#lecturer-mode')).toHaveAttribute('aria-pressed', 'true');
 });
+test('mobile source status sits inside the browse bar with the book icon first', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await expect(page.locator('#latest-timetable-label')).toHaveText('R04D · 15 Oct 2026');
+  const browse = (await page.locator('#compact-class-button').boundingBox())!;
+  const book = (await page.locator('.file-source-row > div:first-child svg.icon').boundingBox())!;
+  const revision = (await page.locator('#latest-timetable').boundingBox())!;
+  expect(book.x).toBeLessThan(revision.x);
+  expect(revision.y).toBeGreaterThan(browse.y);
+  await expect(page.locator('.mobile-source-group')).toHaveCSS('display', 'flex');
+});
+test('desktop date area keeps the week controls fixed', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await expect(page.locator('.lesson').first()).toBeVisible();
+  const position = async () => ({
+    previous: (await page.locator('#previous-week').boundingBox())!,
+    date: (await page.locator('#week-label').boundingBox())!,
+    next: (await page.locator('#next-week').boundingBox())!,
+    today: (await page.locator('#today-button').boundingBox())!,
+  });
+  const before = await position();
+  expect(before.date.width).toBe(190);
+  expect(before.date.x).toBeGreaterThanOrEqual(before.previous.x + before.previous.width);
+  expect(before.date.x + before.date.width).toBeLessThanOrEqual(before.next.x);
+  await page.locator('#next-week').click();
+  await expect(page.locator('#week-label')).toHaveText('26 Oct–1 Nov 2026');
+  const after = await position();
+  expect(after.previous.x).toBe(before.previous.x);
+  expect(after.next.x).toBe(before.next.x);
+  expect(after.today.x).toBe(before.today.x);
+  expect(after.date.width).toBe(before.date.width);
+});
+test('cookie notice opens the privacy policy', async ({ page }) => {
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await expect(page.locator('.site-footer')).toContainText('Cookie notice.');
+  await page.locator('#privacy-button').click();
+  await expect(page.getByRole('heading', { name: 'Privacy policy' })).toBeVisible();
+  await expect(page.locator('#privacy-dialog')).toContainText('gmi-theme');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#privacy-dialog')).not.toBeVisible();
+});
+test('week date stays between its arrows and mobile swipes step through days', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await expect(page.locator('.agenda-list')).toBeVisible();
+  await page.locator('[data-day="2026-10-20"]').click();
+  await expect(page.locator('#today-button')).toHaveText('Today');
+  await expect(page.locator('#week-label')).toHaveText('19–25 Oct 2026');
+  const label = (await page.locator('#week-label').boundingBox())!,
+    previous = (await page.locator('#previous-week').boundingBox())!,
+    next = (await page.locator('#next-week').boundingBox())!;
+  expect(label.x).toBeGreaterThanOrEqual(previous.x + previous.width);
+  expect(label.x + label.width).toBeLessThanOrEqual(next.x);
+  const fit = await page.locator('#week-label').evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      clipped: element.scrollWidth > element.clientWidth,
+      scrollWidth: element.scrollWidth,
+      clientWidth: element.clientWidth,
+      fontSize: Number.parseFloat(style.fontSize),
+      height: element.getBoundingClientRect().height,
+    };
+  });
+  expect(fit.clipped).toBe(false);
+  expect(fit.height).toBeLessThanOrEqual(fit.fontSize * 1.6);
+  const swipe = (from: number, to: number) =>
+    page.evaluate(
+      ({ from, to }) => {
+        const target = document.querySelector('#schedule')!;
+        const touch = (x: number) =>
+          new Touch({
+            identifier: 1,
+            target,
+            clientX: x,
+            clientY: 320,
+            pageX: x,
+            pageY: 320,
+            screenX: x,
+            screenY: 320,
+            radiusX: 1,
+            radiusY: 1,
+            rotationAngle: 0,
+            force: 1,
+          });
+        const start = touch(from);
+        const end = touch(to);
+        target.dispatchEvent(
+          new TouchEvent('touchstart', {
+            bubbles: true,
+            cancelable: true,
+            touches: [start],
+            targetTouches: [start],
+            changedTouches: [start],
+          }),
+        );
+        target.dispatchEvent(
+          new TouchEvent('touchend', {
+            bubbles: true,
+            cancelable: true,
+            touches: [],
+            targetTouches: [],
+            changedTouches: [end],
+          }),
+        );
+      },
+      { from, to },
+    );
+  await swipe(100, 220);
+  await expect(page.locator('[data-day="2026-10-21"]')).toHaveAttribute('aria-pressed', 'true');
+  await swipe(220, 100);
+  await expect(page.locator('[data-day="2026-10-20"]')).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('accessibility preferences persist, dialogs return focus and mobile layout remains usable', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto('./?class=99178435&week=2026-10-12');
-  await page.getByRole('button', { name: 'Accessibility', exact: true }).click();
+  await page.getByRole('button', { name: 'Accessibility preferences', exact: true }).click();
   for (const id of ['large-text', 'high-contrast', 'reduce-motion', 'agenda-default'])
     await page.locator('#' + id).check();
   await page.keyboard.press('Escape');

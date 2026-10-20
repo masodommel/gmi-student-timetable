@@ -35,7 +35,7 @@ test('a local DAV file replaces the schedule and exports only its selected class
   expect(requests.some((request) => request.url.endsWith('/data/1.json'))).toBe(false);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Use provided timetable', exact: true }).click();
-  await expect(page.locator('#file-source-label')).toHaveText('Using the provided timetable');
+  await expect(page.locator('#file-source-label')).toBeHidden();
   await page.getByRole('button', { name: 'Find my class' }).click();
   await expect(page.locator('.class-option')).toHaveCount(178);
 });
@@ -51,7 +51,7 @@ test('an unsupported file keeps the existing timetable and offers a clear error'
   });
   await expect(page.locator('#file-error')).toContainText('layout');
   await page.keyboard.press('Escape');
-  await expect(page.locator('#class-name')).toHaveText('SEM 3 - DMCH 1');
+  await expect(page.locator('#class-name')).toHaveText('Class');
   await expect(page.locator('.lesson').first()).toBeVisible();
 });
 

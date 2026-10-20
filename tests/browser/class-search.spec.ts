@@ -3,6 +3,8 @@ test('students find classes without exact labels or typing at all', async ({ pag
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
   await page.getByRole('button', { name: 'Find my class' }).click();
+  await expect(page.getByRole('heading', { name: 'Find a Class' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Class', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.locator('#class-search').fill('semester3 dmch group1');
   await expect(page.locator('.class-option')).toHaveCount(1);
   await expect(page.locator('.class-option')).toContainText('SEM 3 - DMCH 1');

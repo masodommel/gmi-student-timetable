@@ -15,7 +15,8 @@ test('student chooses a class, browses lessons, and downloads only its calendar'
   await page.getByRole('button', { name: 'Find my class' }).click();
   await page.getByRole('searchbox', { name: 'Search classes' }).fill('SEM 3 DMCH 1');
   await page.locator(`[data-class-id="${classId}"]`).click();
-  await expect(page.locator('#class-name')).toHaveText('SEM 3 - DMCH 1');
+  await expect(page.locator('#class-name')).toHaveText('Class');
+  await expect(page.locator('#class-button')).toHaveAttribute('data-mode', 'class');
   await expect(page.locator('.week-grid')).toBeVisible();
   await expect(page.locator('.lesson').first()).toBeVisible();
   await page.locator('.lesson').first().click();
@@ -49,7 +50,7 @@ test('shared class/week links, search, reload persistence and empty weeks work',
   await page.locator('#week-date').fill('2027-01-25');
   await expect(page.getByText('No classes listed this week')).toBeVisible();
   await page.goto('./?week=2026-10-12');
-  await expect(page.locator('#class-name')).toHaveText('SEM 3 - DMCH 1');
+  await expect(page.locator('#class-name')).toHaveText('Class');
   await expect(page.locator('.lesson').first()).toBeVisible();
 });
 
