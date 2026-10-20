@@ -9,9 +9,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run format:check && npm run typecheck && tsx scripts/check-data.ts && node --import tsx --test tests/core.test.ts tests/dav.test.ts tests/class-search.test.ts tests/advisories.test.ts tests/air-quality.test.ts",
-    "test:e2e": "playwright test",
-    "update:air": "tsx scripts/update-air-quality.ts"
+    "test": "npm run format:check && npm run typecheck && tsx scripts/check-data.ts && node --import tsx --test tests/core.test.ts tests/dav.test.ts tests/class-search.test.ts tests/online-notes.test.ts",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
