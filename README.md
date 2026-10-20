@@ -12,7 +12,8 @@ A responsive student timetable with class selection and class-only calendar expo
 - Share a URL containing the class and selected week.
 - Download a class-only `.ics` file, with import guidance for Google Calendar, Apple Calendar and Outlook.
 - Open a compatible legacy DaVinci `.dav` file on the device, choose its class, and export a class-only calendar without uploading the file.
-- Responsive layouts, keyboard-accessible dialogs and retry/empty/loading states.
+- Switch between light and dark themes; the dark theme uses a Calagopus-style neutral palette.
+- Responsive layouts, keyboard-accessible dialogs, accessibility preferences and retry/empty/loading states.
 
 No student login or backend is required. Data is loaded one class at a time. The deployment does not publish the original binary or forensic raw-field exports.
 
@@ -83,20 +84,24 @@ The `Publish student timetable` workflow checks the datasets and date/search log
 
 - Every class calendar is checked against its class JSON: counts, dates, start/end times, unique UIDs, timezone, tentative status, UTF-8 line folding and date bounds.
 - Unit checks cover Malaysia’s date boundary, week navigation, search, shared links, safe calendar paths and HTML escaping.
-- Browser checks cover class selection, calendar download content, lesson details, search, empty weeks, saved selections, request retry, desktop weekly columns and mobile widths down to 320px.
+- Browser checks cover class selection, calendar download content, lesson details, search, empty weeks, saved selections, request retry, desktop weekly columns, mobile widths down to 320px, one-line date-range fitting, mobile day swipes, the mobile source/Browse bar and the cookie/privacy footer.
 - Import checks use synthetic files with different counts, names and start times; test malformed/oversized inputs; verify local-only processing, cancellation and restore; and compare all 23,203 reference-file entries with the published datasets locally.
 
 Calendar imports themselves have not been exercised in the user’s calendar account. Import instructions link to official vendor guides within the app.
 
 ## Lecturer timetable viewing
 
-Choose **By lecturer**, then search a lecturer name. The view combines that name's entries across classes and includes resource/activity entries without a class. Class names appear on cards and in calendar descriptions. Lecturer calendars are generated locally from the selected dataset; provided-source lecturer/week links can be shared. Names are grouped by the recovered display label, so identical staff labels cannot be distinguished as separate people. The current reference has 246 nonempty lecturer/resource labels with 26,453 dated entries; these are source records, not counts of people.
+Open **Browse**, choose **Lecturer**, then search a lecturer name. The view combines that name's entries across classes and includes resource/activity entries without a class. The Browse trigger shows a green cube for Class and a red cube for Lecturer. Class names appear on cards and in calendar descriptions. Lecturer calendars are generated locally from the selected dataset; provided-source lecturer/week links can be shared. Names are grouped by the recovered display label, so identical staff labels cannot be distinguished as separate people. The current reference has 246 nonempty lecturer/resource labels with 26,453 dated entries; these are source records, not counts of people.
 
 ## Accessibility
 
-**Accessibility** opens preferences for larger text, high contrast, reduced motion and an agenda default. Preferences persist on the current device. System reduced-motion preferences and forced-colour modes are respected. Controls have visible focus indicators, dialogs use native keyboard/focus handling, mobile day selection retains focus after rendering, and concise status updates replace announcements of the whole timetable. Lesson names include date, class and warning status. Contrast for muted/empty-state text and links has been improved.
+The wheelchair button in the header opens accessibility preferences for larger text, high contrast, reduced motion and an agenda default. Preferences persist on the current device. System reduced-motion preferences and forced-colour modes are respected. Controls have visible focus indicators, dialogs use native keyboard/focus handling, mobile day selection retains focus after rendering, and concise status updates replace announcements of the whole timetable. Lesson names include date, class and warning status. Contrast for muted/empty-state text and links has been improved.
 
-Automated axe WCAG A/AA checks cover the planner, lesson and accessibility dialogs, and the narrow-phone class picker with larger text and high contrast. Passing these checks is not a full WCAG conformance claim or a substitute for assistive-technology testing.
+A sun/moon button in the header switches between the light and dark theme. The dark theme follows the system colour preference until you choose one; the choice is stored in a `gmi-theme` cookie, and no other preference is written to cookies. The theme is applied before first paint so the page does not flash the wrong colours. Dark mode uses the neutral Calagopus/Mantine palette: `#242424` page, `#2e2e2e` surfaces, `#424242` borders and `#c9c9c9` text, with blue accents. The transparent GMI logo keeps its original blue and red colours and receives a subtle white glow instead of being recoloured by a CSS filter.
+
+On mobile, the source revision sits inside the Browse bar with the book icon on the left. The page footer carries the cookie notice and opens an in-app privacy policy covering the theme cookie, saved preferences, local file processing and external links.
+
+Automated axe WCAG A/AA checks cover the planner, lesson and accessibility dialogs, the narrow-phone class picker with larger text and high contrast, and the dark theme. Passing these checks is not a full WCAG conformance claim or a substitute for assistive-technology testing.
 
 ## Experimental DAV editing and export
 
@@ -124,36 +129,8 @@ The generator validates the complete source through the browser reader before re
 
 A small revision pill identifies the latest provided timetable. Its New dot is remembered separately from class selection and clears when source details are opened. A future source hash shows the dot again. Local imports display “Local file loaded” and do not acknowledge the provided revision. The dot indicates a revision new to this browser, not an automatic background update or an official approval status. Calendar snapshots already imported into other apps do not update automatically.
 
-## Haze precautions and class delivery
+## Online source notes
 
-A maintained Kajang haze reminder is configured in `advisories.js`. The initial notice runs from 18 through 25 October 2026 (Kuala Lumpur dates) and then disappears unless its window is deliberately updated. It provides a respiratory-protection reminder linked to Malaysian Ministry of Health guidance, an official APIMS link, and a prompt to check lecturer messages or GMI announcements before campus travel. The precaution itself does not assert a live API reading or an official GMI class-change notice; the separate air-quality card provides dated DOE station snapshots.
+Some timetable notes explicitly say **Online Class** or **Online Class via �**. Those lessons show an �Online � source note� label on the card and a reminder in the lesson details. Negated or cancelled online notes are ignored, and a missing room or a room named �Online� never confirms online teaching by itself.
 
-Upcoming lessons within the active window receive “Confirm class delivery” prompts. “Online · source note” labels require explicit wording in the timetable note; haze alone, an absent room or a room named Online never confirms online teaching. Negated/cancelled online notes are excluded. Lesson details explain that source notes still need current confirmation. Neither the DAV nor calendar exports are changed by these UI reminders.
-
-The reminder can be collapsed and reopened; the preference is stored per advisory ID on the current device. Updating the advisory ID presents a revised notice again. Review the dates and guidance links when extending the window; do not extend it as evidence of current air quality or a campus closure. The date window is re-evaluated when the tab becomes visible again.
-
-Guidance reviewed on 18 October 2026:
-- Ministry of Health: https://www.moh.gov.my/teras/info-kesihatan/jerebu/artikel-dan-panduan-pengguna-berkaitan-jerebu/usage-of-personal-protection-during-haze
-- Department of Environment APIMS: https://eqms.doe.gov.my/APIMS/main
-
-## Latest air quality
-
-The air-quality card displays Malaysian API/IPU readings from DOE's public APIMS map feed, with a named Putrajaya reference station and optional Cheras reference. These are regional stations, not measurements at GMI's campus or a claim to be the nearest sensor. The value, category and observation time are separate from the time our snapshot was fetched. Class delivery is never inferred from air quality.
-
-A server-side step retrieves `https://eqms.doe.gov.my/api3/publicportalapims/mapcaqm`, the feed used by the official public portal. The source restricts browser cross-origin access, so GitHub Pages serves a small same-origin JSON snapshot. The existing Pages workflow refreshes it on deployment and at minute 17 of each hour. Scheduled runs can be delayed; the UI always evaluates the age of the observation. No API key, tracking or browser location access is required.
-
-The source's `RECORD_DT` is a Malaysian wall-clock string without an offset; the official public client parses this string locally. Our normaliser explicitly applies `+08:00` so visitors in other time zones see the same instant. Only the configured station IDs, names, integer API values, matching API categories and timestamps are published. Unknown, inconsistent or implausibly future readings are rejected. No operator contact fields or full feed archives are published.
-
-Readings older than three hours show “Outdated reading” and remain labelled as last-known information. After 24 hours the number is hidden as unavailable. Source/network failures preserve the last successfully retrieved observation without resetting its timestamp. A station request failure is independent of timetable loading. Browser refresh retrieves the latest published snapshot; it cannot force a new DOE observation. Open tabs check snapshots about every 15 minutes while visible and re-evaluate freshness each minute without repeating unchanged screen-reader announcements.
-
-```sh
-npm run update:air
-npm run build
-```
-
-Attribution and full official readings: https://eqms.doe.gov.my/APIMS/main
-
-
-## Compact campus updates
-
-Air quality and haze precautions share a collapsed-by-default Air & campus updates strip. The summary shows the selected station, reading/category, observation time, stale/unavailable status and a short active haze reminder. Tap or use Enter/Space on the summary to reveal guidance, attribution, station selection and refresh controls. The section starts closed on each page load so the timetable remains the primary view; background reading refresh continues while it is closed.
+The label reflects the timetable source only. Confirm the latest arrangements and meeting link with your lecturer. Neither the DAV nor calendar exports are changed by these reminders.

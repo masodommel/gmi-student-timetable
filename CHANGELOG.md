@@ -1,5 +1,29 @@
 # Changelog
 
+## 20 October 2026 - Calagopus-inspired redesign
+
+- Rebuilt both themes around a neutral Calagopus/Mantine palette: `#f0eff0` light canvas, `#242424` dark canvas, `#2e2e2e` surfaces, `#424242` borders and blue accents. Muted dark text uses `#b8b8b8` for WCAG AA contrast.
+- Replaced the CSS wordmark with the transparent `gmi-logo.png` in both themes. The blue logo is no longer recoloured; dark mode adds a wide, slowly pulsing white glow for contrast, disabled when reduced motion is requested.
+- Removed the hero copy and header timezone, moved Share week into the planner toolbar, replaced the text actions with icon-only accessibility, blue info and upload buttons, and condensed the summary strip.
+- Replaced the class search trigger with **Browse**, a green Class cube or red Lecturer cube, and a compact mode label. The picker now opens with **Find a Class** or **Find a Lecturer** and two condensed mode buttons.
+- Removed the visible “Week of” label, changed “This week” to **Today**, and kept the compact date range on one responsive line. Mobile users can swipe the schedule right for the next date or left for the previous date.
+- On mobile, moved the source revision into the Browse bar with the book icon at the left. On desktop, gave the date range a fixed width so the week arrows no longer move, and centred the **Today** label.
+- Added a bottom cookie notice and an in-app privacy policy covering the theme cookie, local preferences, on-device file processing and external links.
+- Removed the campus conditions, haze precautions and air-quality UI, data, refresh script, workflow schedule and related tests. Explicit “Online · source note” labels remain.
+- Updated the light/dark screenshots, theme assertions and accessibility selectors for the new header, summary, picker and palette.
+
+## 20 October 2026 - Dark mode
+
+- Added a sun/moon toggle in the header that switches between the light and dark theme.
+- The dark theme uses the five-colour brand palette and follows the system colour preference until a choice is made.
+- The chosen theme is saved in a `gmi-theme` cookie; no other preference is stored in cookies.
+- A small `theme-boot` script applies the theme before first paint to avoid a flash of the wrong colours.
+- The dark theme replaces the CSS wordmark with the supplied transparent `gmi-logo.png`; the mark is centered, enlarged and recoloured with an `invert`/`hue-rotate` filter instead of a light plate.
+- The topbar uses the deepest surface `#181A1B`; the page canvas and controls use `--color-dark` (`#141243`) so inputs and view switches no longer render as near-black patches.
+- Lesson cards use palette-alpha tints in dark mode; the brown "warm" tone, empty-day marker and focus outlines were brought back onto the brand palette.
+- Raised the smallest text sizes (7-8px labels now 9-10px) and released the campus-updates chevron as an SVG icon.
+- Added Playwright coverage for toggling, cookie-only persistence, reload, dark-theme accessibility and light/dark review screenshots.
+
 ## 20 October 2026 - TypeScript migration
 
 - Rewrote the browser modules, unit tests, browser tests and Node scripts in TypeScript with `strict` enabled; the Python data checks are unchanged.
