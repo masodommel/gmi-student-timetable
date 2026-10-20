@@ -2,7 +2,7 @@ import { exceptionsFor, state } from '../state.js';
 import { addDays, escapeHtml as esc, formatDate, localToday, minutes } from '../timetable/core.js';
 import type { TimetableEvent } from '../timetable/types.js';
 import { elements } from '../ui/elements.js';
-import { dayException, lessonCard, modeReminder, summaryItem } from './templates.js';
+import { dayException, lessonCard, summaryItem } from './templates.js';
 
 export function renderWeek(events: TimetableEvent[]): string {
   const today = localToday();
@@ -16,7 +16,6 @@ export function renderWeek(events: TimetableEvent[]): string {
 
 function renderWeekCard(event: TimetableEvent): string {
   return lessonCard(event, {
-    reminder: modeReminder(event),
     lecturerMode: state.mode === 'lecturer',
     className: state.selected?.name || '',
   });
@@ -33,9 +32,9 @@ export function renderSummary(events: TimetableEvent[]): void {
   const hours = events.reduce((sum, event) => sum + minutes(event.end) - minutes(event.start), 0) / 60;
   const rooms = new Set(events.map((event) => event.room).filter(Boolean)).size;
   elements.summary.innerHTML = [
-    { value: events.length, label: 'lessons this week', icon: 'book' },
-    { value: Number(hours.toFixed(1)), label: 'scheduled hours', icon: 'clock' },
-    { value: rooms, label: 'rooms this week', icon: 'pin' },
+    { value: events.length, label: 'lessons', icon: 'book' },
+    { value: Number(hours.toFixed(1)), label: 'hours', icon: 'clock' },
+    { value: rooms, label: 'rooms', icon: 'pin' },
   ]
     .map((item) => summaryItem(item.value, item.label, item.icon))
     .join('');

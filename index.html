@@ -3,35 +3,69 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#132f3d" />
+    <meta name="theme-color" content="#ffffff" />
     <meta
       name="description"
       content="Choose your GMI class, view your weekly timetable, and export it to your own calendar."
     />
     <title>GMI Student Timetable</title>
+    <script src="./theme-boot.js"></script>
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./app.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to timetable</a>
     <header class="topbar">
-      <a class="wordmark" href="./" aria-label="GMI Student Timetable home"
-        ><strong>GMI<span class="wordmark-dot">.</span></strong
-        ><span class="wordmark-label">Student timetable</span></a
-      >
+      <a class="wordmark" href="./" aria-label="GMI Student Timetable home">
+        <img class="wordmark-logo" src="./gmi-logo.png" alt="" width="1024" height="699" />
+        <span class="wordmark-label">Student timetable</span>
+      </a>
       <div class="header-actions">
-        <button id="accessibility-button" class="source-pill" aria-haspopup="dialog">Accessibility</button
-        ><button id="quality-button" class="source-pill"><span class="status-dot"></span>Reconstructed schedule</button
-        ><span class="timezone">Kuala Lumpur · MYT</span>
+        <button
+          id="theme-toggle"
+          class="icon-pill theme-toggle"
+          aria-pressed="false"
+          aria-label="Switch to dark theme"
+          title="Switch to dark theme"
+        >
+          <span id="theme-icon" data-icon="moon"></span>
+        </button>
+        <button
+          id="accessibility-button"
+          class="icon-pill"
+          aria-haspopup="dialog"
+          aria-label="Accessibility preferences"
+          title="Accessibility preferences"
+        >
+          <span data-icon="wheelchair"></span>
+        </button>
+        <button
+          id="quality-button"
+          class="icon-pill info-pill"
+          aria-haspopup="dialog"
+          aria-label="Timetable information and status"
+          title="Timetable info"
+        >
+          <span data-icon="info"></span>
+        </button>
+        <button
+          id="open-file-button"
+          class="icon-pill"
+          aria-haspopup="dialog"
+          aria-label="Open timetable file"
+          title="Open timetable file"
+        >
+          <span data-icon="upload"></span>
+        </button>
       </div>
     </header>
     <div class="app-shell">
       <aside class="rail" aria-label="Class and calendar controls">
         <div class="rail-top">
-          <p class="eyebrow">YOUR CLASS</p>
-          <button id="class-button" class="class-switch" aria-haspopup="dialog">
-            <span><small>Choose your class</small><strong id="class-name">Let’s get you started</strong></span
-            ><span data-icon="arrows"></span>
+          <button id="class-button" class="class-switch" data-mode="class" aria-haspopup="dialog">
+            <span class="class-switch-icon" data-icon="cube"></span>
+            <span class="class-switch-copy"><strong>Browse</strong><small id="class-name">Class</small></span
+            ><span class="class-switch-arrows" data-icon="arrows"></span>
           </button>
         </div>
         <div class="rail-menu">
@@ -56,102 +90,30 @@
         </div>
       </aside>
       <main id="main" tabindex="-1">
-        <div class="compact-class-row">
-          <button id="compact-class-button" class="class-switch" aria-haspopup="dialog">
-            <span><small>YOUR CLASS</small><strong id="compact-class-name">Choose your class</strong></span
-            ><span data-icon="arrows"></span>
-          </button>
-        </div>
-        <div class="page-heading">
-          <div>
-            <p class="eyebrow" id="greeting">YOUR STUDENT PLANNER</p>
-            <h1>Your week, at a glance<span>.</span></h1>
-            <p class="heading-description" id="heading-description">Less searching. More time for what’s next.</p>
-          </div>
-          <button id="share-button" class="button secondary" disabled>
-            <span data-icon="share"></span><span>Share week</span>
-          </button>
-        </div>
-        <details id="campus-conditions" class="campus-conditions">
-          <summary id="conditions-toggle">
-            <span class="conditions-title">Air &amp; campus updates</span
-            ><span id="air-brief" class="conditions-reading" role="status" aria-live="polite">Loading air quality…</span
-            ><small id="haze-brief" hidden>Haze: confirm class mode · remember respiratory protection</small>
-          </summary>
-          <div class="conditions-details">
-            <section id="haze-advisory" class="haze-advisory" aria-labelledby="haze-title" hidden>
-              <div class="haze-heading">
-                <h2 id="haze-title">Haze precautions · Kajang</h2>
-                <button id="haze-toggle" class="text-button" aria-expanded="true" aria-controls="haze-details">
-                  Hide haze reminder
-                </button>
-              </div>
-              <div id="haze-details">
-                <p>
-                  <strong>Check before travelling.</strong> Some classes may switch online during haze. Check your
-                  lecturer’s latest messages or GMI announcements before leaving for campus.
-                </p>
-                <p>
-                  <strong>Remember respiratory protection outdoors.</strong> During haze, use a correctly fitted
-                  respirator such as an N95, following MOH guidance on suitability and use.
-                </p>
-                <p class="haze-status">Precautionary reminder, not a confirmed GMI class-change notice.</p>
-                <div class="haze-links">
-                  <a id="haze-air-link" target="_blank" rel="noopener">Check official air quality (APIMS) ↗</a
-                  ><a id="haze-health-link" target="_blank" rel="noopener">MOH mask guidance ↗</a>
-                </div>
-                <p class="haze-date">Added 18 Oct 2026 · Review by 25 Oct 2026</p>
-              </div>
-            </section>
-            <section id="air-quality" class="air-quality" aria-labelledby="air-title" aria-busy="true">
-              <div class="air-heading">
-                <h2 id="air-title">Latest air quality</h2>
-                <button id="air-refresh" class="button secondary" aria-label="Refresh reading">Refresh</button>
-              </div>
-              <label for="air-station">Reference station</label
-              ><select id="air-station" aria-describedby="air-location-note"></select>
-              <div id="air-result" role="status" aria-live="polite" aria-atomic="true">
-                <p>Loading latest station reading…</p>
-              </div>
-              <p id="air-location-note">
-                Regional reference, not a campus measurement. Confirm class delivery with your lecturer.
-              </p>
-              <p class="air-source-note">
-                Source:
-                <a
-                  id="air-source"
-                  aria-label="Department of Environment APIMS official readings"
-                  href="https://eqms.doe.gov.my/APIMS/main"
-                  target="_blank"
-                  rel="noopener"
-                  >DOE / APIMS ↗</a
-                >. Hourly snapshot; may be delayed.
-              </p>
-            </section>
-          </div>
-        </details>
-        <div class="file-source-row">
-          <div>
-            <span data-icon="book"></span><span id="file-source-label">Using the provided timetable</span
-            ><button id="latest-timetable" class="revision-notice" aria-haspopup="dialog" hidden>
-              <span id="revision-new-dot" class="revision-new-dot" aria-hidden="true" hidden></span
-              ><span id="latest-timetable-label"></span>
+        <div class="mobile-source-group">
+          <div class="compact-class-row">
+            <button id="compact-class-button" class="class-switch" data-mode="class" aria-haspopup="dialog">
+              <span class="class-switch-icon" data-icon="cube"></span>
+              <span class="class-switch-copy"><strong>Browse</strong><small id="compact-class-name">Class</small></span
+              ><span class="class-switch-arrows" data-icon="arrows"></span>
             </button>
           </div>
-          <div class="file-source-actions">
-            <button id="restore-source" class="text-button" hidden>Use provided timetable</button
-            ><button id="open-file-button" class="button secondary">
-              <span data-icon="external"></span>Open timetable file
-            </button>
+          <div class="file-source-row">
+            <div>
+              <span data-icon="book"></span><span id="file-source-label" hidden></span
+              ><button id="latest-timetable" class="revision-notice" aria-haspopup="dialog" hidden>
+                <span id="revision-new-dot" class="revision-new-dot" aria-hidden="true" hidden></span
+                ><span id="latest-timetable-label"></span>
+              </button>
+            </div>
+            <div class="file-source-actions">
+              <button id="dav-export" class="button secondary" hidden>Export DAV</button
+              ><button id="restore-source" class="text-button" hidden>Use provided timetable</button>
+            </div>
           </div>
         </div>
-        <div class="audience-controls" role="group" aria-label="Timetable audience">
-          <button id="student-mode" class="button secondary" aria-pressed="true">By class</button
-          ><button id="lecturer-mode" class="button secondary" aria-pressed="false">By lecturer</button
-          ><button id="dav-export" class="button secondary" disabled>Export DAV</button>
-        </div>
-        <p id="dav-hint" class="file-help">
-          To edit and export a DAV, open your original file. Downloads preserve the full timetable.
+        <p id="dav-hint" class="file-help" hidden>
+          Local edits affect recurring lessons. Export DAV saves the full file; verify it in DaVinci.
         </p>
         <section class="summary" id="summary" aria-label="Week summary" hidden></section>
         <section class="planner" aria-label="Timetable">
@@ -161,19 +123,23 @@
                 <span data-icon="chevron"></span>
               </button>
               <div class="week-title">
-                <label for="week-date" class="eyebrow">WEEK OF</label
-                ><input type="date" id="week-date" aria-label="Choose a timetable date" disabled /><strong
+                <input type="date" id="week-date" aria-label="Choose a timetable date" disabled /><strong
                   id="week-label"
                   >Loading schedule…</strong
                 >
               </div>
               <button id="next-week" class="icon-button" aria-label="Next week" disabled>
                 <span data-icon="chevron"></span></button
-              ><button id="today-button" class="button today-button" disabled>This week</button>
+              ><button id="today-button" class="button today-button" disabled>Today</button>
             </div>
-            <div class="view-switch" role="group" aria-label="Timetable view">
-              <button id="week-view" class="active" aria-pressed="true"><span data-icon="grid"></span>Week</button
-              ><button id="agenda-view" aria-pressed="false"><span data-icon="list"></span>Agenda</button>
+            <div class="planner-actions">
+              <button id="share-button" class="button secondary share-week" disabled>
+                <span data-icon="share"></span><span>Share week</span>
+              </button>
+              <div class="view-switch" role="group" aria-label="Timetable view">
+                <button id="week-view" class="active" aria-pressed="true"><span data-icon="grid"></span>Week</button
+                ><button id="agenda-view" aria-pressed="false"><span data-icon="list"></span>Agenda</button>
+              </div>
             </div>
           </div>
           <div class="planner-subbar" id="subbar" hidden>
@@ -209,6 +175,13 @@
             <span data-icon="download"></span>Download your class calendar
           </button>
         </div>
+        <footer class="site-footer" aria-label="Cookies and privacy">
+          <p>
+            <strong>Cookie notice.</strong> Only your theme choice is stored in a cookie. Class and accessibility
+            preferences stay in this browser, and timetable files never leave your device.
+          </p>
+          <button id="privacy-button" class="text-button" aria-haspopup="dialog">Privacy policy</button>
+        </footer>
       </main>
     </div>
     <div class="mobile-export" hidden>
@@ -217,34 +190,32 @@
     </div>
     <dialog id="class-dialog" class="dialog class-dialog" aria-labelledby="class-dialog-title">
       <div class="dialog-heading">
-        <div>
-          <p class="eyebrow">MAKE IT YOURS</p>
-          <h2 id="class-dialog-title">Find your class</h2>
-        </div>
+        <h2 id="class-dialog-title">Find a Class</h2>
         <button class="icon-button close-dialog" aria-label="Close class picker">
           <span data-icon="close"></span>
         </button>
       </div>
-      <p class="dialog-description">Choose your exact class or team. We’ll remember it on this device.</p>
-      <label class="search-field class-search"
-        ><span data-icon="search"></span
-        ><input
-          type="search"
-          id="class-search"
-          placeholder="Try “semester 3 dmch” or “dswe group 2”…"
-          aria-label="Search classes"
-      /></label>
-      <div class="class-filters">
-        <label>Programme<select id="programme-filter" aria-label="Filter by programme"></select></label
-        ><label>Semester<select id="semester-filter" aria-label="Filter by semester"></select></label
-        ><label>Group / team<select id="group-filter" aria-label="Filter by group"></select></label>
+      <div class="class-picker-content">
+        <div class="browse-modes" role="group" aria-label="Browse timetable by">
+          <button id="student-mode" class="browse-mode" aria-pressed="true">Class</button>
+          <button id="lecturer-mode" class="browse-mode" aria-pressed="false">Lecturer</button>
+        </div>
+        <p class="dialog-description">Search by class, programme or group.</p>
+        <label class="search-field class-search"
+          ><span data-icon="search"></span
+          ><input type="search" id="class-search" placeholder="Search classes…" aria-label="Search classes"
+        /></label>
+        <div class="class-filters">
+          <select id="programme-filter" aria-label="Filter by programme"></select
+          ><select id="semester-filter" aria-label="Filter by semester"></select
+          ><select id="group-filter" aria-label="Filter by group"></select>
+        </div>
+        <div class="class-results-toolbar">
+          <span id="class-result-count" role="status"></span
+          ><button id="clear-class-filters" class="text-button">Clear</button>
+        </div>
+        <div id="class-results" class="class-results"></div>
       </div>
-      <div class="class-results-toolbar">
-        <span id="class-result-count" role="status"></span
-        ><button id="clear-class-filters" class="text-button">Clear search &amp; filters</button>
-      </div>
-      <div id="class-results" class="class-results"></div>
-      <p class="dialog-footnote">Class calendars contain only that class’s entries.</p>
     </dialog>
     <dialog id="file-dialog" class="dialog" aria-labelledby="file-dialog-title">
       <div class="dialog-heading">
@@ -303,7 +274,7 @@
         </button>
       </div>
       <div class="about-content">
-        <span class="badge amber">Reconstructed schedule</span>
+        <span class="badge amber">Reconstructed timetable</span>
         <p id="about-source-description">Timetable source details will appear after loading.</p>
         <p>
           Some original timetable rules are still being verified. Calendar-exception dates and overlapping class entries
@@ -359,6 +330,39 @@
         <p id="edit-error" role="alert" hidden></p>
         <button id="save-edit" class="button primary" type="submit">Apply to local timetable</button>
       </form>
+    </dialog>
+    <dialog id="privacy-dialog" class="dialog" aria-labelledby="privacy-title">
+      <div class="dialog-heading">
+        <h2 id="privacy-title">Privacy policy</h2>
+        <button class="icon-button close-dialog" aria-label="Close privacy policy">
+          <span data-icon="close"></span>
+        </button>
+      </div>
+      <div class="about-content">
+        <p>Last updated 20 October 2026. This timetable runs in your browser and does not require an account.</p>
+        <p>
+          <strong>Cookies.</strong> If you switch themes, a <code>gmi-theme</code> cookie remembers that choice for up
+          to one year. It is not used for analytics, advertising or tracking.
+        </p>
+        <p>
+          <strong>On-device storage.</strong> Your selected class, seen timetable revision and accessibility preferences
+          are saved in this browser’s local storage. They stay on your device and are not sent to us.
+        </p>
+        <p>
+          <strong>Timetable files.</strong> DaVinci files you open are processed locally in your browser. They are not
+          uploaded and are not kept after you refresh the page. Calendar downloads are generated locally.
+        </p>
+        <p>
+          <strong>External links.</strong> Links to GitHub or calendar providers open third-party sites with their own
+          privacy policies. Clear this site’s cookies and local storage at any time through your browser settings.
+        </p>
+        <p>
+          Questions or requests can be raised through the project’s
+          <a href="https://github.com/lollllz/gmi-student-timetable/issues" target="_blank" rel="noopener"
+            >GitHub issue tracker <span data-icon="external"></span></a
+          >.
+        </p>
+      </div>
     </dialog>
     <div id="toast" class="toast" role="status" hidden></div>
     <noscript><div class="noscript">Enable JavaScript to choose your class and view its timetable.</div></noscript>

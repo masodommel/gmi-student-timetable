@@ -2,7 +2,7 @@ import { addDays, formatDate, localToday } from '../timetable/core.js';
 import { icon } from '../ui/icons.js';
 import { media, exceptionsFor, state } from '../state.js';
 import type { TimetableEvent } from '../timetable/types.js';
-import { dayException, lessonCard, modeReminder } from './templates.js';
+import { dayException, lessonCard } from './templates.js';
 
 export function renderAgenda(events: TimetableEvent[]): string {
   const dates = media.matches ? [state.day] : Array.from({ length: 7 }, (_, i) => addDays(state.week, i));
@@ -18,7 +18,6 @@ export function renderAgenda(events: TimetableEvent[]): string {
 
 function renderAgendaCard(event: TimetableEvent): string {
   return lessonCard(event, {
-    reminder: modeReminder(event),
     lecturerMode: state.mode === 'lecturer',
     className: state.selected?.name || '',
   });

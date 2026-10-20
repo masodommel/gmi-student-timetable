@@ -6,10 +6,15 @@ export const elements = {
 
   accessibilityButton: byId<HTMLButtonElement>('accessibility-button'),
   accessibilityDialog: byId<HTMLDialogElement>('accessibility-dialog'),
+  themeToggle: byId<HTMLButtonElement>('theme-toggle'),
+  themeIcon: byId('theme-icon'),
+  themeColorMeta: $<HTMLMetaElement>('meta[name="theme-color"]'),
   qualityButton: byId<HTMLButtonElement>('quality-button'),
   aboutButton: byId<HTMLButtonElement>('about-button'),
   aboutDialog: byId<HTMLDialogElement>('about-dialog'),
   aboutSourceDescription: byId('about-source-description'),
+  privacyButton: byId<HTMLButtonElement>('privacy-button'),
+  privacyDialog: byId<HTMLDialogElement>('privacy-dialog'),
 
   studentMode: byId<HTMLButtonElement>('student-mode'),
   lecturerMode: byId<HTMLButtonElement>('lecturer-mode'),
@@ -20,16 +25,13 @@ export const elements = {
   compactClassName: byId('compact-class-name'),
   mobileClassName: byId('mobile-class-name'),
   classButton: byId<HTMLButtonElement>('class-button'),
-  classButtonHint: $<HTMLElement>('#class-button small'),
   compactClassButton: byId<HTMLButtonElement>('compact-class-button'),
-  compactClassButtonHint: $<HTMLElement>('#compact-class-button small'),
   mobileExport: $<HTMLElement>('.mobile-export'),
   mobileExportLabel: $<HTMLElement>('.mobile-export small'),
 
   classDialog: byId<HTMLDialogElement>('class-dialog'),
   classDialogTitle: byId('class-dialog-title'),
   classDialogDescription: $<HTMLElement>('#class-dialog .dialog-description'),
-  classDialogFootnote: $<HTMLElement>('#class-dialog .dialog-footnote'),
   classSearch: byId<HTMLInputElement>('class-search'),
   classFilters: $<HTMLElement>('.class-filters'),
   programmeFilter: byId<HTMLSelectElement>('programme-filter'),
@@ -69,8 +71,6 @@ export const elements = {
   agendaView: byId<HTMLButtonElement>('agenda-view'),
   schedule: byId('schedule'),
   scheduleContext: byId('schedule-context'),
-  greeting: byId('greeting'),
-  headingDescription: byId('heading-description'),
   subjectSearch: byId<HTMLInputElement>('subject-search'),
 
   lessonDialog: byId<HTMLDialogElement>('lesson-dialog'),
@@ -83,13 +83,6 @@ export const elements = {
   editPeriod: byId<HTMLSelectElement>('edit-period'),
   editError: byId('edit-error'),
   saveEdit: byId<HTMLButtonElement>('save-edit'),
-
-  hazeAdvisory: byId('haze-advisory'),
-  hazeBrief: byId('haze-brief'),
-  hazeDetails: byId('haze-details'),
-  hazeToggle: byId<HTMLButtonElement>('haze-toggle'),
-  hazeAirLink: byId<HTMLAnchorElement>('haze-air-link'),
-  hazeHealthLink: byId<HTMLAnchorElement>('haze-health-link'),
 
   preferenceInputs: ['large-text', 'high-contrast', 'reduce-motion', 'agenda-default'].map((id) => ({
     id,

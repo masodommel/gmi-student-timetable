@@ -1,7 +1,7 @@
 import { media, state } from '../state.js';
 import { addDays, escapeHtml as esc, filterEvents, formatDate, weekLabel } from '../timetable/core.js';
 import { elements } from '../ui/elements.js';
-import { statePanel } from './templates.js';
+import { choicePanel, statePanel } from './templates.js';
 import { renderAgenda } from './agenda.js';
 import { renderDayStrip, renderSummary, renderWeek } from './week.js';
 
@@ -20,14 +20,7 @@ export function renderSchedule(): void {
     return;
   }
   if (!selected) {
-    schedule.innerHTML = statePanel(
-      'Your timetable starts here',
-      state.mode === 'lecturer'
-        ? 'Choose a lecturer to see lessons across all classes and export their calendar.'
-        : 'Pick your class to see your week. Or download its calendar and use the calendar app you already love.',
-      'choose-class',
-      state.mode === 'lecturer' ? 'Find a lecturer' : 'Find my class',
-    );
+    schedule.innerHTML = choicePanel('choose-class', state.mode === 'lecturer' ? 'Find a lecturer' : 'Find my class');
     return;
   }
   const allWeek = filterEvents(state.events, state.week);

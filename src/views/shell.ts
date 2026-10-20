@@ -1,5 +1,4 @@
 import { media, SEEN_REVISION_STORAGE_KEY, state } from '../state.js';
-import { hazeActive, hazeAdvisory } from '../timetable/advisories.js';
 import { formatDate, monday, weekLabel } from '../timetable/core.js';
 import { closest, on } from '../ui/dom.js';
 import { elements } from '../ui/elements.js';
@@ -29,23 +28,11 @@ export function openDialog(dialog: HTMLDialogElement): void {
 }
 
 export function render(): void {
-  renderHazeAdvisory();
   const focusedDay = document.activeElement instanceof HTMLElement ? document.activeElement.dataset.day : undefined;
   if (focusedDay)
     requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-day="${focusedDay}"]`)?.focus());
   renderShell();
   renderSchedule();
-}
-
-export function renderHazeAdvisory(): void {
-  elements.hazeAdvisory.hidden = !hazeActive();
-  elements.hazeBrief.hidden = !hazeActive();
-  const collapsed = readStored(hazeAdvisory.id + '-collapsed') === 'true';
-  elements.hazeDetails.hidden = collapsed;
-  elements.hazeToggle.setAttribute('aria-expanded', String(!collapsed));
-  elements.hazeToggle.textContent = collapsed ? 'Show haze reminder' : 'Hide haze reminder';
-  elements.hazeAirLink.href = hazeAdvisory.airQualityUrl;
-  elements.hazeHealthLink.href = hazeAdvisory.healthUrl;
 }
 
 function renderShell(): void {
@@ -57,30 +44,23 @@ function renderShell(): void {
   elements.studentMode.disabled = elements.lecturerMode.disabled = !ready;
   elements.lecturerMode.setAttribute('aria-pressed', String(state.mode === 'lecturer'));
   elements.davExport.disabled = !state.davBuffer;
-  elements.davHint.textContent = state.davBuffer
-    ? 'Local edits affect recurring lessons. Export DAV saves the full file; verify it in DaVinci.'
-    : 'To edit and export a DAV, open your original file. Downloads preserve the full timetable.';
-  elements.className.textContent = selected?.name || 'Let’s get you started';
-  elements.compactClassName.textContent =
-    selected?.name || (state.mode === 'lecturer' ? 'Choose a lecturer' : 'Choose your class');
+  elements.davExport.hidden = !state.davBuffer;
+  elements.davHint.hidden = !state.davBuffer;
+  const modeLabel = state.mode === 'lecturer' ? 'Lecturer' : 'Class';
+  elements.className.textContent = modeLabel;
+  elements.compactClassName.textContent = modeLabel;
+  elements.classButton.dataset.mode = state.mode;
+  elements.compactClassButton.dataset.mode = state.mode;
   elements.mobileClassName.textContent = selected?.name || '';
   elements.mobileExportLabel.textContent = state.mode === 'lecturer' ? 'LECTURER CALENDAR' : 'YOUR CLASS CALENDAR';
-  elements.classButtonHint.textContent =
-    state.mode === 'lecturer' ? 'Lecturer timetable' : selected ? 'Your timetable' : 'Choose your class';
-  elements.compactClassButtonHint.textContent = state.mode === 'lecturer' ? 'LECTURER' : 'YOUR CLASS';
-  elements.classDialogFootnote.textContent =
-    state.mode === 'lecturer'
-      ? 'Lecturer calendars include all classes and resource activities listed in this source.'
-      : 'Class calendars contain only that class’s entries.';
   elements.classButton.disabled = elements.compactClassButton.disabled = !ready;
   const shareButton = elements.shareButton;
   shareButton.disabled = !usable || state.localFile;
   shareButton.title = state.localFile
     ? 'Your local file cannot be shared through a website link. Export its class calendar instead.'
     : 'Share this class and week';
-  elements.fileSourceLabel.textContent = state.localFile
-    ? `On this device: ${manifest?.filename || ''}`
-    : 'Using the provided timetable';
+  elements.fileSourceLabel.textContent = state.localFile ? manifest?.filename || '' : '';
+  elements.fileSourceLabel.hidden = !state.localFile;
   elements.restoreSource.hidden = !state.localFile;
   const notice = elements.latestTimetable;
   notice.hidden = !manifest;
@@ -109,10 +89,10 @@ function renderShell(): void {
       : 'Loading timetable source details…';
   elements.classDialogDescription.textContent =
     state.mode === 'lecturer'
-      ? 'Search a lecturer or resource name to see entries across all classes. Source resource names may include activities.'
+      ? 'Search by lecturer or resource name.'
       : state.localFile
-        ? 'Choose your class from this file. Reopen the file after refreshing the page.'
-        : 'Choose your exact class or team. We’ll remember it on this device.';
+        ? 'Choose a class from this file.'
+        : 'Search by class, programme or group.';
   elements.exportTriggers.forEach((button) => {
     button.disabled = !usable || !selected?.eventCount;
   });
@@ -134,32 +114,17 @@ function renderShell(): void {
   elements.agendaView.classList.toggle('active', state.view === 'agenda');
   elements.weekView.setAttribute('aria-pressed', String(state.view === 'week'));
   elements.agendaView.setAttribute('aria-pressed', String(state.view === 'agenda'));
-  elements.greeting.textContent =
-    state.mode === 'lecturer'
-      ? 'LECTURER TIMETABLE · ALL CLASSES'
-      : selected
-        ? 'YOUR CLASS. YOUR SCHEDULE.'
-        : 'YOUR STUDENT PLANNER';
-  elements.headingDescription.textContent = selected
-    ? `${selected.name} · Times in Kuala Lumpur`
-    : 'Less searching. More time for what’s next.';
 }
 
 export function initShell(): void {
   on(elements.qualityButton, 'click', () => openDialog(elements.aboutDialog));
   on(elements.aboutButton, 'click', () => openDialog(elements.aboutDialog));
+  on(elements.privacyButton, 'click', () => openDialog(elements.privacyDialog));
   on(elements.latestTimetable, 'click', () => {
     if (!state.localFile && state.manifest?.sourceHash)
       writeStored(SEEN_REVISION_STORAGE_KEY, state.manifest.sourceHash);
     render();
     openDialog(elements.aboutDialog);
-  });
-  on(elements.hazeToggle, 'click', () => {
-    const collapsed = !elements.hazeDetails.hidden;
-    writeStored(hazeAdvisory.id + '-collapsed', String(collapsed));
-    elements.hazeDetails.hidden = collapsed;
-    elements.hazeToggle.setAttribute('aria-expanded', String(!collapsed));
-    elements.hazeToggle.textContent = collapsed ? 'Show haze reminder' : 'Hide haze reminder';
   });
   elements.closeButtons.forEach((button) =>
     on(button, 'click', () => closest<HTMLDialogElement>(button, 'dialog')?.close()),
@@ -178,7 +143,4 @@ export function initShell(): void {
     }),
   );
   media.addEventListener('change', render);
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) render();
-  });
 }

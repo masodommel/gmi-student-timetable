@@ -1,12 +1,7 @@
-import { needsModeCheck, sourceSaysOnline } from '../timetable/advisories.js';
 import { escapeHtml as esc, formatDate } from '../timetable/core.js';
+import { sourceSaysOnline } from '../timetable/notes.js';
 import type { ClassRecord, SearchResult, TimetableEvent } from '../timetable/types.js';
 import { icon } from '../ui/icons.js';
-
-export function modeReminder(event: TimetableEvent): string {
-  if (sourceSaysOnline(event)) return 'Online · source note';
-  return needsModeCheck(event) ? 'Confirm class delivery' : '';
-}
 
 export function statePanel(
   title: string,
@@ -20,7 +15,11 @@ export function statePanel(
 }
 
 export function summaryItem(value: number | string, label: string, symbol: string): string {
-  return `<div class="summary-item"><span class="summary-icon">${icon(symbol)}</span><div><strong>${value}</strong><small>${label}</small></div></div>`;
+  return `<div class="summary-item"><span class="summary-icon">${icon(symbol)}</span><strong>${value}</strong><span class="summary-label">${label}</span></div>`;
+}
+
+export function choicePanel(action: string, label: string): string {
+  return `<div class="state-panel choice-panel"><button class="button primary" data-action="${action}">${label}${icon('chevron')}</button></div>`;
 }
 
 export function dayException(name: string): string {
@@ -28,18 +27,18 @@ export function dayException(name: string): string {
 }
 
 export interface LessonCardOptions {
-  reminder: string;
   lecturerMode: boolean;
   className: string;
 }
 
 export function lessonCard(event: TimetableEvent, options: LessonCardOptions): string {
   const tone = event.subject.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3;
-  return `<button class="lesson ${tone === 1 ? 'alt' : tone === 2 ? 'warm' : ''}" data-event-id="${event.id}" aria-label="${esc(event.subject)}, ${esc(event.start)} to ${esc(event.end)}, ${esc(event.room || 'room not listed')}, ${esc(event.date)}, ${esc(event.className || options.className)}${event.exception ? ' calendar exception' : ''}${event.overlap ? ' overlapping entry' : ''}${options.reminder ? ', ' + esc(options.reminder) : ''}"><span class="lesson-time">${icon('clock')}${esc(event.start)} – ${esc(event.end)}</span><h3>${esc(event.subject)}</h3>${options.reminder ? `<span class="badge mode-badge">${esc(options.reminder)}</span>` : ''}${options.lecturerMode ? `<span class="lesson-meta">${esc(event.className)}</span>` : ''}<span class="lesson-meta">${icon('pin')}<span>${esc(event.room || 'Room not listed')}</span></span>${event.lecturer ? `<span class="lesson-meta">${icon('person')}<span>${esc(event.lecturer)}</span></span>` : ''}${event.note ? `<p class="lesson-note">${esc(event.note)}</p>` : ''}${event.exception ? '<span class="badge amber">Calendar exception</span>' : ''}${event.overlap ? '<span class="badge amber">Overlapping entry</span>' : ''}</button>`;
+  const online = sourceSaysOnline(event);
+  return `<button class="lesson ${tone === 1 ? 'alt' : tone === 2 ? 'warm' : ''}" data-event-id="${event.id}" aria-label="${esc(event.subject)}, ${esc(event.start)} to ${esc(event.end)}, ${esc(event.room || 'room not listed')}, ${esc(event.date)}, ${esc(event.className || options.className)}${event.exception ? ' calendar exception' : ''}${event.overlap ? ' overlapping entry' : ''}${online ? ', online source note' : ''}"><span class="lesson-time">${icon('clock')}${esc(event.start)} – ${esc(event.end)}</span><h3>${esc(event.subject)}</h3>${online ? '<span class="badge mode-badge">Online · source note</span>' : ''}${options.lecturerMode ? `<span class="lesson-meta">${esc(event.className)}</span>` : ''}<span class="lesson-meta">${icon('pin')}<span>${esc(event.room || 'Room not listed')}</span></span>${event.lecturer ? `<span class="lesson-meta">${icon('person')}<span>${esc(event.lecturer)}</span></span>` : ''}${event.note ? `<p class="lesson-note">${esc(event.note)}</p>` : ''}${event.exception ? '<span class="badge amber">Calendar exception</span>' : ''}${event.overlap ? '<span class="badge amber">Overlapping entry</span>' : ''}</button>`;
 }
 
 export function classOption(item: SearchResult<ClassRecord>, selected: boolean): string {
-  return `<button class="class-option ${selected ? 'selected' : ''}" data-class-id="${item.id}" ${selected ? 'aria-current="true"' : ''}><span><strong>${esc(item.name)}</strong><small>${item.fuzzy ? 'Close match · ' : ''}${item.eventCount ? `${item.eventCount} dated entries · calendar available` : 'No dated entries in this source'}</small></span>${icon(selected ? 'check' : 'chevron')}</button>`;
+  return `<button class="class-option ${selected ? 'selected' : ''}" data-class-id="${item.id}" ${selected ? 'aria-current="true"' : ''}><span><strong>${esc(item.name)}</strong><small>${item.fuzzy ? 'Close match · ' : ''}${item.eventCount ? `${item.eventCount} entries` : 'No entries'}</small></span>${icon(selected ? 'check' : 'chevron')}</button>`;
 }
 
 export function detailRow(symbol: string, label: string, value: unknown): string {
@@ -47,11 +46,11 @@ export function detailRow(symbol: string, label: string, value: unknown): string
 }
 
 export function lessonDetails(event: TimetableEvent, className: string): string {
-  return `<p class="lesson-title-date">${formatDate(event.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p><h2 id="lesson-dialog-title">${esc(event.subject)}</h2><p class="lesson-class">${esc(event.className || className)}</p>${detailRow('clock', 'TIME · KUALA LUMPUR', `${event.start} – ${event.end}`)}${detailRow('pin', 'ROOM', event.room || 'Not listed in source')}${detailRow('person', 'LECTURER', event.lecturer || 'Not listed in source')}${event.note ? detailRow('info', 'NOTES', event.note) : ''}<div class="lesson-flags">${event.exception ? `<span class="badge amber">${esc(event.exception)} — calendar exception</span>` : ''}${event.overlap ? '<span class="badge amber">Overlaps another class entry. Check with your lecturer.</span>' : ''}<span class="badge">Reconstructed · confirm changes with your lecturer</span></div>`;
+  return `<p class="lesson-title-date">${formatDate(event.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p><h2 id="lesson-dialog-title">${esc(event.subject)}</h2><p class="lesson-class">${esc(event.className || className)}</p>${detailRow('clock', 'TIME · KUALA LUMPUR', `${event.start} – ${event.end}`)}${detailRow('pin', 'ROOM', event.room || 'Not listed in source')}${detailRow('person', 'LECTURER', event.lecturer || 'Not listed in source')}${event.note ? detailRow('info', 'NOTES', event.note) : ''}<div class="lesson-flags">${event.exception ? `<span class="badge amber">${esc(event.exception)} — calendar exception</span>` : ''}${event.overlap ? '<span class="badge amber">Overlaps another class entry. Check with your lecturer.</span>' : ''}</div>`;
 }
 
-export function lessonModeNotice(message: string): string {
-  return `<div class="lesson-mode-notice"><strong>Class delivery</strong><p>${message}</p></div>`;
+export function onlineNoteNotice(message: string): string {
+  return `<div class="lesson-mode-notice"><strong>Online · source note</strong><p>${message}</p></div>`;
 }
 
 export function editLessonButton(id: string): string {

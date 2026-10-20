@@ -1,4 +1,3 @@
-import { initAirQuality } from './air-quality/ui.js';
 import { initDavExport } from './dav/export.js';
 import { initialize } from './views/bootstrap.js';
 import { initExport } from './views/export.js';
@@ -8,8 +7,10 @@ import { initNavigation } from './views/navigation.js';
 import { initPicker } from './views/picker.js';
 import { initPreferences } from './views/preferences.js';
 import { hydrateIcons, initShell } from './views/shell.js';
+import { initTheme } from './ui/theme.js';
 
 hydrateIcons();
+initTheme();
 initShell();
 initNavigation();
 initPicker();
@@ -19,4 +20,3 @@ initFilePicker();
 initDavExport();
 void initialize();
 initPreferences();
-initAirQuality();

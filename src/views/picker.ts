@@ -30,18 +30,18 @@ export function renderClassResults(): void {
         });
   elements.classResultCount.textContent =
     state.mode === 'lecturer'
-      ? `${classes.length} lecturer / resource timetables`
-      : `${classes.length} ${classes.length === 1 ? 'class' : 'classes'}${query.trim() ? ' matching your search' : ' available'}`;
+      ? `${classes.length} ${classes.length === 1 ? 'result' : 'results'}`
+      : `${classes.length} ${classes.length === 1 ? 'class' : 'classes'}`;
   elements.classResults.innerHTML = classes.length
     ? classes.map((item) => classOption(item, state.selected?.id === item.id)).join('')
     : '<p class="picker-empty">No matching class. Try fewer words or clear the filters.</p>';
 }
 
-export function openClassPicker(): void {
+function prepareClassPicker(): void {
   if (!state.manifest) return;
-  elements.classDialogTitle.textContent = state.mode === 'lecturer' ? 'Find a lecturer' : 'Find your class';
+  elements.classDialogTitle.textContent = state.mode === 'lecturer' ? 'Find a Lecturer' : 'Find a Class';
   const search = elements.classSearch;
-  search.placeholder = state.mode === 'lecturer' ? 'Search lecturer name…' : 'Try semester 3 dmch or dswe group 2…';
+  search.placeholder = state.mode === 'lecturer' ? 'Search lecturers…' : 'Search classes…';
   search.setAttribute('aria-label', state.mode === 'lecturer' ? 'Search lecturers' : 'Search classes');
   elements.classFilters.hidden = state.mode === 'lecturer';
   search.value = '';
@@ -62,8 +62,15 @@ export function openClassPicker(): void {
         .join('');
   }
   renderClassResults();
+}
+
+export function openClassPicker(): void {
+  if (!state.manifest) return;
+  prepareClassPicker();
   openDialog(elements.classDialog);
-  search.focus();
+  elements.classDialog.scrollTop = 0;
+  elements.classResults.scrollTop = 0;
+  elements.classSearch.focus({ preventScroll: true });
 }
 
 export async function selectClass(id: string, { preserveWeek = true }: { preserveWeek?: boolean } = {}): Promise<void> {

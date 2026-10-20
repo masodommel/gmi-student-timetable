@@ -1,10 +1,10 @@
-import { needsModeCheck, sourceSaysOnline } from '../timetable/advisories.js';
 import { addDays } from '../timetable/core.js';
+import { sourceSaysOnline } from '../timetable/notes.js';
 import { editDav } from '../dav/index.js';
 import { installLocal, state } from '../state.js';
 import { closest, delegate, on } from '../ui/dom.js';
 import { elements } from '../ui/elements.js';
-import { editDayOptions, editLessonButton, editPeriodOptions, lessonDetails, lessonModeNotice } from './templates.js';
+import { editDayOptions, editLessonButton, editPeriodOptions, lessonDetails, onlineNoteNotice } from './templates.js';
 import { initialize } from './bootstrap.js';
 import { setWeek } from './navigation.js';
 import { openClassPicker, selectClass } from './picker.js';
@@ -14,11 +14,13 @@ export function openLesson(id: string): void {
   const event = state.events.find((item) => item.id === id);
   if (!event) return;
   elements.lessonContent.innerHTML = lessonDetails(event, state.selected?.name || '');
-  if (sourceSaysOnline(event) || needsModeCheck(event)) {
-    const message = sourceSaysOnline(event)
-      ? 'The timetable note says online. Confirm the latest arrangements and meeting link with your lecturer.'
-      : 'Haze may affect class delivery. This lesson is not confirmed online. Check your lecturer’s latest message or GMI announcements before travelling.';
-    elements.lessonContent.insertAdjacentHTML('beforeend', lessonModeNotice(message));
+  if (sourceSaysOnline(event)) {
+    elements.lessonContent.insertAdjacentHTML(
+      'beforeend',
+      onlineNoteNotice(
+        'The timetable note says online. Confirm the latest arrangements and meeting link with your lecturer.',
+      ),
+    );
   }
   if (state.davBuffer && state.editor?.events[id])
     elements.lessonContent.insertAdjacentHTML('beforeend', editLessonButton(id));
