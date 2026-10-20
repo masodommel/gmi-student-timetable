@@ -136,6 +136,20 @@ scripts/**
 
 The build uses esbuild for browser JavaScript, CSso for CSS and htmlnano for HTML. Generated JSON is whitespace-free and schema-compatible. The logo is a lossless AVIF served from `public/gmi-logo.avif`.
 
+### Deployment size
+
+Measured `dist/` deployment output (the `public/` datasets plus the bundled app shell) with per-file Node `zlib` compression: gzip level 9 and Brotli quality 11. Measured on **Wednesday, 21 October 2026, 14:19 (UTC+8)** against the `dist/` tree of 645 files at that revision.
+
+| Content                                                                                                                  |                      Raw |                   gzip |                 Brotli |
+|--------------------------------------------------------------------------------------------------------------------------|-------------------------:|-----------------------:|-----------------------:|
+| Whole site (645 files)                                                                                                   | 24,386,952 B (23.26 MiB) | 1,494,845 B (1.43 MiB) | 1,074,023 B (1.02 MiB) |
+| App shell (`index.html`, `app.js`, `worker.js`, `theme-boot.js`, `styles.css`, `gmi-logo.avif`, `_headers`, `.nojekyll`) |                140,985 B (0.13 MiB) |               55,077 B (0.05 MiB) |               50,291 B (0.05 MiB) |
+| `calendars/` (195 class `.ics`)                                                                                          |             10,908,994 B (10.40 MiB) |              573,440 B (0.55 MiB) |              397,346 B (0.38 MiB) |
+| `data/` (196 class `.json` + `manifest.json`)                                                                            |              5,889,643 B (5.62 MiB) |              408,427 B (0.39 MiB) |              296,710 B (0.28 MiB) |
+| `lecturers/` (246 lecturer `.json`)                                                                                      |              7,447,330 B (7.10 MiB) |              457,901 B (0.44 MiB) |              329,676 B (0.31 MiB) |
+
+These are whole-directory totals. A visitor downloads far less. A first page load transfers the compressed app shell (~50–55 KB) plus `manifest.json` and one class or lecturer dataset, `.ics` exports, lecturer pages and further class data are fetched on demand. Cloudflare Pages serves Brotli at the edge where available (about **1.0 MiB** for the entire site), falling back to gzip otherwise. GitHub Pages serves gzip only (~1.4 MiB), but it currently hosts the redirect page only. Sizes vary slightly between revisions as timetable data changes.
+
 ## Local development
 
 Requires Node.js 22+ and Python 3 for data checks.
