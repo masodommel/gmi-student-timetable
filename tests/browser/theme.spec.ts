@@ -45,9 +45,7 @@ test('theme toggle switches the theme and saves only a theme cookie', async ({ p
 });
 
 test('theme cookie overrides the system preference', async ({ page }) => {
-  await page
-    .context()
-    .addCookies([{ name: 'gmi-theme', value: 'dark', url: 'http://127.0.0.1:4173/gmi-student-timetable/' }]);
+  await page.context().addCookies([{ name: 'gmi-theme', value: 'dark', url: 'http://127.0.0.1:4173/' }]);
   await page.goto('./?class=99178435&week=2026-10-12');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });

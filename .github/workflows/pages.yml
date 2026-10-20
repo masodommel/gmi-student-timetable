@@ -1,4 +1,4 @@
-name: Publish student timetable
+name: Build and publish timetable
 on:
   push:
     branches: [main]
@@ -20,11 +20,10 @@ concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      changed: ${{ steps.source.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -77,7 +76,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add public
-          git commit -m "publish timetable revision ${{ steps.source.outputs.revision }} [skip ci]"
+          git commit -m "publish timetable revision ${{ steps.source.outputs.revision }} [skip actions]"
           git fetch origin main
           git rebase origin/main
           if [ -n "$COMMIT_TOKEN" ]; then
@@ -93,12 +92,40 @@ jobs:
             echo '::error::Raw DAV found in dist/'
             exit 1
           fi
-      - uses: actions/configure-pages@v5
-        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
         with:
+          name: timetable-dist
           path: dist
+  github-pages:
+    needs: build
+    if: github.event_name != 'repository_dispatch' || needs.build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Prepare redirect
+        if: vars.GITHUB_PAGES_MODE != 'dev'
+        run: |
+          mkdir -p gh-pages-build
+          cp -R github-pages/. gh-pages-build/
+      - uses: actions/download-artifact@v4
+        if: vars.GITHUB_PAGES_MODE == 'dev'
+        with:
+          name: timetable-dist
+          path: gh-pages-build
+      - name: Disable indexing in dev mode
+        if: vars.GITHUB_PAGES_MODE == 'dev'
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > gh-pages-build/robots.txt
+          node -e "const fs=require('fs');const p='gh-pages-build/index.html';const h=fs.readFileSync(p,'utf8');fs.writeFileSync(p,h.replace('<head>','<head><meta name=\"robots\" content=\"noindex\">'))"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh-pages-build
       - id: deployment
         uses: actions/deploy-pages@v4
-        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'

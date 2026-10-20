@@ -11,6 +11,7 @@ const mime: Record<string, string> = {
   '.json': 'application/json; charset=utf-8',
   '.ics': 'text/calendar; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.avif': 'image/avif',
 };
 createServer(async (request, response) => {
   const notFound = (): void => {
@@ -31,4 +32,4 @@ createServer(async (request, response) => {
   } catch {
     notFound();
   }
-}).listen(port, '127.0.0.1', () => console.log(`Local: http://127.0.0.1:${port}/gmi-student-timetable/`));
+}).listen(port, '127.0.0.1', () => console.log(`Local: http://127.0.0.1:${port}/`));
