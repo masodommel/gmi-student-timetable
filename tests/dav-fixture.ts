@@ -3,6 +3,10 @@ interface FixtureOptions {
   classId?: number;
   periodStart?: number;
   subject?: string;
+  periods?: number;
+  span?: number;
+  unplacedSpan?: number;
+  trailingNote?: string;
 }
 
 export function makeDavFixture({
@@ -10,6 +14,10 @@ export function makeDavFixture({
   classId = 1,
   periodStart = 480,
   subject = 'Mathematics',
+  periods = 2,
+  span = 1,
+  unplacedSpan = 0,
+  trailingNote = '',
 }: FixtureOptions = {}): Uint8Array<ArrayBuffer> {
   const pieces: Uint8Array<ArrayBuffer>[] = [];
   const bytes = (...values: number[]): Uint8Array<ArrayBuffer> => Uint8Array.from(values);
@@ -44,8 +52,9 @@ export function makeDavFixture({
   header.set(bytes(3, 86, 51, 48));
   new DataView(header.buffer).setUint32(11, 60, true);
   append(header, text('Campus'), new Uint8Array(7), f64(46023), f64(46418), new Uint8Array(16));
-  append(text('New semester'), text(''), bytes(9), taggedInt8(2));
-  for (const start of [periodStart, periodStart + 60]) append(raw('setUint16', 2, start), new Uint8Array(8));
+  append(text('New semester'), text(''), bytes(9), taggedInt8(periods));
+  for (let index = 0; index < periods; index++)
+    append(raw('setUint16', 2, periodStart + index * 60), new Uint8Array(8));
   append(taggedInt8(1), f64(46209), f64(46209), i32(-1), i32(-1), bytes(3), text('Campus holiday'), new Uint8Array(8));
 
   // Name table: two classes, one lecturer, one room and one subject.
@@ -59,13 +68,18 @@ export function makeDavFixture({
   append(taggedInt8(1), ...namedRecord(6, 'CW28'), text(''), mask, f32(1), f32(60), f32(1), f32(1));
   append(taggedInt8(1), ...namedRecord(7, 'Group container'), text(''), taggedInt8(1), u32(10), new Uint8Array(20));
 
-  // One lesson with one slot on Monday, period 1.
-  append(taggedInt8(1), taggedInt8(0), u32(8), i32(-1), i32(classId), i32(3), i32(4), taggedInt8(1));
+  // One lesson with one slot on Monday, period 1 (optional period span and unplaced span slot).
+  append(taggedInt8(1), taggedInt8(0), u32(8), i32(-1), i32(classId), i32(3), i32(4), taggedInt8(unplacedSpan ? 2 : 1));
   const slot = new Uint8Array(18);
   slot[0] = 1;
   slot[1] = 1;
-  slot[9] = 1;
+  slot[9] = span;
   append(u32(9), u32(8), slot, taggedInt8(0), taggedInt8(0), i32(4), i32(3), i32(-1));
+  if (unplacedSpan) {
+    const extra = new Uint8Array(18);
+    extra[9] = unplacedSpan;
+    append(u32(10), u32(8), extra, taggedInt8(0), taggedInt8(0), i32(-1), i32(-1), i32(-1));
+  }
   append(i32(6), mask, taggedInt8(0), taggedInt8(0), text('From the new file'), i32(5), i32(0));
   append(taggedInt8(0), taggedInt8(0), bytes(0), text('Example lecturer'), text('Room 1'));
   for (let index = 0; index < 4; index++) append(taggedInt8(0));
@@ -74,11 +88,11 @@ export function makeDavFixture({
     text(''),
     taggedInt8(0),
     bytes(0, 0, 127),
-    u32(1),
+    u32(span + unplacedSpan),
     u32(0),
     taggedInt8(1),
     taggedInt8(6),
-    text(''),
+    text(trailingNote),
     taggedInt8(0),
   );
 

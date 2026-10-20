@@ -29,28 +29,35 @@ export async function editDav(
 ): Promise<{ buffer: ArrayBuffer; decoded: DavDecoded }> {
   const record = editor.events[eventId];
   if (!record) throw new Error('This entry cannot be edited.');
+  const slots = record.slots,
+    covered = slots.reduce((sum, slot) => sum + slot.span, 0);
   if (
     !Number.isInteger(day) ||
     day < 1 ||
     day > 7 ||
     !Number.isInteger(period) ||
     period < 1 ||
-    period + record.slots.length - 1 > editor.periods.length
+    period + covered - 1 > editor.periods.length
   )
     throw new Error('Choose a weekday and a start period that fits the whole lesson.');
-  const moved = record.slots.some((slot, index) => slot.day !== day || slot.period !== period + index);
-  if (moved && record.coupling !== -1)
+  let offset = 0;
+  const starts = slots.map((slot) => {
+    const start = period + offset;
+    offset += slot.span;
+    return start;
+  });
+  if (slots.some((slot, index) => slot.day !== day || slot.period !== starts[index]) && record.coupling !== -1)
     throw new Error('Linked lessons must be moved together in DaVinci. You can edit the notes here.');
-  for (let index = 1; index < record.slots.length; index++)
+  for (let index = 1; index < covered; index++)
     if (editor.periods[period + index - 1] !== editor.periods[period + index - 2] + editor.duration)
       throw new Error('This lesson needs consecutive clock periods.');
   const bytes = new Uint8Array(buffer.slice(0));
   // Each slot stores its weekday and period in the first two bytes.
-  for (const [index, slot] of record.slots.entries()) {
+  for (const [index, slot] of slots.entries()) {
     if (bytes[slot.offset] !== slot.day || bytes[slot.offset + 1] !== slot.period)
       throw new Error('The source changed. Reopen the lesson before editing.');
     bytes[slot.offset] = day;
-    bytes[slot.offset + 1] = period + index;
+    bytes[slot.offset + 1] = starts[index];
   }
   const encoded = encodeText(note);
   const output = new Uint8Array(bytes.length - (record.noteEnd - record.noteOffset) + encoded.length);

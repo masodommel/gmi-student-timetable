@@ -22,6 +22,32 @@ test('dynamic V30 reader handles different counts, names and period starts', asy
     assert.equal(result.datasets['2'].events.length, 0);
   }
 });
+test('slots covering several periods produce events that span the whole placement', async () => {
+  const result = await decodeDav(makeDavFixture({ span: 2 }).buffer);
+  assert.equal(result.total, 1);
+  const event = result.datasets['1'].events[0];
+  assert.equal(event.date, '2026-07-06');
+  assert.equal(event.start, '08:00');
+  assert.equal(event.end, '10:00');
+});
+test('unplaced slots with a period span stay omitted but keep the trailing count', async () => {
+  const result = await decodeDav(makeDavFixture({ unplacedSpan: 4 }).buffer);
+  assert.equal(result.total, 1);
+  assert.equal(result.omitted, 1);
+  const event = result.datasets['1'].events[0];
+  assert.equal(event.date, '2026-07-06');
+  assert.equal(event.start, '08:00');
+  assert.equal(event.end, '09:00');
+});
+test('multi-period slots end after their full span and trailing tags accept note strings', async () => {
+  const spans = await decodeDav(makeDavFixture({ periods: 5, span: 4 }).buffer);
+  assert.equal(spans.total, 1);
+  assert.equal(spans.datasets['1'].events[0].start, '08:00');
+  assert.equal(spans.datasets['1'].events[0].end, '12:00');
+  const note = await decodeDav(makeDavFixture({ trailingNote: 'Imported from an older file' }).buffer);
+  assert.equal(note.total, 1);
+  assert.equal(note.datasets['1'].events[0].note, 'From the new file');
+});
 test('local calendar export preserves timezone, class isolation and safe escaping', async () => {
   const result = await decodeDav(makeDavFixture({ subject: 'Math; Lab, A' }).buffer);
   const calendar = classCalendar(result.datasets['1'].class, result.datasets['1'].events);
@@ -107,4 +133,22 @@ test('DAV export preserves all bytes without edits and patches recurring placeme
     /Windows-1252/,
   );
   await assert.rejects(editDav(original.buffer, result.editor, event.id, { note: '', day: 1, period: 3 }), /fits/);
+});
+
+test('span slots move within the period grid and patch notes losslessly', async () => {
+  const { editDav, davDownload } = await import('../src/dav/index.js');
+  const original = makeDavFixture({ span: 2 });
+  const result = await decodeDav(original.buffer);
+  const event = result.datasets['1'].events[0];
+  await assert.rejects(editDav(original.buffer, result.editor, event.id, { note: 'Moved', day: 2, period: 2 }), /fits/);
+  const changed = await editDav(original.buffer, result.editor, event.id, { note: 'Moved', day: 2, period: 1 });
+  assert.equal(changed.decoded.datasets['1'].events[0].date, '2026-07-07');
+  assert.equal(changed.decoded.datasets['1'].events[0].end, '10:00');
+  const current = changed.decoded.datasets['1'].events[0];
+  const restored = await editDav(changed.buffer, changed.decoded.editor, current.id, {
+    note: 'From the new file',
+    day: 1,
+    period: 1,
+  });
+  assert.deepEqual(new Uint8Array(await davDownload(restored.buffer).arrayBuffer()), original);
 });

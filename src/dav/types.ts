@@ -5,6 +5,7 @@ export interface DavSlot {
   id: number;
   day: number;
   period: number;
+  span: number;
   flag: number;
   room: number;
   lecturer: number;

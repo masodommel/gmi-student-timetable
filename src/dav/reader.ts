@@ -174,7 +174,9 @@ function activeBits(mask: bigint): number[] {
 }
 
 // Counts precede their record as a tagged integer, so probe the known encodings.
-function countBefore(bytes: Uint8Array, position: number, maximum: number): number {
+// Revisions may encode two integers before one probe window, so collect every candidate.
+function countsBefore(bytes: Uint8Array, position: number, maximum: number): number[] {
+  const counts: number[] = [];
   for (const [length, tag] of [
     [2, 2],
     [3, 3],
@@ -184,11 +186,11 @@ function countBefore(bytes: Uint8Array, position: number, maximum: number): numb
       const reader = new Reader(bytes, position - length);
       try {
         const count = reader.count(maximum);
-        if (count > 0 && reader.position === position) return count;
+        if (count > 0 && reader.position === position) counts.push(count);
       } catch {}
     }
   }
-  return 0;
+  return counts;
 }
 
 // Named records look like [u32 id][0x02 0xFF 0x06 length text] in the name table.
@@ -206,15 +208,14 @@ function namedRecords(bytes: Uint8Array): NamedRecord[] {
   return result;
 }
 
-// Calendar metadata is tagged by a float pair followed by eight 0xFF bytes at +16 and 0x06 at +25.
+// Calendar records hold a date float pair, two range markers and a kind byte before the name text.
 function calendarSection(
   bytes: Uint8Array,
   firstName: number,
 ): { classes: number; exceptions: CalendarException[]; start: number } {
   for (let position = 4; position < firstName; position++) {
-    if (bytes[position + 25] !== 6 || !bytes.subarray(position + 16, position + 24).every((value) => value === 255))
-      continue;
-    const count = countBefore(bytes, position, 2000);
+    if (bytes[position + 25] !== 6) continue;
+    const [count] = countsBefore(bytes, position, 2000);
     if (!count) continue;
     try {
       const reader = new Reader(bytes, position);
@@ -222,7 +223,11 @@ function calendarSection(
       for (let index = 0; index < count; index++) {
         const start = dateSerial(reader.f64()),
           end = dateSerial(reader.f64());
-        expect(start <= end && reader.i32() === -1 && reader.i32() === -1);
+        expect(start <= end);
+        const first = reader.i32(),
+          last = reader.i32();
+        // Range markers are -1 when absent, else a bounded period or clock value.
+        expect(first >= -1 && first <= 2359 && last >= -1 && last <= 2359);
         const kind = reader.u8();
         expect(kind <= 10);
         const name = reader.text();
@@ -300,21 +305,32 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
       expect(!slotIds.has(slotId));
       slotIds.add(slotId);
       expect(slotIds.size <= 150000 && reader.u32() === id);
-      // 18-byte slot layout: day, period, seven zero bytes, marker 1, seven zero bytes, flag.
+      // 18-byte slot layout: day, start period, seven zero bytes, periods covered, seven zero bytes, flag.
       const rawStart = reader.take(18),
-        layout = bytes.subarray(rawStart, rawStart + 18);
+        layout = bytes.subarray(rawStart, rawStart + 18),
+        span = layout[9];
       expect(
         layout[0] <= 7 &&
           layout[1] <= periods.length &&
           layout.subarray(2, 9).every((value) => value === 0) &&
-          layout[9] === 1 &&
+          span >= 1 &&
+          (layout[0] === 0 || layout[1] === 0 || layout[1] + span - 1 <= periods.length) &&
           layout.subarray(10, 17).every((value) => value === 0),
       );
       expect(reader.value() === 0 && reader.value() === 0);
       const room = reference(reader.u32()),
         lecturer = reference(reader.u32());
       reader.i32();
-      slots.push({ offset: rawStart, id: slotId, day: layout[0], period: layout[1], flag: layout[17], room, lecturer });
+      slots.push({
+        offset: rawStart,
+        id: slotId,
+        day: layout[0],
+        period: layout[1],
+        span,
+        flag: layout[17],
+        room,
+        lecturer,
+      });
     }
     reader.i32();
     const mask = reader.mask();
@@ -331,11 +347,18 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
     reader.text();
     reader.text();
     for (let field = 0; field < 8; field++) reader.skipValue();
-    reader.text();
-    reader.skipValue();
+    if (reader.bytes[reader.position] === 4) {
+      // Some revisions close a lesson with a raw 4-byte status marker instead of empty text.
+      const marker = reader.take(4);
+      expect(bytes[marker + 1] === 0 && bytes[marker + 2] === 2 && bytes[marker + 3] === 0);
+    } else {
+      reader.text();
+      reader.skipValue();
+    }
     const layout = reader.take(11);
-    expect(reader.view.getUint32(layout + 3, true) === count);
-    expect(reader.value() === 1 && reader.value() === 6 && reader.value() === '' && reader.value() === 0);
+    // The trailer count totals the periods the slots cover, not the slot records.
+    expect(reader.view.getUint32(layout + 3, true) === slots.reduce((total, slot) => total + slot.span, 0));
+    expect(reader.value() === 1 && reader.value() === 6 && typeof reader.value() === 'string' && reader.value() === 0);
     lessons.push({
       id,
       coupling: refs[0],
@@ -395,7 +418,7 @@ function readDictionary(
     ['rooms', 0],
     ['subjects', 0],
   ] as const) {
-    const count = initial || countBefore(bytes, names[nameIndex]?.position || 0, 5000);
+    const count = initial || countsBefore(bytes, names[nameIndex]?.position || 0, 5000)[0] || 0;
     expect(count > 0 && nameIndex + count <= names.length);
     const ids = new Set<number>();
     for (const record of names.slice(nameIndex, nameIndex + count)) {
@@ -411,11 +434,11 @@ function readDictionary(
 
 function findTimetable(bytes: Uint8Array, records: NamedRecord[], periods: number[]): Timetable {
   for (const record of records) {
-    const count = countBefore(bytes, record.position, 10000);
-    if (!count) continue;
-    try {
-      return parseTimetable(bytes, record.position, count, periods);
-    } catch {}
+    for (const count of [...new Set(countsBefore(bytes, record.position, 10000))]) {
+      try {
+        return parseTimetable(bytes, record.position, count, periods);
+      } catch {}
+    }
   }
   throw failure();
 }
@@ -463,13 +486,13 @@ function groupSlots(slots: DavSlot[]): { groups: DavSlot[][]; omitted: number } 
 function buildBlocks(slots: DavSlot[], periods: number[], duration: number): DavSlot[][] {
   const blocks: DavSlot[][] = [];
   for (const slot of slots) {
-    const previous = blocks.at(-1);
+    const previous = blocks.at(-1)?.at(-1);
     if (
       previous &&
-      slot.period === previous.at(-1)!.period + 1 &&
-      periods[slot.period - 1] === periods[previous.at(-1)!.period - 1] + duration
+      slot.period === previous.period + previous.span &&
+      periods[slot.period - 1] === periods[previous.period - 2 + previous.span] + duration
     )
-      previous.push(slot);
+      blocks.at(-1)!.push(slot);
     else blocks.push([slot]);
   }
   return blocks;
@@ -488,7 +511,7 @@ function buildEvent(
     id: `${context.hash.slice(0, 24)}-${lesson.id}-${date.replaceAll('-', '')}-${block.map((slot) => slot.id).join('.')}`,
     date,
     start: clock(context.periods[first.period - 1]),
-    end: clock(context.periods[last.period - 1] + context.duration),
+    end: clock(context.periods[last.period + last.span - 2] + context.duration),
     subject: subjectName,
     lecturer: context.dictionary[first.lecturer]?.category === 'staff' ? context.dictionary[first.lecturer].name : '',
     room: context.dictionary[first.room]?.category === 'rooms' ? context.dictionary[first.room].name : '',
