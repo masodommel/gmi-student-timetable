@@ -1,3 +1,4 @@
+
 # GMI Student Timetable
 
 A responsive student timetable with class and lecturer views, lesson details, and class-only calendar export. Browse the weekly planner on desktop or the day agenda on mobile, then download your schedule as an `.ics` file.
@@ -51,14 +52,14 @@ The original concept, timetable data recovery, DAV reading/writing, calendar gen
 
 ## Features
 
-- Search and select a class or lecturer; your choice is remembered on the device.
+- Search and select a class or lecturer, your choice is remembered on the device.
 - Week planner and mobile day agenda with subject, room, lecturer and notes search.
 - Lesson details, overlap/exception warnings, and online-class reminders.
 - Shareable links for the selected class, lecturer and week.
 - Class-only `.ics` export with import guidance for Google Calendar, Apple Calendar and Outlook.
 - Local import of compatible legacy `.dav` timetable files, plus experimental DAV editing/export.
 - Light and dark themes, accessibility preferences, and responsive layouts down to 320px.
-- No student login, backend or uploads; timetable files stay in the browser.
+- No student login, backend or uploads, your timetable files stay in the browser.
 
 The published schedule is a reconstruction, **not an official live timetable**. Confirm changes with your lecturer. All event times use `Asia/Kuala_Lumpur` (UTC+8).
 
@@ -68,7 +69,7 @@ Timetable updates flow from Gmail to the public site without manual data commits
 
 1. A Google Apps Script checks Gmail every 15 minutes for new `.dav` attachments.
 2. It commits each new source to the private `masodommel/gmi-student-timetable-sources` repository as `sources/<hash16>.dav`, with a `sources/<hash16>.json` sidecar containing the original filename, message date, full SHA-256 and byte size.
-3. Successful threads receive a `TimetableSynced` label. Permanent failures receive `TimetableFailed`; transient failures stay unlabelled and retry on the next run.
+3. Successful threads receive a `TimetableSynced` label. Permanent failures receive `TimetableFailed`, and transient failures stay unlabeled and retry on the next run.
 4. The private repository's `.github/workflows/notify.yml` workflow sends a `repository_dispatch` to the public `masodommel/gmi-student-timetable` repository. It also runs every 6 hours as a catch-up.
 5. The public `pages.yml` workflow checks out the private archive, pre-bakes the newest source, runs the tests, commits the derived `public/` data, builds, and updates the GitHub Pages redirect. Cloudflare Pages builds the same `main` tree when a watched production path changes.
 
@@ -76,7 +77,7 @@ Source selection uses the revision date in the original filename first, then the
 
 The derived-data commit uses `[skip actions]` so it does not start another GitHub Actions run. Cloudflare Pages still builds it because `public/**` is a production watch path.
 
-Raw DAV files stay in the private repository. The public repository and site publish derived data only; the original binary is never committed or served publicly. The workflow fails if a `.dav` is tracked publicly or appears in `public/` or `dist/`.
+Raw DAV files stay in the private repository. The public repository and site publish derived data only, the original binary is never committed or served publicly. The workflow fails if a `.dav` is tracked publicly or appears in `public/` or `dist/`.
 
 Workflows:
 
@@ -136,17 +137,18 @@ scripts/**
 
 The build uses esbuild for browser JavaScript, CSso for CSS and htmlnano for HTML. Generated JSON is whitespace-free and schema-compatible. The logo is a lossless AVIF served from `public/gmi-logo.avif`.
 
+
 ### Deployment size
 
 Measured `dist/` deployment output (the `public/` datasets plus the bundled app shell) with per-file Node `zlib` compression: gzip level 9 and Brotli quality 11. Measured on **Wednesday, 21 October 2026, 14:19 (UTC+8)** against the `dist/` tree of 645 files at that revision.
 
-| Content                                                                                                                  |                      Raw |                   gzip |                 Brotli |
-|--------------------------------------------------------------------------------------------------------------------------|-------------------------:|-----------------------:|-----------------------:|
-| Whole site (645 files)                                                                                                   | 24,386,952 B (23.26 MiB) | 1,494,845 B (1.43 MiB) | 1,074,023 B (1.02 MiB) |
-| App shell (`index.html`, `app.js`, `worker.js`, `theme-boot.js`, `styles.css`, `gmi-logo.avif`, `_headers`, `.nojekyll`) |                140,985 B (0.13 MiB) |               55,077 B (0.05 MiB) |               50,291 B (0.05 MiB) |
-| `calendars/` (195 class `.ics`)                                                                                          |             10,908,994 B (10.40 MiB) |              573,440 B (0.55 MiB) |              397,346 B (0.38 MiB) |
-| `data/` (196 class `.json` + `manifest.json`)                                                                            |              5,889,643 B (5.62 MiB) |              408,427 B (0.39 MiB) |              296,710 B (0.28 MiB) |
-| `lecturers/` (246 lecturer `.json`)                                                                                      |              7,447,330 B (7.10 MiB) |              457,901 B (0.44 MiB) |              329,676 B (0.31 MiB) |
+| Content | Raw | gzip | Brotli |
+| :--- | ---: | ---: | ---: |
+| Whole site (645 files) | 24,386,952 B (23.26 MiB) | 1,494,845 B (1.43 MiB) | 1,074,023 B (1.02 MiB) |
+| App shell (`index.html`, `app.js`, `worker.js`, `theme-boot.js`, `styles.css`,<br>`gmi-logo.avif`, `_headers`, `.nojekyll`) | 140,985 B (0.13 MiB) | 55,077 B (0.05 MiB) | 50,291 B (0.05 MiB) |
+| `calendars/` (195 class `.ics`) | 10,908,994 B (10.40 MiB) | 573,440 B (0.55 MiB) | 397,346 B (0.38 MiB) |
+| `data/` (196 class `.json` + `manifest.json`) | 5,889,643 B (5.62 MiB) | 408,427 B (0.39 MiB) | 296,710 B (0.28 MiB) |
+| `lecturers/` (246 lecturer `.json`) | 7,447,330 B (7.10 MiB) | 457,901 B (0.44 MiB) | 329,676 B (0.31 MiB) |
 
 These are whole-directory totals. A visitor downloads far less. A first page load transfers the compressed app shell (~50–55 KB) plus `manifest.json` and one class or lecturer dataset, `.ics` exports, lecturer pages and further class data are fetched on demand. Cloudflare Pages serves Brotli at the edge where available (about **1.0 MiB** for the entire site), falling back to gzip otherwise. GitHub Pages serves gzip only (~1.4 MiB), but it currently hosts the redirect page only. Sizes vary slightly between revisions as timetable data changes.
 
@@ -177,7 +179,7 @@ Set `PLAYWRIGHT_CHANNEL=chrome` to use an installed Chrome instead.
 
 ## How the `.dav` timetable is reconstructed
 
-`src/dav/reader.ts` decodes a compatible legacy V30 file into the published schedule. The binary itself is never republished; only the derived data is committed.
+`src/dav/reader.ts` decodes a compatible legacy V30 file into the published schedule. The binary itself is never republished, and only the derived data is committed.
 
 1. The decoder validates the `0x03` `V30` signature, the 20 MB limit and the little-endian tagged-value stream.
 2. It locates the calendar section and the class/staff/room/subject dictionary, reads the planning range from the header, and reads the period duration plus clock start times.
@@ -187,7 +189,7 @@ Set `PLAYWRIGHT_CHANNEL=chrome` to use an installed Chrome instead.
 
 ## Data and deployment
 
-Generated class and lecturer datasets are checked in under `public/`. Normal updates are automated: the workflow selects the newest source from the private archive, regenerates derived data, tests it, commits `public/` and builds. Cloudflare Pages rebuilds when a watched production path changes. GitHub Pages currently refreshes the redirect only; the unindexed dev live page is planned for a separate `dev` branch.
+Generated class and lecturer datasets are checked in under `public/`. Normal updates are automated: the workflow selects the newest source from the private archive, regenerates derived data, tests it, commits `public/` and builds. Cloudflare Pages rebuilds when a watched production path changes. GitHub Pages currently refreshes the redirect only, and the unindexed dev live page is planned for a separate `dev` branch.
 
 To regenerate manually from a compatible `.dav` source, run:
 
@@ -202,7 +204,7 @@ To regenerate the lossless AVIF logo from `design/gmi-logo.png`:
 npm run optimize:logo
 ```
 
-Raw DAV files remain in the private repository; the original binary is never published.
+Raw DAV files remain in the private repository, and the original binary is never published.
 
 ## License
 
