@@ -17,6 +17,8 @@ export interface AppState {
   query: string;
   loading: boolean;
   error: string;
+  lastCheckedAt: Date | null;
+  lastCheckFailed: boolean;
   request: AbortController | null;
   localFile: boolean;
   generation: number;
@@ -41,6 +43,8 @@ export const state: AppState = {
   query: '',
   loading: false,
   error: '',
+  lastCheckedAt: null,
+  lastCheckFailed: false,
   request: null,
   localFile: false,
   generation: 0,

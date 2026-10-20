@@ -1,5 +1,19 @@
 # Changelog
 
+## 20 October 2026 - Automated DAV sync
+
+- Added an automated timetable pipeline: Gmail to Apps Script every 15 minutes, then the private `masodommel/gmi-student-timetable-sources` archive (`sources/<hash16>.dav` plus `.json` sidecars), the private `notify.yml` `repository_dispatch`, and the public Pages workflow.
+- Added the public `.github/workflows/pages.yml` flow to pre-bake the newest source, run tests, commit derived `public/` data, build and deploy the fork at https://masodommel.github.io/gmi-student-timetable/. Raw DAV files remain private; the public repository and site publish derived data only.
+- Added `.github/workflows/apps-script.yml` and documented the required secrets (`SOURCE_REPO_TOKEN`, `CLASPRC_JSON`, optional `COMMIT_TOKEN`, private `SITE_DISPATCH_TOKEN`) and Apps Script properties (`GITHUB_TOKEN`, `REPO_OWNER`, `REPO_NAME`, `REPO_BRANCH`).
+- Hardened source selection: revision date wins over email time, equal dates use the later email, the rollback guard can be overridden with the manual `force` input, and missing or corrupt sidecars are skipped with warnings. `--strict` makes invalid sources fail an audit.
+- Replaced the Apps Script unread cursor with `TimetableSynced` and `TimetableFailed` labels, added a script lock, verified `409`/`422` responses by reading the existing file, and separated transient from permanent failures.
+- Public runs now check out `main` to avoid stale event SHAs, skip the private checkout and pre-bake on code pushes, apply `COMMIT_TOKEN` only to the final push, reject raw DAV files in the repository, `public/` and `dist/`, and summarize source selection in the job summary. Source-triggered runs skip tests, build and deploy when nothing changed.
+- The private notify workflow adds a 6-hour catch-up schedule, `Content-Type: application/json` and curl retries.
+- Added source-selection and `prepareDav` metadata tests.
+- Added upstream and fork links to the info panel.
+- The page now checks for a newly published revision every 15 minutes while open, and the info panel shows the last checked time.
+- Updated the README deployment, repository and live app URLs.
+
 ## 20 October 2026 - Calagopus-inspired redesign
 
 - Rebuilt both themes around a neutral Calagopus/Mantine palette: `#f0eff0` light canvas, `#242424` dark canvas, `#2e2e2e` surfaces, `#424242` borders and blue accents. Muted dark text uses `#b8b8b8` for WCAG AA contrast.

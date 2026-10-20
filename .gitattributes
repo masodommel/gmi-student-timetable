@@ -2,3 +2,4 @@
 
 # Preserve generated iCalendar bytes. Folded content can end with meaningful spaces.
 *.ics -text -diff
+*.dav binary -diff

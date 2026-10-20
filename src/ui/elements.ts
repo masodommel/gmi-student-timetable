@@ -13,6 +13,7 @@ export const elements = {
   aboutButton: byId<HTMLButtonElement>('about-button'),
   aboutDialog: byId<HTMLDialogElement>('about-dialog'),
   aboutSourceDescription: byId('about-source-description'),
+  aboutSyncDescription: byId('about-sync-description'),
   privacyButton: byId<HTMLButtonElement>('privacy-button'),
   privacyDialog: byId<HTMLDialogElement>('privacy-dialog'),
 

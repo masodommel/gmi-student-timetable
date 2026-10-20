@@ -1,17 +1,20 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import { basename, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { decodeDav, type DavDecoded } from '../src/dav/index.js';
 import { classCalendar } from '../src/timetable/calendar.js';
 import { validDate } from '../src/timetable/core.js';
 import { markOverlaps } from '../src/timetable/events.js';
 import type { ClassRecord, LecturerRecord, Manifest, TimetableEvent } from '../src/timetable/types.js';
 
-interface Options {
+export interface PrepareDavOptions {
   filename: string;
+  displayFilename?: string;
   revisionCode: string;
   revisionDate: string;
   destination: string;
+  publishedAt?: string;
 }
 
 interface LecturerDataset {
@@ -25,14 +28,16 @@ const GENERATED_FOLDERS = [
   ['lecturers', /^[a-f0-9]+\.json$/],
 ] as const;
 
-function readOptions(): Options {
-  const [filename, revisionCode, revisionDate, destination = 'public'] = process.argv.slice(2);
+function readOptions(): PrepareDavOptions {
+  const [filename, revisionCode, revisionDate, destination = 'public', displayFilename] = process.argv.slice(2);
   if (!filename || !/^[A-Z0-9]+$/.test(revisionCode || '') || !validDate(revisionDate))
-    throw new Error('Usage: npx tsx scripts/prepare_dav.ts input.dav R04D YYYY-MM-DD [public-directory]');
-  return { filename, revisionCode, revisionDate, destination };
+    throw new Error(
+      'Usage: npx tsx scripts/prepare_dav.ts input.dav R04D YYYY-MM-DD [public-directory] [display-filename]',
+    );
+  return { filename, displayFilename, revisionCode, revisionDate, destination };
 }
 
-function applyRevision(manifest: Manifest, options: Options, sourceBytes: number): void {
+function applyRevision(manifest: Manifest, options: PrepareDavOptions, sourceBytes: number): void {
   const labelDate = new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -44,7 +49,8 @@ function applyRevision(manifest: Manifest, options: Options, sourceBytes: number
     sourceRevision: labelDate,
     revisionCode: options.revisionCode,
     sourceRevisionDate: options.revisionDate,
-    sourceFilename: basename(options.filename),
+    sourceFilename: basename(options.displayFilename || options.filename),
+    publishedAt: options.publishedAt ?? new Date().toISOString(),
     sourceBytes,
   });
   delete manifest.filename;
@@ -107,8 +113,7 @@ async function writeGenerated(
   await writeFile(join(destination, 'data', 'manifest.json'), JSON.stringify(manifest));
 }
 
-async function main(): Promise<void> {
-  const options = readOptions();
+export async function prepareDav(options: PrepareDavOptions): Promise<void> {
   const input = await readFile(options.filename);
   const result = await decodeDav(
     input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength) as ArrayBuffer,
@@ -136,4 +141,8 @@ async function main(): Promise<void> {
   );
 }
 
-await main();
+async function main(): Promise<void> {
+  await prepareDav(readOptions());
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) await main();

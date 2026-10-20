@@ -44,5 +44,12 @@ print(f'PASS: {len(lecturers)} lecturer/resource datasets; {manifest["counts"]["
 
 assert manifest['revisionCode'] and manifest['sourceFilename'].endswith('.dav')
 assert len(manifest['sourceHash']) == 64
-from datetime import date
+from datetime import date, datetime
 assert date.fromisoformat(manifest['sourceRevisionDate']).isoformat() == manifest['sourceRevisionDate']
+if 'publishedAt' in manifest:
+    published_at = manifest['publishedAt']
+    assert isinstance(published_at, str) and published_at
+    try:
+        datetime.fromisoformat(published_at.replace('Z', '+00:00'))
+    except ValueError:
+        date.fromisoformat(published_at)

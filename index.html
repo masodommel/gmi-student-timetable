@@ -276,6 +276,10 @@
       <div class="about-content">
         <span class="badge amber">Reconstructed timetable</span>
         <p id="about-source-description">Timetable source details will appear after loading.</p>
+        <p id="about-sync-description">
+          The GMI timetable inbox is checked every 15 minutes by the sync service. While this page is open, it checks
+          for a newly published revision every 15 minutes. Last checked: pending.
+        </p>
         <p>
           Some original timetable rules are still being verified. Calendar-exception dates and overlapping class entries
           are labelled rather than removed. Check changes and clashes with your lecturer.
@@ -288,9 +292,18 @@
           No login is required. The provided timetable’s class selection can be remembered on this device. Files you
           open stay in memory until you refresh.
         </p>
-        <a href="https://github.com/lollllz/gmi-student-timetable" target="_blank" rel="noopener"
-          >Project &amp; source code <span data-icon="external"></span
-        ></a>
+        <p>
+          This site is a fork of the upstream project. Original timetable reconstruction, DAV tooling and interface by
+          @lollllz.
+        </p>
+        <p class="about-links">
+          <a href="https://github.com/masodommel/gmi-student-timetable" target="_blank" rel="noopener"
+            >This site’s repository <span data-icon="external"></span></a
+          ><br />
+          <a href="https://github.com/lollllz/gmi-student-timetable" target="_blank" rel="noopener"
+            >Upstream project <span data-icon="external"></span
+          ></a>
+        </p>
       </div>
     </dialog>
     <dialog id="accessibility-dialog" class="dialog" aria-labelledby="accessibility-title">

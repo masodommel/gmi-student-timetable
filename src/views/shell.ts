@@ -1,5 +1,5 @@
 import { media, SEEN_REVISION_STORAGE_KEY, state } from '../state.js';
-import { formatDate, monday, weekLabel } from '../timetable/core.js';
+import { formatDate, monday, TIMEZONE, weekLabel } from '../timetable/core.js';
 import { closest, on } from '../ui/dom.js';
 import { elements } from '../ui/elements.js';
 import { icon } from '../ui/icons.js';
@@ -7,6 +7,19 @@ import { readStored, writeStored } from '../ui/storage.js';
 import { renderSchedule } from './schedule.js';
 
 let toastTimer: number | undefined;
+
+function formatTimestamp(value: Date | string): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return typeof value === 'string' ? value : 'pending';
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: TIMEZONE,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
 
 export function hydrateIcons(root: ParentNode = document): void {
   root.querySelectorAll<HTMLElement>('[data-icon]').forEach((element) => {
@@ -82,11 +95,14 @@ function renderShell(): void {
   elements.revision.textContent = state.localFile
     ? 'Source · your local file'
     : `Source revision · ${manifest?.sourceRevision || 'loading'}`;
+  const publishedAt = manifest?.publishedAt;
   elements.aboutSourceDescription.textContent = state.localFile
     ? `You’re viewing ${manifest?.filename || ''}, read locally on this device. The planning range is ${manifest?.planningStart || ''} through ${manifest?.planningEnd || ''}.`
     : manifest
-      ? `Latest provided timetable: ${manifest.sourceFilename || manifest.title}. Revision ${manifest.revisionCode || ''}, dated ${manifest.sourceRevision}. Planning range: ${manifest.planningStart} through ${manifest.planningEnd}. Calendar downloads are snapshots; replace an older imported calendar to use this revision.`
+      ? `Provided timetable source: ${manifest.sourceFilename || manifest.title}. Revision ${manifest.revisionCode || 'unknown'}, dated ${manifest.sourceRevisionDate ? formatDate(manifest.sourceRevisionDate, { day: 'numeric', month: 'short', year: 'numeric' }) : manifest.sourceRevision}. Planning range: ${manifest.planningStart} through ${manifest.planningEnd}.${publishedAt ? ` Published ${formatTimestamp(publishedAt)}.` : ''} Calendar downloads are snapshots; replace an older imported calendar to use this revision.`
       : 'Loading timetable source details…';
+  const lastChecked = state.lastCheckedAt ? formatTimestamp(state.lastCheckedAt) : 'pending';
+  elements.aboutSyncDescription.textContent = `The GMI timetable inbox is checked every 15 minutes by the sync service. While this page is open, it checks for a newly published revision every 15 minutes. Last checked: ${lastChecked}.${state.lastCheckFailed ? ' The last check could not reach the server.' : ''}`;
   elements.classDialogDescription.textContent =
     state.mode === 'lecturer'
       ? 'Search by lecturer or resource name.'

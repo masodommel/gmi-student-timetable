@@ -2,14 +2,23 @@ name: Publish student timetable
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'apps-script/**'
+  repository_dispatch:
+    types: [timetable-source]
   workflow_dispatch:
+    inputs:
+      force:
+        description: Publish an older source revision
+        type: boolean
+        default: false
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,16 +27,78 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        if: github.event_name != 'push'
+        with:
+          repository: masodommel/gmi-student-timetable-sources
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          ref: ${{ github.event.client_payload.sha || 'main' }}
+          path: .sources
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm ci
+      - id: source
+        name: Pre-bake latest source
+        if: github.event_name != 'push'
+        run: npx tsx scripts/publish_latest_source.ts --sources .sources/sources ${{ inputs.force && '--force' || '' }}
+      - name: Summarize source selection
+        if: github.event_name != 'push'
+        run: |
+          {
+            echo '### Source selection'
+            echo "- Changed: ${{ steps.source.outputs.changed || 'false' }}"
+            echo "- Revision: ${{ steps.source.outputs.revision || 'n/a' }}"
+            echo "- Filename: ${{ steps.source.outputs.filename || 'n/a' }}"
+            echo "- Skipped invalid: ${{ steps.source.outputs.invalid || '0' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Ensure raw sources stay private
+        run: |
+          if git ls-files '*.dav' | grep -q .; then
+            echo '::error::Raw DAV tracked in the public repository'
+            exit 1
+          fi
+          if find public -type f -name '*.dav' | grep -q .; then
+            echo '::error::Raw DAV found in public/'
+            exit 1
+          fi
       - run: npm test
+        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
+      - name: Commit regenerated datasets
+        if: steps.source.outputs.changed == 'true'
+        env:
+          COMMIT_TOKEN: ${{ secrets.COMMIT_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public
+          git commit -m "publish timetable revision ${{ steps.source.outputs.revision }} [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          if [ -n "$COMMIT_TOKEN" ]; then
+            git remote set-url origin "https://x-access-token:${COMMIT_TOKEN}@github.com/${REPOSITORY}.git"
+          fi
+          git push origin HEAD:main
       - run: npm run build
+        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
+      - name: Verify Pages output
+        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
+        run: |
+          if find dist -type f -name '*.dav' | grep -q .; then
+            echo '::error::Raw DAV found in dist/'
+            exit 1
+          fi
       - uses: actions/configure-pages@v5
+        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
         with:
           path: dist
-      - name: Deploy GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
+        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'

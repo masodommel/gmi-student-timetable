@@ -6,3 +6,6 @@ node_modules/
 *.md
 package-lock.json
 .github/
+apps-script/
+sources/
+.sources/

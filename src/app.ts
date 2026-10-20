@@ -1,5 +1,5 @@
 import { initDavExport } from './dav/export.js';
-import { initialize } from './views/bootstrap.js';
+import { initialize, startAutoRefresh } from './views/bootstrap.js';
 import { initExport } from './views/export.js';
 import { initFilePicker } from './views/file-picker.js';
 import { initLesson } from './views/lesson.js';
@@ -19,4 +19,5 @@ initExport();
 initFilePicker();
 initDavExport();
 void initialize();
+startAutoRefresh();
 initPreferences();

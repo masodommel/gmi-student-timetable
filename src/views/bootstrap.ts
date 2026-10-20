@@ -5,6 +5,9 @@ import { fetchJson } from '../ui/http.js';
 import { selectClass } from './picker.js';
 import { render } from './shell.js';
 
+const AUTO_REFRESH_INTERVAL = 15 * 60 * 1000;
+let autoRefreshTimer: number | null = null;
+
 export async function initialize(): Promise<void> {
   const generation = ++state.generation;
   state.error = '';
@@ -13,6 +16,8 @@ export async function initialize(): Promise<void> {
     const manifest = await fetchJson<Manifest>('./data/manifest.json');
     if (generation !== state.generation) return;
     state.manifest = manifest;
+    state.lastCheckedAt = new Date();
+    state.lastCheckFailed = false;
     const query = new URLSearchParams(location.search);
     const date = query.get('week');
     state.week = clampWeek(validDate(date) ? date : localToday(), manifest.planningStart, manifest.planningEnd);
@@ -24,7 +29,31 @@ export async function initialize(): Promise<void> {
     else render();
   } catch {
     if (generation !== state.generation) return;
+    state.lastCheckedAt = new Date();
+    state.lastCheckFailed = true;
     state.error = 'We couldn’t load the class list. Check your connection and try again.';
     render();
   }
+}
+
+async function checkForRevision(): Promise<void> {
+  try {
+    const manifest = await fetchJson<Manifest>(`./data/manifest.json?check=${Date.now()}`);
+    state.lastCheckedAt = new Date();
+    state.lastCheckFailed = false;
+    if (manifest.sourceHash !== state.manifest?.sourceHash && !state.localFile) {
+      await initialize();
+      return;
+    }
+    render();
+  } catch {
+    state.lastCheckedAt = new Date();
+    state.lastCheckFailed = true;
+    render();
+  }
+}
+
+export function startAutoRefresh(): void {
+  if (autoRefreshTimer !== null) return;
+  autoRefreshTimer = window.setInterval(() => void checkForRevision(), AUTO_REFRESH_INTERVAL);
 }

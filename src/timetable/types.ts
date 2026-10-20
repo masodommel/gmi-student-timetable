@@ -50,6 +50,7 @@ export interface Manifest {
   sourceRevisionDate?: string;
   revisionCode?: string;
   sourceFilename?: string;
+  publishedAt?: string;
   planningStart: string;
   planningEnd: string;
   reconstructed: boolean;
