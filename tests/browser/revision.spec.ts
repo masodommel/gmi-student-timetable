@@ -10,17 +10,18 @@ test('latest revision is visible, acknowledged per source, and local files stay 
   await expect(page.locator('#about-source-description')).toContainText(manifest.sourceFilename!);
   const siteRepository = page.locator('#about-dialog a[href="https://github.com/masodommel/gmi-student-timetable"]');
   const upstreamProject = page.locator('#about-dialog a[href="https://github.com/lollllz/gmi-student-timetable"]');
+  const otherProject = page.locator('#about-dialog a[href="https://www.sovereignmc.net/"]');
   await expect(siteRepository).toContainText('This site’s repository');
   await expect(upstreamProject).toContainText('Upstream project');
+  await expect(otherProject).toContainText('My Other Project');
   await expect(siteRepository).toHaveAttribute('target', '_blank');
   await expect(siteRepository).toHaveAttribute('rel', 'noopener');
   await expect(upstreamProject).toHaveAttribute('target', '_blank');
   await expect(upstreamProject).toHaveAttribute('rel', 'noopener');
+  await expect(otherProject).toHaveAttribute('target', '_blank');
+  await expect(otherProject).toHaveAttribute('rel', 'noopener');
   await expect(page.locator('#about-sync-description')).toContainText(
-    'The GMI timetable inbox is checked every 15 minutes by the sync service.',
-  );
-  await expect(page.locator('#about-sync-description')).toContainText(
-    'While this page is open, it checks for a newly published revision every 15 minutes.',
+    'The sync service checks the GMI timetable inbox every 15 minutes, and this page checks while open.',
   );
   await expect(page.locator('#about-sync-description')).toContainText('Last checked:');
   await page.keyboard.press('Escape');

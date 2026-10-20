@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { dismissToast, filterOnlineCard } from './qa-helpers';
 const classId = '99178435';
 const expectedClass = JSON.parse(
   await readFile(new URL(`../../public/data/${classId}.json`, import.meta.url), 'utf8'),
@@ -25,7 +26,6 @@ test('student chooses a class, browses lessons, and downloads only its calendar'
   await expect(page.locator('.week-grid')).toBeVisible();
   await expect(page.locator('.lesson').first()).toBeVisible();
   await expect(page.locator('#subject-search')).toBeVisible();
-  await expect(page.locator('.file-source-row > div:first-child > span[data-icon="book"]')).toBeVisible();
   await expect(page.locator('.summary-label')).toHaveText(['Lessons', 'Hours', 'Rooms']);
   await page.locator('.lesson').first().click();
   await expect(page.locator('#lesson-dialog')).toBeVisible();
@@ -71,14 +71,16 @@ test('mobile adapts to day agenda and keeps calendar export reachable', async ({
   const today = (await page.locator('#today-button').boundingBox())!;
   expect(share.x).toBeLessThan(today.x);
   expect(Math.abs(share.y - today.y)).toBeLessThan(2);
-  await page.locator('[data-day="2026-10-12"]').click();
-  await expect(page.locator('.agenda-events .lesson').first()).toBeVisible();
+  await filterOnlineCard(page);
+  await expect(page.locator('.agenda-events .lesson')).toHaveCount(1);
+  await expect(page.locator('.agenda-events .lesson .mode-badge').first()).toHaveText('Online');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(page.locator('.mobile-export .export-trigger')).toBeVisible();
   await page.locator('.mobile-export .export-trigger').click();
   await expect(page.locator('#calendar-download')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.keyboard.press('Escape');
+  await dismissToast(page);
   await mkdir(qa, { recursive: true });
   await page.screenshot({ path: qa + 'mobile.png', fullPage: true });
 });
@@ -99,6 +101,7 @@ test('desktop weekly columns and narrow phone layout stay within the viewport', 
   await page.goto('./' + selectedUrl);
   await expect(page.locator('.day-column')).toHaveCount(7);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await dismissToast(page);
   await mkdir(qa, { recursive: true });
   await page.screenshot({ path: qa + 'desktop.png', fullPage: true });
   await page.setViewportSize({ width: 320, height: 700 });

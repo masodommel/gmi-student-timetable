@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { mkdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dismissToast, filterOnlineCard } from './qa-helpers';
+
+const qa = fileURLToPath(new URL('../../../../work/student-qa/', import.meta.url));
 
 test.use({ colorScheme: 'light' });
 
@@ -54,13 +59,20 @@ test('captures light and dark theme screenshots for review', async ({ page }) =>
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('./?class=99178435&week=2026-10-19');
   await expect(page.locator('.lesson').first()).toBeVisible();
-  await page.screenshot({ path: test.info().outputPath('theme-light.png'), fullPage: true });
+  await dismissToast(page);
+  await mkdir(qa, { recursive: true });
+  await page.screenshot({ path: qa + 'theme-light.png', fullPage: true });
   await page.locator('#theme-toggle').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.screenshot({ path: test.info().outputPath('theme-dark.png'), fullPage: true });
+  await expect(page.locator('.lesson').first()).toHaveCSS('background-color', 'rgb(38, 49, 58)');
+  await page.screenshot({ path: qa + 'theme-dark.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator('.mobile-export')).toBeVisible();
-  await page.screenshot({ path: test.info().outputPath('theme-dark-mobile.png'), fullPage: true });
+  await page.locator('[data-day="2026-10-19"]').click();
+  await dismissToast(page);
+  await filterOnlineCard(page);
+  await expect(page.locator('.agenda-events .lesson')).toHaveCount(1);
+  await page.screenshot({ path: qa + 'theme-dark-mobile.png', fullPage: true });
 });
 
 test('dark theme meets automated WCAG A/AA checks', async ({ page }) => {

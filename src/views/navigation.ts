@@ -67,7 +67,7 @@ export function initNavigation(): void {
       const x = touch.clientX - start.x;
       const y = touch.clientY - start.y;
       if (Math.abs(x) < 48 || Math.abs(x) <= Math.abs(y)) return;
-      stepDay(x > 0 ? 1 : -1);
+      stepDay(x > 0 ? -1 : 1);
     },
     { passive: true },
   );

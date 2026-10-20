@@ -15,7 +15,7 @@ export function statePanel(
 }
 
 export function summaryItem(value: number | string, label: string, symbol: string): string {
-  return `<div class="summary-item"><span class="summary-icon">${icon(symbol)}</span><strong>${value}</strong><span class="summary-label">${label}</span></div>`;
+  return `<div class="summary-item"><span class="summary-icon">${icon(symbol)}</span><span class="summary-copy"><strong>${value}</strong><span class="summary-label">${label}</span></span></div>`;
 }
 
 export function choicePanel(action: string, label: string): string {
@@ -34,7 +34,7 @@ export interface LessonCardOptions {
 export function lessonCard(event: TimetableEvent, options: LessonCardOptions): string {
   const tone = event.subject.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3;
   const online = sourceSaysOnline(event);
-  return `<button class="lesson ${tone === 1 ? 'alt' : tone === 2 ? 'warm' : ''}" data-event-id="${event.id}" aria-label="${esc(event.subject)}, ${esc(event.start)} to ${esc(event.end)}, ${esc(event.room || 'room not listed')}, ${esc(event.date)}, ${esc(event.className || options.className)}${event.exception ? ' calendar exception' : ''}${event.overlap ? ' overlapping entry' : ''}${online ? ', online source note' : ''}"><span class="lesson-time">${icon('clock')}${esc(event.start)} – ${esc(event.end)}</span><h3>${esc(event.subject)}</h3>${online ? '<span class="badge mode-badge">Online · source note</span>' : ''}${options.lecturerMode ? `<span class="lesson-meta">${esc(event.className)}</span>` : ''}<span class="lesson-meta">${icon('pin')}<span>${esc(event.room || 'Room not listed')}</span></span>${event.lecturer ? `<span class="lesson-meta">${icon('person')}<span>${esc(event.lecturer)}</span></span>` : ''}${event.note ? `<p class="lesson-note">${esc(event.note)}</p>` : ''}${event.exception ? '<span class="badge amber">Calendar exception</span>' : ''}${event.overlap ? '<span class="badge amber">Overlapping entry</span>' : ''}</button>`;
+  return `<button class="lesson ${tone === 1 ? 'alt' : tone === 2 ? 'warm' : ''}" data-event-id="${event.id}" aria-label="${esc(event.subject)}, ${esc(event.start)} to ${esc(event.end)}, ${esc(event.room || 'room not listed')}, ${esc(event.date)}, ${esc(event.className || options.className)}${event.exception ? ' calendar exception' : ''}${event.overlap ? ' overlapping entry' : ''}${online ? ', online source note' : ''}"><span class="lesson-time">${icon('clock')}${esc(event.start)} – ${esc(event.end)}</span><h3>${esc(event.subject)}${online ? '<span class="badge mode-badge">Online</span>' : ''}</h3>${options.lecturerMode ? `<span class="lesson-meta">${esc(event.className)}</span>` : ''}<span class="lesson-meta">${icon('pin')}<span>${esc(event.room || 'Room not listed')}</span></span>${event.lecturer ? `<span class="lesson-meta">${icon('person')}<span>${esc(event.lecturer)}</span></span>` : ''}${event.note ? `<p class="lesson-note">${esc(event.note)}</p>` : ''}${event.exception ? '<span class="badge amber">Calendar exception</span>' : ''}${event.overlap ? '<span class="badge amber">Overlapping entry</span>' : ''}</button>`;
 }
 
 export function classOption(item: SearchResult<ClassRecord>, selected: boolean): string {

@@ -39,7 +39,7 @@ export function formatDate(date: string, options: Intl.DateTimeFormatOptions = {
 export function weekLabel(week: string): string {
   const end = addDays(week, 6);
   const sameMonth = week.slice(0, 7) === end.slice(0, 7);
-  return `${formatDate(week, { day: 'numeric', ...(sameMonth ? {} : { month: 'short' }) })}–${formatDate(end, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  return `${formatDate(week, { day: 'numeric', ...(sameMonth ? {} : { month: 'short' }) })} – ${formatDate(end, { day: 'numeric', month: 'short', year: 'numeric' })}`;
 }
 export function minutes(time: string): number {
   const [hours, minute] = time.split(':').map(Number);

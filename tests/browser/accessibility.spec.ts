@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { dismissToast, filterOnlineCard } from './qa-helpers';
 test('student timetable and dialogs meet automated WCAG A/AA checks', async ({ page }) => {
   test.slow();
   await page.goto('./?class=99178435&week=2026-10-12');
@@ -14,6 +15,7 @@ test('student timetable and dialogs meet automated WCAG A/AA checks', async ({ p
     ).toEqual([]);
   };
   await audit();
+  await dismissToast(page);
   await page.screenshot({ path: test.info().outputPath('desktop.png'), fullPage: true });
   await page.locator('.lesson').first().click();
   await audit();
@@ -24,6 +26,9 @@ test('student timetable and dialogs meet automated WCAG A/AA checks', async ({ p
   await page.locator('#large-text').check();
   await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 320, height: 740 });
+  await dismissToast(page);
+  await filterOnlineCard(page);
+  await expect(page.locator('.agenda-events .lesson')).toHaveCount(1);
   await audit();
   await page.screenshot({ path: test.info().outputPath('mobile.png'), fullPage: true });
   await page.locator('#compact-class-button').click({ position: { x: 20, y: 32 } });

@@ -61,13 +61,6 @@
     </header>
     <div class="app-shell">
       <aside class="rail" aria-label="Class and calendar controls">
-        <div class="rail-top">
-          <button id="class-button" class="class-switch" data-mode="class" aria-haspopup="dialog">
-            <span class="class-switch-icon" data-icon="cube"></span>
-            <span class="class-switch-copy"><strong>Browse</strong><small id="class-name">Class</small></span
-            ><span class="class-switch-arrows" data-icon="arrows"></span>
-          </button>
-        </div>
         <div class="rail-menu">
           <span class="menu-label"><span data-icon="calendar"></span>My timetable<span class="menu-dot"></span></span>
           <p>Your schedule. One place.</p>
@@ -100,10 +93,10 @@
           </div>
           <div class="file-source-row">
             <div>
-              <span data-icon="book"></span><span id="file-source-label" hidden></span
-              ><button id="latest-timetable" class="revision-notice" aria-haspopup="dialog" hidden>
-                <span id="revision-new-dot" class="revision-new-dot" aria-hidden="true" hidden></span
-                ><span id="latest-timetable-label"></span>
+              <span id="file-source-label" hidden></span
+              ><button id="mobile-revision" class="revision-notice" aria-haspopup="dialog" hidden>
+                <span id="mobile-revision-dot" class="revision-new-dot" aria-hidden="true" hidden></span
+                ><span id="mobile-revision-label"></span>
               </button>
             </div>
             <div class="file-source-actions">
@@ -115,7 +108,18 @@
         <p id="dav-hint" class="file-help" hidden>
           Local edits affect recurring lessons. Export DAV saves the full file; verify it in DaVinci.
         </p>
-        <section class="summary" id="summary" aria-label="Week summary" hidden></section>
+        <div class="summary-row">
+          <section class="summary" id="summary" aria-label="Week summary" hidden></section>
+          <label class="search-field planner-search">
+            <span data-icon="search"></span>
+            <input
+              type="search"
+              id="subject-search"
+              placeholder="Find a subject, room or lecturer"
+              aria-label="Search this week’s subjects, rooms and lecturers"
+            />
+          </label>
+        </div>
         <section class="planner" aria-label="Timetable">
           <div class="planner-toolbar">
             <div class="week-controls">
@@ -123,16 +127,37 @@
                 <span data-icon="chevron"></span>
               </button>
               <div class="week-title">
-                <input type="date" id="week-date" aria-label="Choose a timetable date" disabled /><strong
-                  id="week-label"
-                  >Loading schedule…</strong
+                <input type="date" id="week-date" tabindex="-1" aria-hidden="true" disabled /><button
+                  type="button"
+                  id="week-open"
+                  class="week-open"
+                  aria-haspopup="dialog"
+                  disabled
                 >
+                  <strong id="week-label">Loading schedule…</strong>
+                </button>
               </div>
               <button id="next-week" class="icon-button" aria-label="Next week" disabled>
                 <span data-icon="chevron"></span></button
               ><button id="today-button" class="button today-button" disabled>Today</button>
             </div>
+            <div class="toolbar-class-group">
+              <button
+                id="class-button"
+                class="class-switch toolbar-class-switch"
+                data-mode="class"
+                aria-haspopup="dialog"
+              >
+                <span class="class-switch-icon" data-icon="cube"></span>
+                <span class="class-switch-copy"><strong>Browse</strong><small id="class-name">Class</small></span>
+              </button>
+              <span class="class-switch-arrows" data-icon="arrows"></span>
+            </div>
             <div class="planner-actions">
+              <button id="latest-timetable" class="revision-notice" aria-haspopup="dialog" hidden>
+                <span id="revision-new-dot" class="revision-new-dot" aria-hidden="true" hidden></span
+                ><span id="latest-timetable-label"></span>
+              </button>
               <button id="share-button" class="button secondary share-week" disabled>
                 <span data-icon="share"></span><span>Share week</span>
               </button>
@@ -141,20 +166,6 @@
                 ><button id="agenda-view" aria-pressed="false"><span data-icon="list"></span>Agenda</button>
               </div>
             </div>
-          </div>
-          <div class="planner-subbar" id="subbar" hidden>
-            <div class="schedule-context">
-              <span class="status-dot"></span
-              ><span id="schedule-context" role="status" aria-live="polite" aria-atomic="true"></span>
-            </div>
-            <label class="search-field"
-              ><span data-icon="search"></span
-              ><input
-                type="search"
-                id="subject-search"
-                placeholder="Find a subject, room or lecturer"
-                aria-label="Search this week’s subjects, rooms and lecturers"
-            /></label>
           </div>
           <nav id="day-strip" class="day-strip" aria-label="Choose a day" hidden></nav>
           <div id="schedule" class="schedule" aria-busy="true">
@@ -165,8 +176,7 @@
             </div>
           </div>
           <div class="planner-footer">
-            <span><span class="tiny-dot"></span>All times in Kuala Lumpur (UTC+8)</span
-            ><span id="revision">Loading timetable revision…</span>
+            <span><span class="tiny-dot"></span>All times in Kuala Lumpur (UTC+8)</span>
           </div>
         </section>
         <div class="below-planner">
@@ -188,6 +198,33 @@
       <div><small>YOUR CLASS CALENDAR</small><strong id="mobile-class-name"></strong></div>
       <button class="button primary export-trigger" disabled><span data-icon="download"></span>Add to calendar</button>
     </div>
+    <dialog id="week-picker" class="dialog week-picker" aria-labelledby="week-picker-title">
+      <div class="dialog-heading week-picker-heading">
+        <button
+          id="week-month-prev"
+          class="icon-button previous week-picker-nav"
+          aria-label="Previous month"
+          type="button"
+        >
+          <span data-icon="chevron"></span>
+        </button>
+        <h2 id="week-picker-title"></h2>
+        <button id="week-month-next" class="icon-button week-picker-nav" aria-label="Next month" type="button">
+          <span data-icon="chevron"></span>
+        </button>
+        <button class="icon-button close-dialog" aria-label="Close week picker" type="button">
+          <span data-icon="close"></span>
+        </button>
+      </div>
+      <div class="week-picker-labels" aria-hidden="true">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+      </div>
+      <div id="week-days" class="week-days"></div>
+      <div class="week-picker-foot">
+        <button id="week-jump-today" class="button secondary" type="button">This week</button>
+        <span id="week-picker-hint" class="week-picker-hint"></span>
+      </div>
+    </dialog>
     <dialog id="class-dialog" class="dialog class-dialog" aria-labelledby="class-dialog-title">
       <div class="dialog-heading">
         <h2 id="class-dialog-title">Find a Class</h2>
@@ -277,31 +314,30 @@
         <span class="badge amber">Reconstructed timetable</span>
         <p id="about-source-description">Timetable source details will appear after loading.</p>
         <p id="about-sync-description">
-          The GMI timetable inbox is checked every 15 minutes by the sync service. While this page is open, it checks
-          for a newly published revision every 15 minutes. Last checked: pending.
+          The sync service checks the GMI timetable inbox every 15 minutes, and this page checks while open. Last
+          checked: pending.
         </p>
         <p>
-          Some original timetable rules are still being verified. Calendar-exception dates and overlapping class entries
-          are labelled rather than removed. Check changes and clashes with your lecturer.
+          Some original rules are still being verified. Calendar exceptions and overlapping classes are labelled, not
+          removed. Confirm changes and clashes with your TTO.
+        </p>
+        <p>Downloads include only your selected class. They are tentative snapshots and won’t update automatically.</p>
+        <p>
+          No login needed. Your class selection can be remembered on this device. Opened files stay in memory until you
+          refresh.
         </p>
         <p>
-          Downloads contain your selected class only. They are a snapshot, marked tentative, and do not update
-          automatically.
-        </p>
-        <p>
-          No login is required. The provided timetable’s class selection can be remembered on this device. Files you
-          open stay in memory until you refresh.
-        </p>
-        <p>
-          This site is a fork of the upstream project. Original timetable reconstruction, DAV tooling and interface by
-          @lollllz.
+          Forked from the upstream project. Original timetable reconstruction, DAV tooling and interface by @lollllz.
         </p>
         <p class="about-links">
           <a href="https://github.com/masodommel/gmi-student-timetable" target="_blank" rel="noopener"
             >This site’s repository <span data-icon="external"></span></a
           ><br />
           <a href="https://github.com/lollllz/gmi-student-timetable" target="_blank" rel="noopener"
-            >Upstream project <span data-icon="external"></span
+            >Upstream project <span data-icon="external"></span></a
+          ><br />
+          <a href="https://www.sovereignmc.net/" target="_blank" rel="noopener"
+            >My Other Project <span data-icon="external"></span
           ></a>
         </p>
       </div>

@@ -31,10 +31,9 @@ test('mobile source status sits inside the browse bar without the book icon', as
   const manifest = await readManifest();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./?class=99178435&week=2026-10-19');
-  await expect(page.locator('#latest-timetable-label')).toHaveText(revisionLabel(manifest));
+  await expect(page.locator('#mobile-revision-label')).toHaveText(revisionLabel(manifest));
   const browse = (await page.locator('#compact-class-button').boundingBox())!;
-  const revision = (await page.locator('#latest-timetable').boundingBox())!;
-  await expect(page.locator('.file-source-row > div:first-child > span[data-icon="book"]')).toBeHidden();
+  const revision = (await page.locator('#mobile-revision').boundingBox())!;
   expect(revision.y).toBeGreaterThanOrEqual(browse.y);
   expect(revision.y + revision.height).toBeLessThanOrEqual(browse.y + browse.height);
   await expect(page.locator('.mobile-source-group')).toHaveCSS('display', 'flex');
@@ -54,7 +53,7 @@ test('desktop date area keeps the week controls fixed', async ({ page }) => {
   expect(before.date.x).toBeGreaterThanOrEqual(before.previous.x + before.previous.width);
   expect(before.date.x + before.date.width).toBeLessThanOrEqual(before.next.x);
   await page.locator('#next-week').click();
-  await expect(page.locator('#week-label')).toHaveText('26 Oct–1 Nov 2026');
+  await expect(page.locator('#week-label')).toHaveText('26 Oct – 1 Nov 2026');
   const after = await position();
   expect(after.previous.x).toBe(before.previous.x);
   expect(after.next.x).toBe(before.next.x);
@@ -76,7 +75,7 @@ test('week date stays between its arrows and mobile swipes step through days', a
   await expect(page.locator('.agenda-list')).toBeVisible();
   await page.locator('[data-day="2026-10-20"]').click();
   await expect(page.locator('#today-button')).toHaveText('Today');
-  await expect(page.locator('#week-label')).toHaveText('19–25 Oct 2026');
+  await expect(page.locator('#week-label')).toHaveText('19 – 25 Oct 2026');
   const label = (await page.locator('#week-label').boundingBox())!,
     previous = (await page.locator('#previous-week').boundingBox())!,
     next = (await page.locator('#next-week').boundingBox())!;
@@ -137,7 +136,7 @@ test('week date stays between its arrows and mobile swipes step through days', a
       { from, to },
     );
   await swipe(100, 220);
-  await expect(page.locator('[data-day="2026-10-21"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-day="2026-10-19"]')).toHaveAttribute('aria-pressed', 'true');
   await swipe(220, 100);
   await expect(page.locator('[data-day="2026-10-20"]')).toHaveAttribute('aria-pressed', 'true');
 });

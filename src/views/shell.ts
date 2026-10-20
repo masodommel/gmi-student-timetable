@@ -75,34 +75,36 @@ function renderShell(): void {
   elements.fileSourceLabel.textContent = state.localFile ? manifest?.filename || '' : '';
   elements.fileSourceLabel.hidden = !state.localFile;
   elements.restoreSource.hidden = !state.localFile;
-  const notice = elements.latestTimetable;
-  notice.hidden = !manifest;
-  if (manifest) {
-    const label = state.localFile
-      ? 'Local file loaded'
-      : `${manifest.revisionCode || 'Latest'} · ${manifest.sourceRevisionDate ? formatDate(manifest.sourceRevisionDate, { day: 'numeric', month: 'short', year: 'numeric' }) : manifest.sourceRevision}`;
-    const unread = !state.localFile && readStored(SEEN_REVISION_STORAGE_KEY) !== manifest.sourceHash;
-    elements.latestTimetableLabel.textContent = label;
-    elements.revisionNewDot.hidden = !unread;
-    notice.setAttribute(
-      'aria-label',
-      `${unread ? 'New timetable loaded. ' : ''}${label}. View timetable source details`,
-    );
-    notice.title = state.localFile
-      ? manifest.filename || ''
-      : `Latest provided timetable: ${manifest.sourceFilename || manifest.sourceRevision}`;
+  const notices: Array<[HTMLButtonElement, HTMLElement, HTMLElement]> = [
+    [elements.latestTimetable, elements.latestTimetableLabel, elements.revisionNewDot],
+    [elements.mobileRevision, elements.mobileRevisionLabel, elements.mobileRevisionDot],
+  ];
+  for (const [notice, label, dot] of notices) {
+    notice.hidden = !manifest;
+    if (manifest) {
+      const message = state.localFile
+        ? 'Local file loaded'
+        : `${manifest.revisionCode || 'Latest'} · ${manifest.sourceRevisionDate ? formatDate(manifest.sourceRevisionDate, { day: 'numeric', month: 'short', year: 'numeric' }) : manifest.sourceRevision}`;
+      const unread = !state.localFile && readStored(SEEN_REVISION_STORAGE_KEY) !== manifest.sourceHash;
+      label.textContent = message;
+      dot.hidden = !unread;
+      notice.setAttribute(
+        'aria-label',
+        `${unread ? 'New timetable loaded. ' : ''}${message}. View timetable source details`,
+      );
+      notice.title = state.localFile
+        ? manifest.filename || ''
+        : `Latest provided timetable: ${manifest.sourceFilename || manifest.sourceRevision}`;
+    }
   }
-  elements.revision.textContent = state.localFile
-    ? 'Source · your local file'
-    : `Source revision · ${manifest?.sourceRevision || 'loading'}`;
   const publishedAt = manifest?.publishedAt;
   elements.aboutSourceDescription.textContent = state.localFile
     ? `You’re viewing ${manifest?.filename || ''}, read locally on this device. The planning range is ${manifest?.planningStart || ''} through ${manifest?.planningEnd || ''}.`
     : manifest
-      ? `Provided timetable source: ${manifest.sourceFilename || manifest.title}. Revision ${manifest.revisionCode || 'unknown'}, dated ${manifest.sourceRevisionDate ? formatDate(manifest.sourceRevisionDate, { day: 'numeric', month: 'short', year: 'numeric' }) : manifest.sourceRevision}. Planning range: ${manifest.planningStart} through ${manifest.planningEnd}.${publishedAt ? ` Published ${formatTimestamp(publishedAt)}.` : ''} Calendar downloads are snapshots; replace an older imported calendar to use this revision.`
+      ? `Source: ${manifest.sourceFilename || manifest.title}. Revision ${manifest.revisionCode || 'unknown'}, dated ${manifest.sourceRevisionDate ? formatDate(manifest.sourceRevisionDate, { day: 'numeric', month: 'short', year: 'numeric' }) : manifest.sourceRevision}. Planning range ${manifest.planningStart}–${manifest.planningEnd}.${publishedAt ? ` Published ${formatTimestamp(publishedAt)}.` : ''} Calendar downloads are snapshots, replace earlier imports to use this revision.`
       : 'Loading timetable source details…';
   const lastChecked = state.lastCheckedAt ? formatTimestamp(state.lastCheckedAt) : 'pending';
-  elements.aboutSyncDescription.textContent = `The GMI timetable inbox is checked every 15 minutes by the sync service. While this page is open, it checks for a newly published revision every 15 minutes. Last checked: ${lastChecked}.${state.lastCheckFailed ? ' The last check could not reach the server.' : ''}`;
+  elements.aboutSyncDescription.textContent = `The sync service checks the GMI timetable inbox every 15 minutes, and this page checks while open. Last checked: ${lastChecked}.${state.lastCheckFailed ? ' The last check could not reach the server.' : ''}`;
   elements.classDialogDescription.textContent =
     state.mode === 'lecturer'
       ? 'Search by lecturer or resource name.'
@@ -114,10 +116,10 @@ function renderShell(): void {
   });
   elements.mobileExport.hidden = !selected;
   elements.summary.hidden = !usable;
-  elements.subbar.hidden = !usable;
   elements.dayStrip.hidden = !usable;
   elements.weekLabel.textContent = ready ? weekLabel(state.week) : 'Loading schedule…';
   elements.weekDate.disabled = !ready;
+  elements.weekOpen.disabled = !ready;
   elements.weekDate.value = state.week;
   if (manifest) {
     elements.weekDate.min = manifest.planningStart;
@@ -136,18 +138,26 @@ export function initShell(): void {
   on(elements.qualityButton, 'click', () => openDialog(elements.aboutDialog));
   on(elements.aboutButton, 'click', () => openDialog(elements.aboutDialog));
   on(elements.privacyButton, 'click', () => openDialog(elements.privacyDialog));
-  on(elements.latestTimetable, 'click', () => {
-    if (!state.localFile && state.manifest?.sourceHash)
-      writeStored(SEEN_REVISION_STORAGE_KEY, state.manifest.sourceHash);
-    render();
-    openDialog(elements.aboutDialog);
-  });
+  for (const notice of [elements.latestTimetable, elements.mobileRevision])
+    on(notice, 'click', () => {
+      if (!state.localFile && state.manifest?.sourceHash)
+        writeStored(SEEN_REVISION_STORAGE_KEY, state.manifest.sourceHash);
+      render();
+      openDialog(elements.aboutDialog);
+    });
   elements.closeButtons.forEach((button) =>
     on(button, 'click', () => closest<HTMLDialogElement>(button, 'dialog')?.close()),
   );
   elements.dialogs.forEach((dialog) =>
     on<HTMLDialogElement, MouseEvent>(dialog, 'click', (event) => {
-      if (event.target !== dialog) return;
+      if (event.target !== dialog) {
+        if (!(dialog === elements.lessonDialog && media.matches)) return;
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        if (target.closest('button, a, input, textarea, select, summary, label')) return;
+        dialog.close();
+        return;
+      }
       const rectangle = dialog.getBoundingClientRect();
       if (
         event.clientX < rectangle.left ||

@@ -1,5 +1,5 @@
 import { media, state } from '../state.js';
-import { addDays, escapeHtml as esc, filterEvents, formatDate, weekLabel } from '../timetable/core.js';
+import { addDays, escapeHtml as esc, filterEvents, formatDate } from '../timetable/core.js';
 import { elements } from '../ui/elements.js';
 import { choicePanel, statePanel } from './templates.js';
 import { renderAgenda } from './agenda.js';
@@ -27,7 +27,6 @@ export function renderSchedule(): void {
   const events = filterEvents(state.events, state.week, state.query);
   renderSummary(allWeek);
   renderDayStrip(events);
-  elements.scheduleContext.textContent = `${events.length} ${events.length === 1 ? 'entry' : 'entries'} · ${media.matches ? formatDate(state.day, { weekday: 'long', day: 'numeric', month: 'short' }) : weekLabel(state.week)}${state.query ? ' matching your search' : ' on your schedule'}`;
   if (!events.length && !media.matches) {
     const next = state.events.find((event) => event.date > addDays(state.week, 6));
     schedule.innerHTML = statePanel(

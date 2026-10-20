@@ -6,6 +6,7 @@ import { initLesson } from './views/lesson.js';
 import { initNavigation } from './views/navigation.js';
 import { initPicker } from './views/picker.js';
 import { initPreferences } from './views/preferences.js';
+import { initWeekPicker } from './views/week-picker.js';
 import { hydrateIcons, initShell } from './views/shell.js';
 import { initTheme } from './ui/theme.js';
 
@@ -13,6 +14,7 @@ hydrateIcons();
 initTheme();
 initShell();
 initNavigation();
+initWeekPicker();
 initPicker();
 initLesson();
 initExport();
