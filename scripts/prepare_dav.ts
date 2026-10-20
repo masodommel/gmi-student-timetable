@@ -4,6 +4,7 @@ import { basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decodeDav, type DavDecoded } from '../src/dav/index.js';
 import { classCalendar } from '../src/timetable/calendar.js';
+import { compactJson } from './compact-json.js';
 import { validDate } from '../src/timetable/core.js';
 import { markOverlaps } from '../src/timetable/events.js';
 import type { ClassRecord, LecturerRecord, Manifest, TimetableEvent } from '../src/timetable/types.js';
@@ -102,15 +103,15 @@ async function writeGenerated(
   revisionDate: string,
 ): Promise<void> {
   for (const dataset of Object.values(result.datasets)) {
-    await writeFile(join(destination, 'data', dataset.class.id + '.json'), JSON.stringify(dataset));
+    await writeFile(join(destination, 'data', dataset.class.id + '.json'), compactJson(dataset));
     await writeFile(
       join(destination, 'calendars', dataset.class.id + '.ics'),
       classCalendar(dataset.class, dataset.events, new Date(revisionDate + 'T00:00:00Z')),
     );
   }
   for (const dataset of lecturerDatasets)
-    await writeFile(join(destination, 'lecturers', dataset.class.id + '.json'), JSON.stringify(dataset));
-  await writeFile(join(destination, 'data', 'manifest.json'), JSON.stringify(manifest));
+    await writeFile(join(destination, 'lecturers', dataset.class.id + '.json'), compactJson(dataset));
+  await writeFile(join(destination, 'data', 'manifest.json'), compactJson(manifest));
 }
 
 export async function prepareDav(options: PrepareDavOptions): Promise<void> {

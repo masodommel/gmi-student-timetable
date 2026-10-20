@@ -1,12 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepareDav } from '../scripts/prepare_dav.js';
 import { makeDavFixture } from './dav-fixture.js';
 import type { Manifest } from '../src/timetable/types.js';
+
+async function generatedJsonFiles(directory: string): Promise<string[]> {
+  const files: string[] = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...(await generatedJsonFiles(path)));
+    else if (entry.name.endsWith('.json')) files.push(path);
+  }
+  return files;
+}
 
 test('prepareDav records source metadata in the manifest', async () => {
   const root = await mkdtemp(join(tmpdir(), 'gmi-prepare-'));
@@ -32,6 +42,12 @@ test('prepareDav records source metadata in the manifest', async () => {
     assert.equal(manifest.sourceBytes, fixture.byteLength);
     assert.equal(manifest.sourceHash, createHash('sha256').update(fixture).digest('hex'));
     assert.equal(manifest.filename, undefined);
+    const generated = await generatedJsonFiles(destination);
+    assert.ok(generated.length > 2);
+    for (const file of generated) {
+      const raw = await readFile(file, 'utf8');
+      assert.equal(raw, JSON.stringify(JSON.parse(raw)), `${file} is not whitespace-free`);
+    }
   } finally {
     await rm(root, { recursive: true, force: true });
   }

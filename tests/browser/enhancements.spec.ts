@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { makeDavFixture } from '../dav-fixture.js';
 import { decodeDav } from '../../src/dav/index.js';
+import { readManifest, revisionLabel } from './manifest.js';
 
 test('lecturer timetable includes multiple classes and exports its own calendar and share URL', async ({ page }) => {
   await page.goto('./?class=99178435&week=2026-10-12');
@@ -27,9 +28,10 @@ test('lecturer timetable includes multiple classes and exports its own calendar 
   await expect(page.locator('#lecturer-mode')).toHaveAttribute('aria-pressed', 'true');
 });
 test('mobile source status sits inside the browse bar without the book icon', async ({ page }) => {
+  const manifest = await readManifest();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./?class=99178435&week=2026-10-19');
-  await expect(page.locator('#latest-timetable-label')).toHaveText('R04D · 15 Oct 2026');
+  await expect(page.locator('#latest-timetable-label')).toHaveText(revisionLabel(manifest));
   const browse = (await page.locator('#compact-class-button').boundingBox())!;
   const revision = (await page.locator('#latest-timetable').boundingBox())!;
   await expect(page.locator('.file-source-row > div:first-child > span[data-icon="book"]')).toBeHidden();

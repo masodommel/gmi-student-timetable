@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { makeDavFixture } from '../dav-fixture.js';
+import { readManifest, revisionLabel } from './manifest.js';
 test('latest revision is visible, acknowledged per source, and local files stay distinct', async ({ page }) => {
+  const manifest = await readManifest();
   await page.goto('./?class=99178435&week=2026-10-12');
-  await expect(page.locator('#latest-timetable')).toContainText('R04D · 15 Oct 2026');
+  await expect(page.locator('#latest-timetable')).toContainText(revisionLabel(manifest));
   await expect(page.locator('#revision-new-dot')).toBeVisible();
   await page.locator('#latest-timetable').click();
-  await expect(page.locator('#about-source-description')).toContainText('TT JULYSEPT 2026_R04D_15102026.dav');
+  await expect(page.locator('#about-source-description')).toContainText(manifest.sourceFilename!);
   const siteRepository = page.locator('#about-dialog a[href="https://github.com/masodommel/gmi-student-timetable"]');
   const upstreamProject = page.locator('#about-dialog a[href="https://github.com/lollllz/gmi-student-timetable"]');
   await expect(siteRepository).toContainText('This site’s repository');
@@ -41,6 +43,6 @@ test('latest revision is visible, acknowledged per source, and local files stay 
   await expect(page.locator('#revision-new-dot')).toBeHidden();
   expect(await page.evaluate(() => localStorage.getItem('timetable-seen-revision'))).toBe('older-hash');
   await page.getByRole('button', { name: 'Use provided timetable', exact: true }).click();
-  await expect(page.locator('#latest-timetable')).toContainText('R04D');
+  await expect(page.locator('#latest-timetable')).toContainText(manifest.revisionCode!);
   await expect(page.locator('#revision-new-dot')).toBeVisible();
 });

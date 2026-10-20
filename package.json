@@ -9,14 +9,20 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run format:check && npm run typecheck && tsx scripts/check-data.ts && node --import tsx --test tests/core.test.ts tests/dav.test.ts tests/class-search.test.ts tests/online-notes.test.ts tests/publish-source.test.ts tests/prepare-dav.test.ts",
+    "optimize:logo": "tsx scripts/optimize-logo.ts",
+    "test": "npm run format:check && npm run typecheck && tsx scripts/check-data.ts && node --import tsx --test tests/core.test.ts tests/dav.test.ts tests/class-search.test.ts tests/online-notes.test.ts tests/publish-source.test.ts tests/prepare-dav.test.ts tests/build.test.ts",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.64.0",
+    "@types/csso": "^5.0.5",
     "@types/node": "^26.6.5",
+    "csso": "^5.0.5",
+    "esbuild": "^0.28.2",
+    "htmlnano": "^3.6.1",
     "prettier": "^3.9.10",
+    "sharp": "^0.35.5",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { makeDavFixture } from '../dav-fixture.js';
+import { readManifest } from './manifest.js';
 
 test('a local DAV file replaces the schedule and exports only its selected class without uploading', async ({
   page,
@@ -37,7 +38,7 @@ test('a local DAV file replaces the schedule and exports only its selected class
   await page.getByRole('button', { name: 'Use provided timetable', exact: true }).click();
   await expect(page.locator('#file-source-label')).toBeHidden();
   await page.getByRole('button', { name: 'Find my class' }).click();
-  await expect(page.locator('.class-option')).toHaveCount(178);
+  await expect(page.locator('.class-option')).toHaveCount((await readManifest()).classes.length);
 });
 
 test('an unsupported file keeps the existing timetable and offers a clear error', async ({ page }) => {
@@ -74,7 +75,7 @@ test('file import and local class calendars work on a narrow phone', async ({ pa
 
 test('cancelling a file import does not interfere with the next file', async ({ page }) => {
   let delay = true;
-  await page.route('**/dav/worker.js', async (route) => {
+  await page.route('**/worker.js', async (route) => {
     if (delay) await new Promise((resolve) => setTimeout(resolve, 1500));
     try {
       await route.continue();
