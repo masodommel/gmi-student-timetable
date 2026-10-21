@@ -1,0 +1,49 @@
+name: Build and publish dev timetable
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Disable indexing
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+          node -e "const fs=require('fs');const p='dist/index.html';const h=fs.readFileSync(p,'utf8');fs.writeFileSync(p,h.replace('<head>','<head><meta name=\"robots\" content=\"noindex\">'))"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-timetable-dist
+          path: dist
+  deploy:
+    needs: build
+    if: vars.GITHUB_PAGES_MODE == 'dev'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dev-timetable-dist
+          path: dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
