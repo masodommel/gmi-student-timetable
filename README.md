@@ -6,7 +6,7 @@ A responsive student timetable with class and lecturer views, lesson details, an
 - Live app: https://gmi-student-timetable.pages.dev/
 - Repository: https://github.com/masodommel/gmi-student-timetable
 
-GitHub Pages currently serves only a redirect to the production app. A separate development live page is planned but not enabled, so its URL is intentionally omitted here.
+GitHub Pages serves a redirect to the production app by default. The `dev` branch can publish an unindexed development live page once `GITHUB_PAGES_MODE=dev` is set, so its URL is intentionally omitted here until then.
 
 ## Tech stack
 
@@ -71,7 +71,7 @@ Timetable updates flow from Gmail to the public site without manual data commits
 2. It commits each new source to the private `masodommel/gmi-student-timetable-sources` repository as `sources/<hash16>.dav`, with a `sources/<hash16>.json` sidecar containing the original filename, message date, full SHA-256 and byte size.
 3. Successful threads receive a `TimetableSynced` label. Permanent failures receive `TimetableFailed`, and transient failures stay unlabeled and retry on the next run.
 4. The private repository's `.github/workflows/notify.yml` workflow sends a `repository_dispatch` to the public `masodommel/gmi-student-timetable` repository. It also runs every 6 hours as a catch-up.
-5. The public `pages.yml` workflow checks out the private archive, pre-bakes the newest source, runs the tests, commits the derived `public/` data, builds, and updates the GitHub Pages redirect. Cloudflare Pages builds the same `main` tree when a watched production path changes.
+5. The public `pages.yml` workflow checks out the private archive, pre-bakes the newest source, runs the tests, commits the derived `public/` data, builds, and updates the GitHub Pages redirect while dev mode is disabled. Cloudflare Pages builds the same `main` tree when a watched production path changes.
 
 Source selection uses the revision date in the original filename first, then the email time, so a late-arriving older email cannot replace a newer revision. The workflow skips an already-published hash, refuses to roll back to an older revision unless manually forced, and skips corrupt or incomplete sources with a warning. Public `push` runs tests and builds from the checked-in data without needing the private archive.
 
@@ -81,7 +81,8 @@ Raw DAV files stay in the private repository. The public repository and site pub
 
 Workflows:
 
-- `.github/workflows/pages.yml` (public): pre-bake, test, commit derived data, build, and publish the GitHub Pages redirect. A separate `dev` branch will handle the future development live page.
+- `.github/workflows/pages.yml` (public): pre-bake, test, commit derived data, build, and publish the GitHub Pages redirect unless `GITHUB_PAGES_MODE=dev`.
+- `.github/workflows/dev-pages.yml` (`dev`): test, build, mark the output unindexed, and publish the development live page when `GITHUB_PAGES_MODE=dev`.
 - `.github/workflows/apps-script.yml` (public): push `apps-script/` changes with clasp.
 - `.github/workflows/notify.yml` (private): dispatch the public workflow on a new source, manually, or every 6 hours.
 
@@ -122,18 +123,29 @@ scripts/**
 ```
 
 - A new timetable source produces one derived-data commit under `public/`, which triggers one production build. Large code changes under `src/`, `scripts/` or the root build files also trigger one build.
-- Pushes that only touch `.github/`, `tests/`, `README.md`, `design/`, `apps-script/` or `github-pages/` do not trigger Cloudflare. The planned dev live page will cover those changes without consuming Cloudflare builds.
+- Pushes that only touch `.github/`, `tests/`, `README.md`, `design/`, `apps-script/` or `github-pages/` do not trigger Cloudflare. The dev live page covers those changes without consuming Cloudflare builds.
 - Cloudflare's free plan allows 500 builds per month. This path filter and the disabled preview deployments keep production well below that limit.
 - Keep Cloudflare's `[skip ci]` build-skipping behavior disabled so the `[skip actions]` derived-data commit still builds.
 - Cloudflare Pages compresses HTML, CSS, JavaScript and JSON with Brotli or Gzip at the edge.
 
-### GitHub Pages (redirect only for now)
+### GitHub Pages (redirect or dev live page)
 
-- GitHub Pages is currently configured for redirect mode. Its URL is intentionally omitted from this README so it is not mistaken for the production site.
+- GitHub Pages runs in redirect mode by default. Its URL is intentionally omitted from this README so it is not mistaken for the production site.
 - It serves a small redirect page to Cloudflare Pages and preserves the query string and hash, keeping existing links working.
-- `GITHUB_PAGES_MODE` stays unset or set to `redirect` for now. Setting it to `dev` under **Settings → Secrets and variables → Actions → Variables** is reserved for the future development live page.
-- A separate, unindexed development live page is planned on a `dev` branch rather than `main`, so dev updates do not trigger Cloudflare builds. It is not enabled yet.
-- When that page is enabled, the dev build will write a disallow-all `robots.txt` and inject a `noindex` meta tag.
+- `GITHUB_PAGES_MODE` stays unset or set to `redirect` for redirect mode. Set it to `dev` under **Settings → Secrets and variables → Actions → Variables** to publish the development live page from the `dev` branch.
+- The dev workflow runs tests and builds on every `dev` push, writes a disallow-all `robots.txt`, injects a `noindex` meta tag, and deploys only while `GITHUB_PAGES_MODE=dev`.
+- The `main` workflow continues to test and build in dev mode but skips its Pages job, so `main` pushes cannot overwrite the dev site.
+- To refresh dev timetable data manually, copy only the generated datasets from `main`:
+
+```sh
+git switch dev
+git fetch origin
+git checkout origin/main -- public/data public/calendars public/lecturers
+git commit -m "sync dev timetable data from main"
+git push origin dev
+```
+
+This keeps the dev branch's AVIF logo and other dev-specific assets in place, and never copies DAV sources.
 
 The build uses esbuild for browser JavaScript, CSso for CSS and htmlnano for HTML. Generated JSON is whitespace-free and schema-compatible. The logo is a lossless AVIF served from `public/gmi-logo.avif`.
 
@@ -150,7 +162,7 @@ Measured `dist/` deployment output (the `public/` datasets plus the bundled app 
 | `data/` (196 class `.json` + `manifest.json`) | 5,889,643 B (5.62 MiB) | 408,427 B (0.39 MiB) | 296,710 B (0.28 MiB) |
 | `lecturers/` (246 lecturer `.json`) | 7,447,330 B (7.10 MiB) | 457,901 B (0.44 MiB) | 329,676 B (0.31 MiB) |
 
-These are whole-directory totals. A visitor downloads far less. A first page load transfers the compressed app shell (~50–55 KB) plus `manifest.json` and one class or lecturer dataset, `.ics` exports, lecturer pages and further class data are fetched on demand. Cloudflare Pages serves Brotli at the edge where available (about **1.0 MiB** for the entire site), falling back to gzip otherwise. GitHub Pages serves gzip only (~1.4 MiB), but it currently hosts the redirect page only. Sizes vary slightly between revisions as timetable data changes.
+These are whole-directory totals. A visitor downloads far less. A first page load transfers the compressed app shell (~50–55 KB) plus `manifest.json` and one class or lecturer dataset, `.ics` exports, lecturer pages and further class data are fetched on demand. Cloudflare Pages serves Brotli at the edge where available (about **1.0 MiB** for the entire site), falling back to gzip otherwise. GitHub Pages serves gzip only (~1.4 MiB), and hosts either the redirect page or the unindexed dev build. Sizes vary slightly between revisions as timetable data changes.
 
 ## Local development
 
@@ -189,7 +201,7 @@ Set `PLAYWRIGHT_CHANNEL=chrome` to use an installed Chrome instead.
 
 ## Data and deployment
 
-Generated class and lecturer datasets are checked in under `public/`. Normal updates are automated: the workflow selects the newest source from the private archive, regenerates derived data, tests it, commits `public/` and builds. Cloudflare Pages rebuilds when a watched production path changes. GitHub Pages currently refreshes the redirect only, and the unindexed dev live page is planned for a separate `dev` branch.
+Generated class and lecturer datasets are checked in under `public/`. Normal updates are automated: the workflow selects the newest source from the private archive, regenerates derived data, tests it, commits `public/` and builds. Cloudflare Pages rebuilds when a watched production path changes. GitHub Pages refreshes the redirect by default, and builds the unindexed dev live page from a separate `dev` branch when dev mode is enabled.
 
 To regenerate manually from a compatible `.dav` source, run:
 
