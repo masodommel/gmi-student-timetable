@@ -6,7 +6,7 @@ A responsive student timetable with class and lecturer views, lesson details, an
 - Live app: https://gmi-student-timetable.pages.dev/
 - Repository: https://github.com/masodommel/gmi-student-timetable
 
-GitHub Pages serves a redirect to the production app by default. The `dev` branch can publish an unindexed development live page once `GITHUB_PAGES_MODE=dev` is set, so its URL is intentionally omitted here until then.
+GitHub Pages serves a redirect to the production app by default. The `dev` branch can publish an unindexed development live page once `PAGES_MODE=dev` is set, so its URL is intentionally omitted here until then.
 
 ## Tech stack
 
@@ -81,8 +81,8 @@ Raw DAV files stay in the private repository. The public repository and site pub
 
 Workflows:
 
-- `.github/workflows/pages.yml` (public): pre-bake, test, commit derived data, build, and publish the GitHub Pages redirect unless `GITHUB_PAGES_MODE=dev`.
-- `.github/workflows/dev-pages.yml` (`dev`): test, build, mark the output unindexed, and publish the development live page when `GITHUB_PAGES_MODE=dev`.
+- `.github/workflows/pages.yml` (public): pre-bake, test, commit derived data, build, and publish the GitHub Pages redirect unless `PAGES_MODE=dev`.
+- `.github/workflows/dev-pages.yml` (`dev`): test, build, mark the output unindexed, and publish the development live page when `PAGES_MODE=dev`.
 - `.github/workflows/apps-script.yml` (public): push `apps-script/` changes with clasp.
 - `.github/workflows/notify.yml` (private): dispatch the public workflow on a new source, manually, or every 6 hours.
 
@@ -132,8 +132,9 @@ scripts/**
 
 - GitHub Pages runs in redirect mode by default. Its URL is intentionally omitted from this README so it is not mistaken for the production site.
 - It serves a small redirect page to Cloudflare Pages and preserves the query string and hash, keeping existing links working.
-- `GITHUB_PAGES_MODE` stays unset or set to `redirect` for redirect mode. Set it to `dev` under **Settings → Secrets and variables → Actions → Variables** to publish the development live page from the `dev` branch.
-- The dev workflow runs tests and builds on every `dev` push, writes a disallow-all `robots.txt`, injects a `noindex` meta tag, and deploys only while `GITHUB_PAGES_MODE=dev`.
+- `PAGES_MODE` stays unset or set to `redirect` for redirect mode. Set it to `dev` under **Settings → Secrets and variables → Actions → Variables** to publish the development live page from the `dev` branch.
+- Create it as a repository variable, not a secret. GitHub reserves the `GITHUB_` prefix for built-in names, which is why the variable is not called `GITHUB_PAGES_MODE`.
+- The dev workflow runs tests and builds on every `dev` push, writes a disallow-all `robots.txt`, injects a `noindex` meta tag, and deploys only while `PAGES_MODE=dev`.
 - The `main` workflow continues to test and build in dev mode but skips its Pages job, so `main` pushes cannot overwrite the dev site.
 - To refresh dev timetable data manually, copy only the generated datasets from `main`:
 
