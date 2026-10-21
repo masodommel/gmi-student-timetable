@@ -95,7 +95,7 @@ jobs:
   github-pages:
     needs: build
     if: |
-      vars.GITHUB_PAGES_MODE != 'dev' &&
+      vars.PAGES_MODE != 'dev' &&
       (github.event_name != 'repository_dispatch' || needs.build.outputs.changed == 'true')
     runs-on: ubuntu-latest
     environment:
