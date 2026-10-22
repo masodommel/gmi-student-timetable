@@ -21,6 +21,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    if: >-
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'publish timetable revision')
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ steps.source.outputs.changed }}
@@ -76,7 +79,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add public
-          git commit -m "publish timetable revision ${{ steps.source.outputs.revision }} [skip actions]"
+          git commit -m "publish timetable revision ${{ steps.source.outputs.revision }}"
           git fetch origin main
           git rebase origin/main
           if [ -n "$COMMIT_TOKEN" ]; then
