@@ -1,7 +1,7 @@
 
 # GMI Student Timetable
 
-A responsive student timetable with class and lecturer views, lesson details, and class-only calendar export. Browse the weekly planner on desktop or the day agenda on mobile, then download your schedule as an `.ics` file.
+A responsive student timetable with class and lecturer views, lesson details, and class-only calendar export. Browse the time grid, the weekly planner on desktop or the day agenda on mobile, then download your schedule as an `.ics` file.
 
 - Live app: https://gmi-student-timetable.pages.dev/
 - Repository: https://github.com/masodommel/gmi-student-timetable
@@ -53,7 +53,10 @@ The original concept, timetable data recovery, DAV reading/writing, calendar gen
 ## Features
 
 - Search and select a class or lecturer, your choice is remembered on the device.
+- Desktop time grid with days as rows and time on a fixed 08:00–22:00 ruler covering every published lesson, lecturer and notes on the cards, set as the default view; the chosen view and the collapsible class panel are kept in cookies. The class panel hugs the left edge, scales with the screen, animates closed, and stays beside the schedule down to 700px, where a compact in-page class row takes over.
+- One **Settings** gear in the header opens the accessibility preferences, the revision/status panel and the timetable file importer on every screen size, including phones.
 - Week planner and mobile day agenda with subject, room, lecturer and notes search.
+- Full-day holiday bands overwrite the day's lessons across the grid, week and agenda views, as in DaVinci.
 - Lesson details, overlap/exception warnings, and online-class reminders.
 - Shareable links for the selected class, lecturer and week.
 - Class-only `.ics` export with import guidance for Google Calendar, Apple Calendar and Outlook.
@@ -157,11 +160,11 @@ Measured `dist/` deployment output (the `public/` datasets plus the bundled app 
 
 | Content | Raw | gzip | Brotli |
 | :--- | ---: | ---: | ---: |
-| Whole site (645 files) | 24,386,952 B (23.26 MiB) | 1,494,845 B (1.43 MiB) | 1,074,023 B (1.02 MiB) |
-| App shell (`index.html`, `app.js`, `worker.js`, `theme-boot.js`, `styles.css`,<br>`gmi-logo.avif`, `_headers`, `.nojekyll`) | 140,985 B (0.13 MiB) | 55,077 B (0.05 MiB) | 50,291 B (0.05 MiB) |
-| `calendars/` (195 class `.ics`) | 10,908,994 B (10.40 MiB) | 573,440 B (0.55 MiB) | 397,346 B (0.38 MiB) |
-| `data/` (196 class `.json` + `manifest.json`) | 5,889,643 B (5.62 MiB) | 408,427 B (0.39 MiB) | 296,710 B (0.28 MiB) |
-| `lecturers/` (246 lecturer `.json`) | 7,447,330 B (7.10 MiB) | 457,901 B (0.44 MiB) | 329,676 B (0.31 MiB) |
+| Whole site (645 files) | 24,386,952 B <br/>(23.26 MiB) | 1,494,845 B <br/>(1.43 MiB) | 1,074,023 B <br/>(1.02 MiB) |
+| App shell (`index.html`, `app.js`, `worker.js`, <br/>`theme-boot.js`, `styles.css`,`gmi-logo.avif`, <br/>`_headers`, `.nojekyll`) | 140,985 B <br/>(0.13 MiB) | 55,077 B <br/>(0.05 MiB) | 50,291 B <br/>(0.05 MiB) |
+| `calendars/` (195 class `.ics`) | 10,908,994 B <br/>(10.40 MiB) | 573,440 B <br/>(0.55 MiB) | 397,346 B <br/>(0.38 MiB) |
+| `data/` (196 class `.json` + `manifest.json`) | 5,889,643 B <br/>(5.62 MiB) | 408,427 B <br/>(0.39 MiB) | 296,710 B <br/>(0.28 MiB) |
+| `lecturers/` (246 lecturer `.json`) | 7,447,330 B <br/>(7.10 MiB) | 457,901 B <br/>(0.44 MiB) | 329,676 B <br/>(0.31 MiB) |
 
 These are whole-directory totals. A visitor downloads far less. A first page load transfers the compressed app shell (~50–55 KB) plus `manifest.json` and one class or lecturer dataset, `.ics` exports, lecturer pages and further class data are fetched on demand. Cloudflare Pages serves Brotli at the edge where available (about **1.0 MiB** for the entire site), falling back to gzip otherwise. GitHub Pages serves gzip only (~1.4 MiB), and hosts either the redirect page or the unindexed dev build. Sizes vary slightly between revisions as timetable data changes.
 
