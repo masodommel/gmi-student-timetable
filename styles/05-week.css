@@ -1,0 +1,434 @@
+/* ===== Week: columns, grid, lessons, holidays ===== */
+.schedule {
+  min-height: 395px;
+}
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: stretch;
+}
+.day-column {
+  min-width: 0;
+  border-right: 1px solid var(--line);
+  padding: 0 8px 16px;
+  min-height: 395px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+.day-column:last-child {
+  border-right: 0;
+}
+.day-column.weekend {
+  background: var(--surface-muted);
+}
+.day-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 15px 0 16px;
+  border-bottom: 1px solid var(--line);
+  margin: 0 -8px 12px;
+}
+.day-heading span {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.day-heading strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  font-weight: 600;
+}
+.day-heading.current strong {
+  background: var(--accent);
+  color: #fff;
+}
+.day-heading.current span {
+  color: var(--accent-text);
+  font-weight: 650;
+}
+.day-exception {
+  display: block;
+  font-size: 10px;
+  color: var(--warning-text);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-line);
+  border-radius: 6px;
+  padding: 5px;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.lesson {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #cfe3f7;
+  background: #f5faff;
+  border-radius: 8px;
+  padding: 10px 9px 9px;
+  margin-top: 8px;
+  position: relative;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+  overflow-wrap: anywhere;
+}
+.lesson:hover {
+  border-color: #74b3e8;
+  background: #ecf6ff;
+}
+.lesson.alt {
+  border-color: #e2e8f0;
+  background: #f8f9fa;
+}
+.lesson.alt:hover {
+  border-color: #adb5bd;
+  background: #f1f3f5;
+}
+.lesson.warm {
+  border-color: #f2dfb3;
+  background: #fffbf0;
+}
+.lesson.warm:hover {
+  border-color: #e0b264;
+  background: #fff7e2;
+}
+.lesson-time {
+  font-size: 11px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #1d6296;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.lesson-time .icon {
+  width: 11px;
+  height: 11px;
+}
+.lesson h3 {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.lesson-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.lesson-meta .icon {
+  width: 10px;
+  height: 10px;
+}
+.lesson-note {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.5;
+  border-top: 1px solid var(--line);
+  margin-top: 7px;
+  padding-top: 7px;
+}
+.lesson .badge {
+  font-size: 9px;
+  padding: 3px 6px;
+  margin-top: 7px;
+  white-space: normal;
+  line-height: 1.5;
+}
+.lesson .mode-badge {
+  margin: 0;
+  font-size: 8px;
+  padding: 2px 5px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border: 1px solid var(--accent-line);
+}
+.mode-badge {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border: 1px solid var(--accent-line);
+  font-size: 11px;
+}
+.amber {
+  background: var(--warning-soft);
+  color: var(--warning-text);
+  border-color: var(--warning-line);
+}
+.no-day {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 32px;
+  line-height: 1.8;
+}
+.no-day > span {
+  display: block;
+  width: 5px;
+  height: 5px;
+  margin: 0 auto 10px;
+  background: var(--line);
+  border-radius: 50%;
+}
+.weekend .no-day {
+  color: var(--muted);
+  opacity: 1;
+}
+.grid-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.grid-empty .state-panel {
+  max-width: 520px;
+  margin: 0;
+  padding: 34px 40px 38px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.grid-week-empty .grid-times,
+.grid-week-empty .grid-day {
+  filter: blur(2px);
+  pointer-events: none;
+  user-select: none;
+}
+.timetable-grid {
+  display: block;
+  position: relative;
+  --grid-gutter: 52px;
+}
+.grid-times,
+.grid-day {
+  display: grid;
+  grid-template-columns: var(--grid-gutter) minmax(0, 1fr);
+}
+.grid-times {
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--line);
+}
+.grid-ruler {
+  position: relative;
+  height: 30px;
+  font-variant-numeric: tabular-nums;
+}
+.grid-ruler span {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  padding-left: 7px;
+  font-size: 9px;
+  line-height: 1;
+  color: var(--muted);
+  border-left: 1px solid var(--line);
+  white-space: nowrap;
+}
+.grid-ruler .tick {
+  translate: -50% -50%;
+  padding-left: 0;
+  border-left: 0;
+}
+.grid-ruler .tick:last-child {
+  translate: -100% -50%;
+  padding-right: 7px;
+}
+.grid-day {
+  position: relative;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.grid-day:last-child {
+  border-bottom: 0;
+}
+.grid-day.weekend {
+  background: var(--surface-muted);
+}
+.grid-day-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 0 7px 3px;
+  border-right: 1px solid var(--line);
+}
+.grid-day-heading span {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.grid-day-heading strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  height: 21px;
+  width: 21px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.grid-day-heading.current strong {
+  background: var(--accent);
+  color: #fff;
+}
+.grid-day-heading.current span {
+  color: var(--accent-text);
+  font-weight: 650;
+}
+.grid-day-track {
+  position: relative;
+  min-height: 84px;
+}
+.grid-day-track > i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.grid-day-track > i:last-child {
+  opacity: 0;
+}
+.grid-holiday {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--holiday-line);
+  border-radius: 8px;
+  background: var(--holiday-soft);
+  padding: 8px 10px;
+  color: var(--holiday-text);
+  overflow: hidden;
+  pointer-events: none;
+}
+.grid-holiday .holiday-block {
+  height: 100%;
+  margin: 0;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+.grid-lesson {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  min-width: 78px;
+  z-index: 1;
+}
+.grid-lesson .lesson {
+  width: 100%;
+  height: 100%;
+  margin-top: 0;
+  padding: 8px 8px 7px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.timetable-grid .lesson h3 {
+  font-size: 12px;
+  margin-bottom: 5px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.timetable-grid .lesson-time {
+  margin-bottom: 4px;
+}
+.timetable-grid .lesson-meta {
+  white-space: nowrap;
+}
+.timetable-grid .lesson-meta > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.timetable-grid .lesson-note {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.holiday-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--holiday-line);
+  background: var(--holiday-soft);
+  color: var(--holiday-text);
+  padding: 9px 11px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.holiday-block strong {
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.day-holiday {
+  position: relative;
+  z-index: 1;
+}
+.day-holiday[data-fill] {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-start;
+}
+.day-holiday[data-fill] .holiday-block {
+  margin: 0;
+}
+.planner-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  font-size: 10px;
+  color: var(--muted);
+  gap: 12px;
+}
+.planner-footer > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tiny-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--accent);
+}

@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { makeDavFixture } from '../dav-fixture.js';
 import { decodeDav } from '../../src/dav/index.js';
 import { readManifest, revisionLabel } from './manifest.js';
+import { openSettings } from './qa-helpers.js';
 
 test('lecturer timetable includes multiple classes and exports its own calendar and share URL', async ({ page }) => {
   await page.goto('./?class=99178435&week=2026-10-12');
@@ -144,11 +145,11 @@ test('week date stays between its arrows and mobile swipes step through days', a
 test('accessibility preferences persist, dialogs return focus and mobile layout remains usable', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto('./?class=99178435&week=2026-10-12');
-  await page.getByRole('button', { name: 'Accessibility preferences', exact: true }).click();
+  await openSettings(page, 'Accessibility preferences');
   for (const id of ['large-text', 'high-contrast', 'reduce-motion', 'agenda-default'])
     await page.locator('#' + id).check();
   await page.keyboard.press('Escape');
-  await expect(page.locator('#accessibility-button')).toBeFocused();
+  await expect(page.locator('#settings-button')).toBeFocused();
   await page.reload();
   await expect(page.locator('html')).toHaveClass(/high-contrast/);
   await expect(page.locator('#agenda-view')).toHaveAttribute('aria-pressed', 'true');
@@ -161,8 +162,8 @@ test('accessibility preferences persist, dialogs return focus and mobile layout 
 });
 test('local lesson editing exports a reparsable full DAV and stays on device', async ({ page }) => {
   await page.goto('./');
-  await page.getByRole('button', { name: 'Open timetable file' }).click();
-  const fixture = makeDavFixture();
+  await openSettings(page, 'Open timetable file');
+  const fixture = makeDavFixture({ exceptionRange: [1, 2] });
   await page
     .locator('#file-input')
     .setInputFiles({ name: 'edit.dav', mimeType: 'application/octet-stream', buffer: Buffer.from(fixture) });

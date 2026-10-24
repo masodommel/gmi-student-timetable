@@ -9,6 +9,8 @@ export interface DavSlot {
   flag: number;
   room: number;
   lecturer: number;
+  roomOffset: number;
+  lecturerOffset: number;
 }
 
 export interface DavEditorEvent {
@@ -25,11 +27,42 @@ export interface DavStaff {
   name: string;
 }
 
+export interface DavLesson {
+  lessonId: number;
+  coupling: number;
+  classId: number;
+  subjectRef: number;
+  recordStart: number;
+  recordEnd: number;
+  terminator: 0 | 1;
+  trailerCountOffset: number;
+  noteOffset: number;
+  noteEnd: number;
+  maskOffset: number;
+  bits: number[];
+  slotStarts: number[];
+  slots: DavSlot[];
+}
+
+export interface DavCountTag {
+  position: number;
+  width: number;
+  value: number;
+  encoding: 2 | 3 | 4;
+}
+
 export interface DavEditor {
   events: Record<string, DavEditorEvent>;
   periods: number[];
   duration: number;
   staff: DavStaff[];
+  rooms: DavStaff[];
+  subjects: DavStaff[];
+  lessons: Record<string, DavLesson>;
+  lessonCountTag: DavCountTag;
+  lessonInsertPoint: number;
+  weekAnchor: string;
+  weekAnchorBase: number;
 }
 
 export interface DavDecoded {

@@ -6,3 +6,4 @@ const theme: Theme = match ? (match[1] as Theme) : prefersDark ? 'dark' : 'light
 document.documentElement.dataset.theme = theme;
 document.documentElement.style.colorScheme = theme;
 document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#1f1f1f' : '#ffffff');
+if (document.cookie.match(/(?:^|; )gmi-rail=hidden/)) document.documentElement.dataset.rail = 'hidden';

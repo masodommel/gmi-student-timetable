@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/browser',
+  workers: 8,
   timeout: 30000,
   use: {
     baseURL: process.env.APP_BASE_URL || 'http://127.0.0.1:4173/',

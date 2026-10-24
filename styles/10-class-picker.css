@@ -1,0 +1,126 @@
+/* ===== Class picker: modes, filters, results ===== */
+
+.class-dialog {
+  flex-direction: column;
+  max-width: 720px;
+  max-height: min(760px, calc(100dvh - 48px));
+  overflow: hidden;
+}
+.class-dialog[open] {
+  display: flex;
+}
+.class-dialog .dialog-heading {
+  flex: 0 0 auto;
+  margin-bottom: 16px;
+}
+.class-picker-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.browse-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.browse-mode {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 650;
+}
+.browse-mode:hover {
+  border-color: var(--accent-line);
+}
+.browse-mode[aria-pressed='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: var(--accent-text);
+}
+.class-picker-content .dialog-description {
+  margin-bottom: 12px;
+}
+.class-filters {
+  --filter-arrow: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235c5f66' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.class-filters select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 32px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--paper) var(--filter-arrow) no-repeat right 11px center / 13px 13px;
+  appearance: none;
+  text-align: center;
+  text-align-last: center;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.class-filters select:hover:not(:disabled) {
+  border-color: var(--accent-line);
+}
+.class-results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.class-results-toolbar .text-button {
+  font-size: 12.5px;
+  min-height: 34px;
+}
+.class-results {
+  flex: 1;
+  min-height: 0;
+}
+.class-results .picker-empty {
+  grid-column: 1/-1;
+}
+@media (max-width: 700px) {
+  .class-dialog {
+    margin: auto 0 0;
+    width: 100%;
+    max-width: none;
+    height: min(720px, calc(100dvh - 16px));
+    max-height: calc(100dvh - 16px);
+    border-radius: 20px 20px 0 0;
+    padding: 18px 18px max(16px, env(safe-area-inset-bottom));
+  }
+  .class-dialog .dialog-heading {
+    margin-bottom: 14px;
+  }
+  .class-dialog .dialog-heading h2 {
+    font-size: 22px;
+  }
+  .class-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .class-filters select {
+    min-height: 48px;
+    padding: 12px 18px;
+    font-size: 12.5px;
+    background-position: right 6px center;
+  }
+  .class-results {
+    grid-template-columns: 1fr;
+    max-height: none;
+  }
+}

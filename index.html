@@ -16,8 +16,26 @@
   <body>
     <a class="skip-link" href="#main">Skip to timetable</a>
     <header class="topbar">
+      <button
+        id="rail-toggle"
+        class="icon-pill"
+        aria-pressed="false"
+        aria-label="Hide the class panel"
+        title="Hide the class panel"
+      >
+        <span data-icon="menu"></span>
+      </button>
+      <button
+        id="rail-open"
+        class="icon-pill rail-open"
+        type="button"
+        aria-label="Open the class panel"
+        title="Open the class panel"
+      >
+        <span data-icon="menu"></span>
+      </button>
       <a class="wordmark" href="./" aria-label="GMI Student Timetable home">
-        <img class="wordmark-logo" src="./gmi-logo.avif" alt="" width="1024" height="699" />
+        <img class="wordmark-logo" src="./gmi-logo.avif" alt="" width="1024" height="724" />
         <span class="wordmark-label">Student timetable</span>
       </a>
       <div class="header-actions">
@@ -30,32 +48,8 @@
         >
           <span id="theme-icon" data-icon="moon"></span>
         </button>
-        <button
-          id="accessibility-button"
-          class="icon-pill"
-          aria-haspopup="dialog"
-          aria-label="Accessibility preferences"
-          title="Accessibility preferences"
-        >
-          <span data-icon="wheelchair"></span>
-        </button>
-        <button
-          id="quality-button"
-          class="icon-pill info-pill"
-          aria-haspopup="dialog"
-          aria-label="Timetable information and status"
-          title="Timetable info"
-        >
-          <span data-icon="info"></span>
-        </button>
-        <button
-          id="open-file-button"
-          class="icon-pill"
-          aria-haspopup="dialog"
-          aria-label="Open timetable file"
-          title="Open timetable file"
-        >
-          <span data-icon="upload"></span>
+        <button id="settings-button" class="icon-pill" aria-haspopup="dialog" aria-label="Settings" title="Settings">
+          <span data-icon="gear"></span>
         </button>
       </div>
     </header>
@@ -117,6 +111,10 @@
               id="subject-search"
               placeholder="Find a subject, room or lecturer"
               aria-label="Search this week’s subjects, rooms and lecturers"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
             />
           </label>
         </div>
@@ -162,7 +160,8 @@
                 <span data-icon="share"></span><span>Share week</span>
               </button>
               <div class="view-switch" role="group" aria-label="Timetable view">
-                <button id="week-view" class="active" aria-pressed="true"><span data-icon="grid"></span>Week</button
+                <button id="grid-view" class="active" aria-pressed="true"><span data-icon="grid"></span>Grid</button
+                ><button id="week-view" aria-pressed="false"><span data-icon="calendar"></span>Week</button
                 ><button id="agenda-view" aria-pressed="false"><span data-icon="list"></span>Agenda</button>
               </div>
             </div>
@@ -187,8 +186,8 @@
         </div>
         <footer class="site-footer" aria-label="Cookies and privacy">
           <p>
-            <strong>Cookie notice.</strong> Only your theme choice is stored in a cookie. Class and accessibility
-            preferences stay in this browser, and timetable files never leave your device.
+            <strong>Cookie notice.</strong> Only your theme, view and class-panel choices are stored in cookies. Class
+            and accessibility preferences stay in this browser, and timetable files never leave your device.
           </p>
           <button id="privacy-button" class="text-button" aria-haspopup="dialog">Privacy policy</button>
         </footer>
@@ -217,7 +216,8 @@
         </button>
       </div>
       <div class="week-picker-labels" aria-hidden="true">
-        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        <span>W</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span
+        ><span>Sun</span>
       </div>
       <div id="week-days" class="week-days"></div>
       <div class="week-picker-foot">
@@ -240,7 +240,15 @@
         <p class="dialog-description">Search by class, programme or group.</p>
         <label class="search-field class-search"
           ><span data-icon="search"></span
-          ><input type="search" id="class-search" placeholder="Search classes…" aria-label="Search classes"
+          ><input
+            type="search"
+            id="class-search"
+            placeholder="Search classes…"
+            aria-label="Search classes"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
         /></label>
         <div class="class-filters">
           <select id="programme-filter" aria-label="Filter by programme"></select
@@ -380,6 +388,67 @@
         <button id="save-edit" class="button primary" type="submit">Apply to local timetable</button>
       </form>
     </dialog>
+    <dialog id="add-dialog" class="dialog" aria-labelledby="add-title">
+      <div class="dialog-heading">
+        <h2 id="add-title">Add lesson</h2>
+        <button class="icon-button close-dialog" aria-label="Close lesson creator">
+          <span data-icon="close"></span>
+        </button>
+      </div>
+      <p class="dialog-description">
+        Adds a new recurring lesson to this class that repeats with the schedule of an existing lesson. Duration is the
+        number of consecutive periods it covers. Experimental DAV export: verify the downloaded copy in DaVinci before
+        distributing it.
+      </p>
+      <form id="add-form" class="preference-fields">
+        <label for="add-subject">Subject</label
+        ><select id="add-subject"></select>
+        <label for="add-day">Weekday</label
+        ><select id="add-day"></select>
+        <label for="add-period">Start period</label
+        ><select id="add-period"></select>
+        <label for="add-span">Duration</label
+        ><select id="add-span"></select>
+        <label for="add-lecturer">Lecturer</label
+        ><select id="add-lecturer"></select>
+        <label for="add-room">Room</label
+        ><select id="add-room"></select>
+        <label for="add-note">Lesson notes</label><textarea id="add-note" maxlength="255" rows="4"></textarea>
+        <label><input type="checkbox" id="add-keep-cells" /> Save anyway where another lesson already sits</label>
+        <p id="add-error" role="alert" hidden></p>
+        <button id="save-add" class="button primary" type="submit">Add to local timetable</button>
+      </form>
+    </dialog>
+    <dialog id="settings-dialog" class="dialog settings-dialog" aria-labelledby="settings-dialog-title">
+      <div class="dialog-heading">
+        <h2 id="settings-dialog-title">Settings</h2>
+        <button class="icon-button close-dialog" aria-label="Close settings"><span data-icon="close"></span></button>
+      </div>
+      <div class="settings-options">
+        <button
+          id="accessibility-button"
+          class="settings-option"
+          aria-haspopup="dialog"
+          aria-label="Accessibility preferences"
+        >
+          <span class="settings-option-icon" data-icon="wheelchair"></span>
+          <span class="settings-option-copy"><strong>Accessibility</strong></span>
+        </button>
+        <button
+          id="quality-button"
+          class="settings-option"
+          aria-haspopup="dialog"
+          aria-label="Timetable information and status"
+        >
+          <span class="settings-option-icon" data-icon="info"></span>
+          <span class="settings-option-copy"><strong>Info &amp; Status</strong></span>
+        </button>
+        <button id="open-file-button" class="settings-option" aria-haspopup="dialog" aria-label="Open timetable file">
+          <span class="settings-option-icon" data-icon="upload"></span>
+          <span class="settings-option-copy"><strong>Open a timetable file</strong></span>
+        </button>
+      </div>
+    </dialog>
     <dialog id="privacy-dialog" class="dialog" aria-labelledby="privacy-title">
       <div class="dialog-heading">
         <h2 id="privacy-title">Privacy policy</h2>
@@ -391,7 +460,9 @@
         <p>Last updated 20 October 2026. This timetable runs in your browser and does not require an account.</p>
         <p>
           <strong>Cookies.</strong> If you switch themes, a <code>gmi-theme</code> cookie remembers that choice for up
-          to one year. It is not used for analytics, advertising or tracking.
+          to one year. Switching between the grid, week and agenda views stores a <code>gmi-view</code> cookie the same
+          way, and hiding or showing the class panel stores a <code>gmi-rail</code> cookie. None of these cookies are
+          used for analytics, advertising or tracking.
         </p>
         <p>
           <strong>On-device storage.</strong> Your selected class, seen timetable revision and accessibility preferences

@@ -1,0 +1,99 @@
+/* ===== Controls: main, buttons, summary, cards ===== */
+main {
+  padding: 16px clamp(20px, 2.2vw, 40px) 28px;
+  min-width: 0;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  min-height: 40px;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+.primary {
+  background: var(--accent);
+  color: #fff;
+}
+.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.secondary {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.secondary:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+.button .icon {
+  width: 16px;
+  height: 16px;
+}
+.full {
+  width: 100%;
+}
+.summary-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.summary-row > .summary {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 16px;
+  border-right: 1px solid var(--line);
+}
+.summary-item:last-child {
+  border-right: 0;
+}
+.summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-text);
+}
+.summary-copy {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.summary-item strong {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.summary-label {
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.summary-item .summary-icon .icon {
+  width: 18px;
+  height: 18px;
+}

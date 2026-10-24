@@ -1,7 +1,7 @@
 import { addDays, monday } from '../timetable/core.js';
 import { markOverlaps } from '../timetable/events.js';
 import type { ClassDataset, ClassRecord, Manifest, TimetableEvent } from '../timetable/types.js';
-import type { DavDecoded, DavEditorEvent, DavSlot } from './types.js';
+import type { DavCountTag, DavDecoded, DavEditorEvent, DavLesson, DavSlot } from './types.js';
 
 const textDecoder = new TextDecoder('windows-1252');
 const MAX_FILE = 20 * 1024 * 1024;
@@ -123,6 +123,8 @@ interface NamedRecord {
 interface CalendarException {
   start: string;
   end: string;
+  first: number;
+  last: number;
   name: string;
 }
 
@@ -135,18 +137,26 @@ interface Pattern {
 interface Lesson {
   id: number;
   coupling: number;
+  recordStart: number;
+  recordEnd: number;
+  terminator: 0 | 1;
+  trailerCountOffset: number;
   noteOffset: number;
   noteEnd: number;
+  maskOffset: number;
   classId: number;
   subject: number;
   note: string;
   bits: number[];
   slots: DavSlot[];
+  slotStarts: number[];
 }
 
 interface Timetable {
   patterns: Pattern[];
   lessons: Lesson[];
+  countTag: DavCountTag;
+  insertPoint: number;
 }
 
 interface DictionaryEntry {
@@ -227,11 +237,12 @@ function calendarSection(
         const first = reader.i32(),
           last = reader.i32();
         // Range markers are -1 when absent, else a bounded period or clock value.
+        // Both -1 marks an all-day exception.
         expect(first >= -1 && first <= 2359 && last >= -1 && last <= 2359);
         const kind = reader.u8();
         expect(kind <= 10);
         const name = reader.text();
-        exceptions.push({ start, end, name: name.trim() });
+        exceptions.push({ start, end, first, last, name: name.trim() });
       }
       reader.take(8);
       const classes = reader.count(5000);
@@ -288,19 +299,32 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
     reader.text();
     reader.take(reader.count(10000) * 24);
   }
+  const countTag = reader.position;
   const lessonCount = reader.count(30000);
-  expect(lessonCount > 0 && reader.value() === 0);
+  const countWidth = reader.position - countTag - 1;
+  expect(
+    lessonCount > 0 && [2, 3, 4].includes(bytes[countTag]) && [1, 2, 4].includes(countWidth) && reader.value() === 0,
+  );
+  const countCell: DavCountTag = {
+    position: countTag,
+    width: countWidth,
+    value: lessonCount,
+    encoding: bytes[countTag] as 2 | 3 | 4,
+  };
   const lessons: Lesson[] = [],
     lessonIds = new Set<number>(),
     slotIds = new Set<number>();
   for (let index = 0; index < lessonCount; index++) {
+    const recordStart = reader.position;
     const id = reader.u32();
     expect(!lessonIds.has(id));
     lessonIds.add(id);
     const refs = Array.from({ length: 4 }, () => reference(reader.u32()));
     const count = reader.count(1000),
-      slots: DavSlot[] = [];
+      slots: DavSlot[] = [],
+      slotStarts: number[] = [];
     for (let slotIndex = 0; slotIndex < count; slotIndex++) {
+      const slotStart = reader.position;
       const slotId = reader.u32();
       expect(!slotIds.has(slotId));
       slotIds.add(slotId);
@@ -318,8 +342,10 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
           layout.subarray(10, 17).every((value) => value === 0),
       );
       expect(reader.value() === 0 && reader.value() === 0);
-      const room = reference(reader.u32()),
-        lecturer = reference(reader.u32());
+      const roomOffset = reader.position;
+      const room = reference(reader.u32());
+      const lecturerOffset = reader.position;
+      const lecturer = reference(reader.u32());
       reader.i32();
       slots.push({
         offset: rawStart,
@@ -330,9 +356,13 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
         flag: layout[17],
         room,
         lecturer,
+        roomOffset,
+        lecturerOffset,
       });
+      slotStarts.push(slotStart);
     }
     reader.i32();
+    const maskStart = reader.position;
     const mask = reader.mask();
     reader.skipValue();
     reader.skipValue();
@@ -347,8 +377,9 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
     reader.text();
     reader.text();
     for (let field = 0; field < 8; field++) reader.skipValue();
-    if (reader.bytes[reader.position] === 4) {
-      // Some revisions close a lesson with a raw 4-byte status marker instead of empty text.
+    // Some revisions close a lesson with a raw 4-byte status marker instead of empty text.
+    const status = reader.bytes[reader.position] === 4;
+    if (status) {
       const marker = reader.take(4);
       expect(bytes[marker + 1] === 0 && bytes[marker + 2] === 2 && bytes[marker + 3] === 0);
     } else {
@@ -362,22 +393,29 @@ function parseTimetable(bytes: Uint8Array, position: number, patternCount: numbe
     lessons.push({
       id,
       coupling: refs[0],
+      recordStart,
+      recordEnd: reader.position,
+      terminator: status ? 0 : 1,
+      trailerCountOffset: layout + 3,
       noteOffset,
       noteEnd,
+      maskOffset: maskStart,
       classId: refs[1],
       subject,
       note,
       bits: activeBits(mask),
       slots,
+      slotStarts,
     });
   }
+  const insertPoint = reader.position;
   for (let field = 0; field < 3; field++) reader.skipValue();
   const reasons = reader.count(100);
   for (let reason = 0; reason < reasons; reason++) reader.text();
   reader.take(40);
   for (let field = 0; field < 4; field++) reader.skipValue();
   expect(reader.position === bytes.length);
-  return { patterns, lessons };
+  return { patterns, lessons, countTag: countCell, insertPoint };
 }
 
 // CWnn names refer to ISO weeks; 4 January always lies in ISO week 1.
@@ -457,8 +495,9 @@ function buildExceptions(calendar: { exceptions: CalendarException[] }): {
   const exceptionMap = new Map<string, string[]>();
   for (const exception of calendar.exceptions) {
     expect(Date.parse(exception.end) - Date.parse(exception.start) <= 86400000 * 900);
+    const allDay = exception.first === -1 && exception.last === -1;
     for (let date = exception.start; date <= exception.end; date = addDays(date, 1)) {
-      exceptions.push({ date, name: exception.name || 'Calendar exception' });
+      exceptions.push({ date, name: exception.name || 'Calendar exception', allDay });
       const current = exceptionMap.get(date) || [];
       current.push(exception.name || 'Unlabelled exception');
       exceptionMap.set(date, current);
@@ -543,6 +582,10 @@ export async function decodeDav(buffer: ArrayBuffer, filename = 'Timetable.dav')
   const { title, periods } = periodsSection(bytes, calendar.start, duration);
   const timetable = findTimetable(bytes, names.slice(nameIndex), periods);
   const anchor = weekAnchor(timetable.patterns, planningStart);
+  // The cleared bit of ISO week W sits at offset (W - 1) - kb, where kb is the count of weeks between
+  // the Monday of 4 January in the planning year and the Monday anchor derived from CW names.
+  const planYear = planningStart.slice(0, 4);
+  const weekAnchorBase = (Date.parse(monday(anchor)) - Date.parse(monday(`${planYear}-01-04`))) / 604800000;
   const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', buffer))]
     .map((value) => value.toString(16).padStart(2, '0'))
     .join('');
@@ -617,6 +660,25 @@ export async function decodeDav(buffer: ArrayBuffer, filename = 'Timetable.dav')
     classes,
     exceptions,
   };
+  const editorLessons: Record<string, DavLesson> = {};
+  for (const lesson of timetable.lessons) {
+    editorLessons[String(lesson.id)] = {
+      lessonId: lesson.id,
+      coupling: lesson.coupling,
+      classId: lesson.classId,
+      subjectRef: lesson.subject,
+      recordStart: lesson.recordStart,
+      recordEnd: lesson.recordEnd,
+      terminator: lesson.terminator,
+      trailerCountOffset: lesson.trailerCountOffset,
+      noteOffset: lesson.noteOffset,
+      noteEnd: lesson.noteEnd,
+      maskOffset: lesson.maskOffset,
+      bits: lesson.bits,
+      slotStarts: lesson.slotStarts,
+      slots: lesson.slots,
+    };
+  }
   return {
     editor: {
       events: editorEvents,
@@ -625,6 +687,17 @@ export async function decodeDav(buffer: ArrayBuffer, filename = 'Timetable.dav')
       staff: Object.entries(dictionary)
         .filter(([, entry]) => entry.category === 'staff')
         .map(([id, entry]) => ({ id, name: entry.name })),
+      rooms: Object.entries(dictionary)
+        .filter(([, entry]) => entry.category === 'rooms')
+        .map(([id, entry]) => ({ id, name: entry.name })),
+      subjects: Object.entries(dictionary)
+        .filter(([, entry]) => entry.category === 'subjects')
+        .map(([id, entry]) => ({ id, name: entry.name })),
+      lessons: editorLessons,
+      lessonCountTag: timetable.countTag,
+      lessonInsertPoint: timetable.insertPoint,
+      weekAnchor: anchor,
+      weekAnchorBase,
     },
     lecturerEvents,
     manifest,

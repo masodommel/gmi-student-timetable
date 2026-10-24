@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { makeDavFixture } from '../dav-fixture.js';
 import { readManifest, revisionLabel } from './manifest.js';
+import { openSettings } from './qa-helpers.js';
 test('latest revision is visible, acknowledged per source, and local files stay distinct', async ({ page }) => {
   const manifest = await readManifest();
   await page.goto('./?class=99178435&week=2026-10-12');
@@ -32,7 +33,7 @@ test('latest revision is visible, acknowledged per source, and local files stay 
   await page.evaluate(() => localStorage.setItem('timetable-seen-revision', 'older-hash'));
   await page.reload();
   await expect(page.locator('#revision-new-dot')).toBeVisible();
-  await page.getByRole('button', { name: 'Open timetable file' }).click();
+  await openSettings(page, 'Open timetable file');
   await page.locator('#file-input').setInputFiles({
     name: 'personal.dav',
     mimeType: 'application/octet-stream',

@@ -1,5 +1,6 @@
 import { escapeHtml as esc, formatDate } from '../timetable/core.js';
 import { sourceSaysOnline } from '../timetable/notes.js';
+import type { DavStaff } from '../dav/index.js';
 import type { ClassRecord, SearchResult, TimetableEvent } from '../timetable/types.js';
 import { icon } from '../ui/icons.js';
 
@@ -26,6 +27,10 @@ export function dayException(name: string): string {
   return `<span class="day-exception">${esc(name)}</span>`;
 }
 
+export function holidayBlock(names: string[]): string {
+  return `<div class="holiday-block"><span class="badge amber">Holiday</span><strong>${esc(names.join(' · '))}</strong></div>`;
+}
+
 export interface LessonCardOptions {
   lecturerMode: boolean;
   className: string;
@@ -34,7 +39,7 @@ export interface LessonCardOptions {
 export function lessonCard(event: TimetableEvent, options: LessonCardOptions): string {
   const tone = event.subject.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3;
   const online = sourceSaysOnline(event);
-  return `<button class="lesson ${tone === 1 ? 'alt' : tone === 2 ? 'warm' : ''}" data-event-id="${event.id}" aria-label="${esc(event.subject)}, ${esc(event.start)} to ${esc(event.end)}, ${esc(event.room || 'room not listed')}, ${esc(event.date)}, ${esc(event.className || options.className)}${event.exception ? ' calendar exception' : ''}${event.overlap ? ' overlapping entry' : ''}${online ? ', online source note' : ''}"><span class="lesson-time">${icon('clock')}${esc(event.start)} – ${esc(event.end)}</span><h3>${esc(event.subject)}${online ? '<span class="badge mode-badge">Online</span>' : ''}</h3>${options.lecturerMode ? `<span class="lesson-meta">${esc(event.className)}</span>` : ''}<span class="lesson-meta">${icon('pin')}<span>${esc(event.room || 'Room not listed')}</span></span>${event.lecturer ? `<span class="lesson-meta">${icon('person')}<span>${esc(event.lecturer)}</span></span>` : ''}${event.note ? `<p class="lesson-note">${esc(event.note)}</p>` : ''}${event.exception ? '<span class="badge amber">Calendar exception</span>' : ''}${event.overlap ? '<span class="badge amber">Overlapping entry</span>' : ''}</button>`;
+  return `<button class="lesson ${tone === 1 ? 'alt' : tone === 2 ? 'warm' : ''}" data-event-id="${event.id}" aria-label="${esc(event.subject)}, ${esc(event.start)} to ${esc(event.end)}, ${esc(event.room || 'room not listed')}, ${esc(event.date)}, ${esc(event.className || options.className)}${event.exception ? ' calendar exception' : ''}${event.overlap ? ' overlapping entry' : ''}${online ? ', online source note' : ''}"><span class="lesson-time">${icon('clock')}${esc(event.start)} – ${esc(event.end)}${online ? '<span class="badge mode-badge">Online</span>' : ''}</span><h3>${esc(event.subject)}</h3>${options.lecturerMode ? `<span class="lesson-meta">${esc(event.className)}</span>` : ''}<span class="lesson-meta">${icon('pin')}<span>${esc(event.room || 'Room not listed')}</span></span>${event.lecturer ? `<span class="lesson-meta">${icon('person')}<span>${esc(event.lecturer)}</span></span>` : ''}${event.note ? `<p class="lesson-note">${esc(event.note)}</p>` : ''}${event.exception ? '<span class="badge amber">Calendar exception</span>' : ''}${event.overlap ? '<span class="badge amber">Overlapping entry</span>' : ''}</button>`;
 }
 
 export function classOption(item: SearchResult<ClassRecord>, selected: boolean): string {
@@ -57,6 +62,14 @@ export function editLessonButton(id: string): string {
   return `<button id="edit-lesson" class="button secondary" data-edit-id="${esc(id)}">Edit recurring lesson</button>`;
 }
 
+export function addLessonButton(id: string): string {
+  return `<button id="add-lesson" class="button secondary" data-add-lesson="${esc(id)}">Add a lesson like this</button>`;
+}
+
+export function deleteLessonButton(lessonId: number): string {
+  return `<button id="delete-lesson" class="button secondary" data-delete-lesson="${lessonId}">Delete lesson</button><p id="lesson-error" role="alert" hidden></p>`;
+}
+
 export function shareDialog(url: string): string {
   return `<h2 id="lesson-dialog-title">Share this week</h2><p class="dialog-description">Copy this link to share the selected class and week.</p><label class="search-field"><input id="share-link" type="text" aria-label="Class and week link" value="${esc(url)}" readonly></label>`;
 }
@@ -74,6 +87,21 @@ export function editPeriodOptions(periods: number[]): string {
         `<option value="${i + 1}">${String(Math.floor(start / 60)).padStart(2, '0')}:${String(start % 60).padStart(2, '0')} (period ${i + 1})</option>`,
     )
     .join('');
+}
+
+export function addSpanOptions(periods: number): string {
+  return Array.from({ length: Math.max(0, periods) }, (_, i) => i + 1)
+    .map((count) => `<option value="${count}">${count} period${count === 1 ? '' : 's'} long</option>`)
+    .join('');
+}
+
+export function addNamedOptions(list: DavStaff[], emptyLabel: string): string {
+  return [
+    `<option value="">${esc(emptyLabel)}</option>`,
+    ...[...list]
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+      .map((item) => `<option value="${esc(item.id)}">${esc(item.name)}</option>`),
+  ].join('');
 }
 
 export function exportDialog(

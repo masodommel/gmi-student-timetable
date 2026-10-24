@@ -1,8 +1,10 @@
-import { media, state } from '../state.js';
+import { holidaysFor, media, state } from '../state.js';
 import { addDays, escapeHtml as esc, filterEvents, formatDate } from '../timetable/core.js';
+import type { TimetableEvent } from '../timetable/types.js';
 import { elements } from '../ui/elements.js';
 import { choicePanel, statePanel } from './templates.js';
 import { renderAgenda } from './agenda.js';
+import { renderGrid, measureGridTracks } from './grid.js';
 import { renderDayStrip, renderSummary, renderWeek } from './week.js';
 
 export function renderSchedule(): void {
@@ -25,23 +27,36 @@ export function renderSchedule(): void {
   }
   const allWeek = filterEvents(state.events, state.week);
   const events = filterEvents(state.events, state.week, state.query);
+  const holidayWeek = Array.from({ length: 7 }, (_, day) => holidaysFor(addDays(state.week, day))).flat().length > 0;
   renderSummary(allWeek);
   renderDayStrip(events);
-  if (!events.length && !media.matches) {
-    const next = state.events.find((event) => event.date > addDays(state.week, 6));
-    schedule.innerHTML = statePanel(
-      state.query ? 'Nothing matches that search' : 'No classes listed this week',
-      state.query
-        ? 'Try a different subject, room or lecturer.'
-        : next
-          ? `Your next scheduled entry is ${esc(formatDate(next.date, { day: 'numeric', month: 'long' }))}.`
-          : selected.eventCount
-            ? 'There are no more dated entries in this source. You can view an earlier week or download the full class calendar.'
-            : 'This class has no dated entries in the recovered source. Choose another class or check with your lecturer.',
-      state.query ? 'clear-search' : next ? 'next-scheduled' : 'choose-class',
-      state.query ? 'Clear search' : next ? 'Go to next class' : 'Choose another class',
-    );
+  const emptyPanel = emptyPanelFor(events, holidayWeek);
+  if (emptyPanel && state.view !== 'grid') {
+    schedule.innerHTML = emptyPanel;
     return;
   }
-  schedule.innerHTML = media.matches || state.view === 'agenda' ? renderAgenda(events) : renderWeek(events);
+  schedule.innerHTML =
+    media.matches || state.view === 'agenda'
+      ? renderAgenda(events)
+      : state.view === 'grid'
+        ? renderGrid(events, emptyPanel)
+        : renderWeek(events);
+  if (state.view === 'grid') measureGridTracks();
+}
+
+function emptyPanelFor(events: TimetableEvent[], holidayWeek: boolean): string {
+  if (events.length || media.matches || (!state.query && holidayWeek)) return '';
+  const next = state.events.find((event) => event.date > addDays(state.week, 6))?.date;
+  return statePanel(
+    state.query ? 'Nothing matches that search' : 'No classes listed this week',
+    state.query
+      ? 'Try a different subject, room or lecturer.'
+      : next
+        ? `Your next scheduled entry is ${esc(formatDate(next, { day: 'numeric', month: 'long' }))}.`
+        : state.selected?.eventCount
+          ? 'There are no more dated entries in this source. You can view an earlier week or download the full class calendar.'
+          : 'This class has no dated entries in the recovered source. Choose another class or check with your lecturer.',
+    state.query ? 'clear-search' : next ? 'next-scheduled' : 'choose-class',
+    state.query ? 'Clear search' : next ? 'Go to next class' : 'Choose another class',
+  );
 }

@@ -1,0 +1,168 @@
+/* ===== Accessibility: large text, contrast, forms ===== */
+.preference-fields {
+  display: grid;
+  gap: 18px;
+}
+.preference-fields label {
+  display: block;
+  font-size: 14px;
+}
+.preference-fields input {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.preference-fields select,
+.preference-fields textarea {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: var(--white);
+}
+.large-text main,
+.large-text .dialog {
+  font-size: 18px;
+}
+.large-text .lesson h3 {
+  font-size: 18px;
+}
+.large-text .lesson-meta,
+.large-text .lesson-note,
+.large-text .lesson-time,
+.large-text .dialog-description,
+.large-text .class-option small,
+.large-text .file-help {
+  font-size: 15px;
+}
+.large-text .class-option strong,
+.large-text .settings-option-copy strong {
+  font-size: 17px;
+}
+.large-text .week-title strong {
+  font-size: 14px;
+}
+.large-text .site-footer {
+  font-size: 14px;
+}
+.large-text .week-grid {
+  grid-template-columns: repeat(7, minmax(165px, 1fr));
+  overflow-x: auto;
+}
+.large-text .timetable-grid {
+  --grid-gutter: 64px;
+}
+.large-text .timetable-grid .lesson h3 {
+  font-size: 15px;
+}
+.large-text .grid-day-heading strong {
+  font-size: 15px;
+  height: 25px;
+  width: 25px;
+}
+.large-text .grid-ruler span {
+  font-size: 12px;
+}
+.large-text .holiday-block,
+.large-text .grid-holiday {
+  font-size: 14px;
+}
+.large-text .revision-notice {
+  font-size: 14px;
+}
+.large-text .mode-badge {
+  font-size: 15px;
+}
+.high-contrast {
+  --ink: #0b0c0e;
+  --muted: #212529;
+  --line: #495057;
+  --teal: #0b4f8a;
+  --teal-dark: #0b4f8a;
+  --pale: #d0ebff;
+  --accent-text: #0b4f8a;
+}
+.high-contrast .lesson,
+.high-contrast .lesson.alt,
+.high-contrast .lesson.warm {
+  background: #fff;
+  color: #0b0c0e;
+  border: 2px solid #212529;
+}
+.high-contrast .lesson-meta,
+.high-contrast .lesson-note,
+.high-contrast .lesson-time {
+  color: #0b0c0e;
+}
+.high-contrast .holiday-block {
+  background: #fff;
+  color: #0b0c0e;
+  border: 2px solid #212529;
+}
+.high-contrast .lesson-mode-notice,
+.high-contrast .mode-badge {
+  border-color: var(--accent-text);
+}
+.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (max-width: 700px) {
+  .header-actions {
+    gap: 5px;
+  }
+  .large-text .week-grid {
+    display: block;
+  }
+  .preference-fields {
+    gap: 12px;
+  }
+  .week-controls {
+    min-width: 0;
+  }
+  .schedule {
+    touch-action: pan-y;
+  }
+}
+@media (forced-colors: active) {
+  .week-open {
+    border: 1px solid transparent;
+  }
+  .lesson,
+  .class-option,
+  .button,
+  .day-tab,
+  .icon-pill,
+  .settings-option {
+    border: 1px solid ButtonText;
+  }
+  .holiday-block,
+  .grid-holiday,
+  .day-holiday,
+  .grid-empty {
+    border: 1px solid ButtonText;
+  }
+  .grid-day-track > i {
+    background: CanvasText;
+  }
+  .grid-ruler span {
+    border-color: CanvasText;
+  }
+  .day-tab.active {
+    outline: 2px solid Highlight;
+  }
+  .status-dot,
+  .day-marker {
+    background: CanvasText;
+  }
+  .revision-notice {
+    border: 1px solid ButtonText;
+  }
+  .revision-new-dot {
+    background: ButtonText;
+  }
+}

@@ -95,14 +95,11 @@ jobs:
             echo '::error::Raw DAV found in dist/'
             exit 1
           fi
-      - uses: actions/upload-artifact@v4
-        if: github.event_name != 'repository_dispatch' || steps.source.outputs.changed == 'true'
-        with:
-          name: timetable-dist
-          path: dist
   github-pages:
     needs: build
-    if: github.event_name != 'repository_dispatch' || needs.build.outputs.changed == 'true'
+    if: |
+      vars.PAGES_MODE != 'dev' &&
+      (github.event_name != 'repository_dispatch' || needs.build.outputs.changed == 'true')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -112,20 +109,9 @@ jobs:
         with:
           ref: main
       - name: Prepare redirect
-        if: vars.GITHUB_PAGES_MODE != 'dev'
         run: |
           mkdir -p gh-pages-build
           cp -R github-pages/. gh-pages-build/
-      - uses: actions/download-artifact@v4
-        if: vars.GITHUB_PAGES_MODE == 'dev'
-        with:
-          name: timetable-dist
-          path: gh-pages-build
-      - name: Disable indexing in dev mode
-        if: vars.GITHUB_PAGES_MODE == 'dev'
-        run: |
-          printf 'User-agent: *\nDisallow: /\n' > gh-pages-build/robots.txt
-          node -e "const fs=require('fs');const p='gh-pages-build/index.html';const h=fs.readFileSync(p,'utf8');fs.writeFileSync(p,h.replace('<head>','<head><meta name=\"robots\" content=\"noindex\">'))"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

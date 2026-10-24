@@ -1,0 +1,172 @@
+/* ===== Motion: dialogs, week picker navigation, day strip ===== */
+@keyframes month-slide-next {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes month-slide-previous {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.week-days.month-slide-next {
+  animation: month-slide-next 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.week-days.month-slide-previous {
+  animation: month-slide-previous 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+#previous-week,
+#next-week,
+.week-picker-nav {
+  transition:
+    transform 0.14s ease,
+    background-color 0.14s ease,
+    border-color 0.14s ease;
+}
+#previous-week:active:not(:disabled),
+#next-week:active:not(:disabled),
+.week-picker-nav:active:not(:disabled) {
+  transform: scale(0.9);
+}
+@keyframes day-pill-in {
+  0% {
+    transform: scale(0.94);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.dialog {
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.18s, 0.28s, 0.28s, 0.28s;
+  transition-timing-function: ease, cubic-bezier(0.2, 0.8, 0.2, 1), ease, ease;
+  transition-behavior: allow-discrete;
+}
+.dialog:not([open]) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px) scale(0.97);
+}
+.dialog::backdrop {
+  opacity: 1;
+  transition-property: opacity, display, overlay;
+  transition-duration: 0.22s;
+  transition-timing-function: ease;
+  transition-behavior: allow-discrete;
+}
+.dialog:not([open])::backdrop {
+  opacity: 0;
+  pointer-events: none;
+}
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+.day-tab {
+  transition:
+    background-color 0.26s ease,
+    color 0.26s ease;
+}
+.day-tab strong,
+.day-tab > span:first-child,
+.day-tab .day-marker {
+  transition:
+    color 0.26s ease,
+    background-color 0.26s ease;
+}
+.day-tab.active {
+  animation: day-pill-in 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.file-progress:not([hidden]),
+.file-error:not([hidden]),
+#edit-error:not([hidden]),
+#add-error:not([hidden]) {
+  animation: notice-in 0.2s ease both;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+.toast:not([hidden]) {
+  animation: toast-in 0.22s ease both;
+}
+@keyframes mobile-export-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+@media (max-width: 700px) {
+  :is(.class-dialog, .export-dialog, .lesson-dialog) {
+    transition-duration: 0.18s, 0.32s, 0.32s, 0.32s;
+  }
+  :is(.class-dialog, .export-dialog, .lesson-dialog):not([open]) {
+    transform: translateY(100%);
+  }
+  @starting-style {
+    :is(.class-dialog, .export-dialog, .lesson-dialog)[open] {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+  }
+  .mobile-export:not([hidden]) {
+    animation: mobile-export-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+@keyframes picker-swap-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--picker-swap-offset, 12px));
+  }
+}
+#class-dialog[data-picker-swap='previous'] {
+  --picker-swap-offset: -12px;
+}
+#class-dialog.picker-swap
+  :is(#class-dialog-title, .dialog-description, .class-search, .class-filters, .class-results-toolbar, .class-results) {
+  animation: picker-swap-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+#class-dialog.picker-swap #class-results {
+  animation-duration: 0.32s;
+}
+.browse-mode {
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease;
+}
+.browse-mode:active {
+  transform: scale(0.97);
+}

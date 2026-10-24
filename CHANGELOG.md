@@ -1,5 +1,32 @@
 # Changelog
 
+## 24 October 2026 - Split stylesheet into source files
+
+- Split `styles.css` into ordered files under `styles/`, concatenated and minified into a single `dist/styles.css` at build time.
+- Consolidated duplicated accessibility and dark-theme overrides, merged repeated breakpoint blocks, and moved feature rules next to their components.
+- Updated the Cloudflare production watch path to `styles/**`.
+
+## 22 October 2026 - Responsive class panel and settings menu
+
+- The class panel now scales with the screen: its width is fluid between roughly 190px and 236px on laptops, tightens further on 700–1000px tablets (where it stays visible again), and it is replaced below 700px by the compact in-page class row.
+- Dropped the centred 1560px page cap: the class panel hugs the viewport's left edge and the schedule stretches toward the right with a comfortable margin instead of floating in dead space on wide monitors, and collapsing the panel now animates it sliding closed instead of snapping shut.
+- The class-panel toggle is now a hamburger at the very left of the header (toggle | logo | "Student timetable" label on desktop), using the same menu icon as the phone scaffold, so the main menu button sits in the same spot on every screen size.
+- The three header icons (accessibility, info and file upload) are consolidated into one **Settings** gear that opens a panel with those three options on every screen size, so phones can reach the accessibility preferences, the revision/status panel and the file importer from the same button.
+- Added a **Open the class panel** handle next to the GMI logo on phones as scaffolding for a future mobile drawer for the class panel; it does not change behaviour yet.
+- The class panel (the sidebar with the calendar export) can also be hidden and restored to free screen width on laptops. The choice is stored in a `gmi-rail` cookie for up to one year and applied before first paint.
+- The grid ruler stayed fixed to 08:00–22:00.
+- Grid lesson cards now show the lecturer and lesson note again; day rows grow to the tallest card so nothing is clipped on shorter laptop screens.
+
+## 21 October 2026 - Grid view and holiday display
+
+- Added a desktop-only **Grid** view: days are rows on the y-axis, time flows along the x-axis, and lesson cards sit on the hour ruler with overlapping entries sharing the row. It joins the existing week columns and agenda in the view switch (Grid · Week · Agenda).
+- The grid is the default view on desktop. The last chosen view is remembered in a `gmi-view` cookie for up to one year, written only on desktop; mobile stays on the day agenda.
+- The "Prefer agenda view" accessibility preference still applies agenda on load, but only until a cookie exists; unchecked it falls back to the cookie or the grid default.
+- All-day holidays from the DaVinci calendar section overwrite the day as in DaVinci: a full-day rose band replaces that date's lessons and chips in all three views, matching the DaVinci fill. Partial-day exceptions keep the compact chip with the day's lessons visible around it.
+- The DAV reader now keeps the exception range markers and publishes an `allDay` flag per date; legacy manifests without the flag default to all-day until the next publish.
+- A week with only holidays (and no lessons) renders the holiday bands instead of the empty-state panel, and an empty week in the grid keeps the day rows with the empty state inside the grid instead of resizing the page.
+- Added Playwright coverage for the grid default, cookie persistence, mobile guarding and holiday rendering in all three views, plus DAV reader tests for the `allDay` flag.
+
 ## 20 October 2026 - Automated DAV sync
 
 - Added an automated timetable pipeline: Gmail to Apps Script every 15 minutes, then the private `masodommel/gmi-student-timetable-sources` archive (`sources/<hash16>.dav` plus `.json` sidecars), the private `notify.yml` `repository_dispatch`, and the public Pages workflow.
@@ -45,6 +72,10 @@
 - Added `tsx` for running TypeScript Node scripts; `npm test` now typechecks the app and tooling before running the data checks and unit tests.
 - Added `npm run typecheck` and `npm run update:air`; the Pages workflow now refreshes air quality through the npm script.
 - No timetable data, calendar output, DAV parsing/editing behavior or browser rendering changed.
+
+## 20 October 2026 - Fork Creation Date
+
+- Start of masodommel/gmi-student-timetable fork :3
 
 ## 18 October 2026 - Compact campus updates
 

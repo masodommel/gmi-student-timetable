@@ -13,6 +13,7 @@ const tsc = join(dirname(require.resolve('typescript')), 'tsc.js');
 const root = new URL('../', import.meta.url);
 const dist = new URL('dist/', root);
 const publicDirectory = new URL('public/', root);
+const stylesDirectory = new URL('styles/', root);
 
 const REQUIRED_ASSETS = ['index.html', 'app.js', 'worker.js', 'theme-boot.js', 'styles.css', 'gmi-logo.avif'];
 
@@ -41,6 +42,20 @@ async function walk(directory: URL): Promise<URL[]> {
 
 async function bytes(url: URL): Promise<number> {
   return (await stat(url)).size;
+}
+
+async function sourceStyles(): Promise<string> {
+  const names = (await readdir(stylesDirectory, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.css'))
+    .map((entry) => entry.name)
+    .sort();
+  assert.ok(names.length > 0, 'No source styles found');
+  assert.ok(
+    names.every((name) => /^\d{2}-.+\.css$/.test(name)),
+    'Style files must use the NN-name.css order',
+  );
+  const contents = await Promise.all(names.map((name) => readFile(new URL(name, stylesDirectory), 'utf8')));
+  return contents.join('\n');
 }
 
 async function verify(): Promise<void> {
@@ -104,7 +119,7 @@ export async function buildSite(): Promise<void> {
     }),
   ]);
 
-  const css = await readFile(new URL('styles.css', root), 'utf8');
+  const css = await sourceStyles();
   await writeFile(new URL('styles.css', dist), minify(css, { restructure: true }).css);
 
   const html = await readFile(new URL('index.html', root), 'utf8');

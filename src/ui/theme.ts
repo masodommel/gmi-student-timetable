@@ -1,19 +1,10 @@
 import { elements } from './elements.js';
 import { icon } from './icons.js';
+import { readCookie, writeCookie } from './cookies.js';
 
 export type Theme = 'light' | 'dark';
 
 const THEME_COOKIE = 'gmi-theme';
-const COOKIE_MAX_AGE = 31536000;
-
-function readCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-function writeCookie(name: string, value: string): void {
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
-}
 
 function systemTheme(): Theme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
