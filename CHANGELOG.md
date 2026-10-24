@@ -1,5 +1,11 @@
 # Changelog
 
+## 24 October 2026 - Split stylesheet into source files
+
+- Split `styles.css` into ordered files under `styles/`, concatenated and minified into a single `dist/styles.css` at build time.
+- Consolidated duplicated accessibility and dark-theme overrides, merged repeated breakpoint blocks, and moved feature rules next to their components.
+- Updated the Cloudflare production watch path to `styles/**`.
+
 ## 20 October 2026 - Automated DAV sync
 
 - Added an automated timetable pipeline: Gmail to Apps Script every 15 minutes, then the private `masodommel/gmi-student-timetable-sources` archive (`sources/<hash16>.dav` plus `.json` sidecars), the private `notify.yml` `repository_dispatch`, and the public Pages workflow.

@@ -1,0 +1,300 @@
+/* ===== Dark theme: palette and overrides ===== */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #242424;
+  --surface: #2e2e2e;
+  --surface-muted: #1f1f1f;
+  --navy: #1f1f1f;
+  --ink: #c9c9c9;
+  --muted: #b8b8b8;
+  --teal: #4dabf7;
+  --teal-dark: #4dabf7;
+  --pale: #4dabf724;
+  --paper: var(--canvas);
+  --line: #424242;
+  --white: var(--surface);
+  --amber: #ffd43b;
+  --amber-pale: #ffd43b1a;
+  --focus: #4dabf7;
+  --accent: #1971c2;
+  --accent-hover: #1864ab;
+  --accent-text: #4dabf7;
+  --accent-soft: #4dabf71f;
+  --accent-line: #4dabf766;
+  --warning-text: #ffd43b;
+  --warning-soft: #ffd43b14;
+  --warning-line: #ffd43b66;
+  --holiday-text: #f2b8c0;
+  --holiday-soft: #3f3336;
+  --holiday-line: #8a5a63;
+  --shadow-sm: 0 1px 2px #0000004d;
+}
+:root[data-theme='dark'] a {
+  color: var(--accent-text);
+}
+:root[data-theme='dark'] button:focus-visible,
+:root[data-theme='dark'] a:focus-visible,
+:root[data-theme='dark'] input:focus-visible,
+:root[data-theme='dark'] select:focus-visible,
+:root[data-theme='dark'] textarea:focus-visible,
+:root[data-theme='dark'] summary:focus-visible,
+:root[data-theme='dark'] .search-field:focus-within,
+:root[data-theme='dark'] .week-title:focus-within {
+  outline-color: var(--focus);
+}
+:root[data-theme='dark'] .topbar {
+  background: #1f1f1f;
+  border-color: #424242;
+  color: #c9c9c9;
+}
+:root[data-theme='dark'] .wordmark {
+  color: #c9c9c9;
+}
+:root[data-theme='dark'] .wordmark-label {
+  color: #b8b8b8;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .wordmark-logo {
+  filter: drop-shadow(0 0 2px rgb(255 255 255 / 60%)) drop-shadow(0 0 9px rgb(255 255 255 / 34%))
+    drop-shadow(0 0 20px rgb(255 255 255 / 16%));
+  animation: logo-glow 5s ease-in-out infinite;
+}
+:root[data-theme='dark'] .icon-pill {
+  background: #2e2e2e;
+  border-color: #424242;
+  color: #c9c9c9;
+}
+:root[data-theme='dark'] .icon-pill:hover:not(:disabled) {
+  background: #3b3b3b;
+  border-color: #696969;
+}
+:root[data-theme='dark'] .info-pill {
+  background: #4dabf71f;
+  border-color: #4dabf766;
+}
+:root[data-theme='dark'] .info-pill:hover:not(:disabled) {
+  background: #4dabf72e;
+  border-color: #4dabf7;
+}
+:root[data-theme='dark'] .info-pill .icon {
+  color: #4dabf7;
+}
+:root[data-theme='dark'] .rail {
+  background: #1f1f1f;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .class-switch {
+  background: #2e2e2e;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .class-switch:hover:not(:disabled) {
+  border-color: #4dabf7;
+}
+:root[data-theme='dark'] .class-switch[data-mode='class'] {
+  --browse-cube: #51cf66;
+  --browse-cube-glow: rgb(81 207 102 / 55%);
+}
+:root[data-theme='dark'] .class-switch[data-mode='lecturer'] {
+  --browse-cube: #ff6b6b;
+  --browse-cube-glow: rgb(255 107 107 / 55%);
+}
+:root[data-theme='dark'] .mobile-source-group {
+  background: #2e2e2e;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .mobile-source-group .class-switch {
+  border: 0;
+  background: transparent;
+}
+:root[data-theme='dark'] .mobile-source-group .file-source-row {
+  border-color: #424242;
+}
+:root[data-theme='dark'] .calendar-card {
+  background: #2e2e2e;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .calendar-card-icon,
+:root[data-theme='dark'] .menu-label {
+  background: #4dabf71f;
+  color: #4dabf7;
+}
+:root[data-theme='dark'] .calendar-card .button {
+  background: #1971c2;
+  color: #fff;
+}
+:root[data-theme='dark'] .calendar-card .button:hover:not(:disabled) {
+  background: #1864ab;
+}
+:root[data-theme='dark'] .secondary,
+:root[data-theme='dark'] .today-button,
+:root[data-theme='dark'] .icon-button {
+  background: #2e2e2e;
+  border-color: #424242;
+  color: #c9c9c9;
+}
+:root[data-theme='dark'] .class-filters {
+  --filter-arrow: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9c9c9' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+:root[data-theme='dark'] .class-filters select {
+  background-color: #2e2e2e;
+  border-color: #424242;
+  color: #c9c9c9;
+}
+:root[data-theme='dark'] .class-filters select:hover:not(:disabled) {
+  border-color: #4dabf7;
+}
+:root[data-theme='dark'] .toolbar-class-group {
+  background: #2e2e2e;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .toolbar-class-group > .class-switch:hover:not(:disabled) {
+  background: #333;
+}
+:root[data-theme='dark'] .secondary:hover:not(:disabled),
+:root[data-theme='dark'] .icon-button:hover:not(:disabled) {
+  background: #3b3b3b;
+  border-color: #4dabf7;
+}
+:root[data-theme='dark'] .view-switch {
+  background: #1f1f1f;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .view-switch .active {
+  background: #2e2e2e;
+  color: #4dabf7;
+}
+:root[data-theme='dark'] .search-field {
+  background: #1f1f1f;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .day-column {
+  background: #2e2e2e;
+}
+:root[data-theme='dark'] .day-column.weekend {
+  background: #292929;
+}
+:root[data-theme='dark'] .grid-day.weekend {
+  background: #292929;
+}
+:root[data-theme='dark'] .grid-ruler span {
+  color: #b8b8b8;
+}
+:root[data-theme='dark'] .lesson {
+  background: #26313a;
+  border-color: #3b4b59;
+}
+:root[data-theme='dark'] .lesson:hover {
+  background: #2c3a45;
+  border-color: #74b3e8;
+}
+:root[data-theme='dark'] .lesson.alt {
+  background: #2a2a2a;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .lesson.alt:hover {
+  background: #333;
+  border-color: #696969;
+}
+:root[data-theme='dark'] .lesson.warm {
+  background: #302b20;
+  border-color: #5a4a28;
+}
+:root[data-theme='dark'] .lesson.warm:hover {
+  background: #3a3325;
+  border-color: #e0b264;
+}
+:root[data-theme='dark'] .lesson-time {
+  color: #8ec9fa;
+}
+:root[data-theme='dark'] .lesson-note {
+  border-top-color: #424242;
+}
+:root[data-theme='dark'] .no-day > span {
+  background: #424242;
+}
+:root[data-theme='dark'] .primary,
+:root[data-theme='dark'] .day-heading.current strong,
+:root[data-theme='dark'] .grid-day-heading.current strong,
+:root[data-theme='dark'] .day-tab.active,
+:root[data-theme='dark'] .file-input::file-selector-button {
+  background: #1971c2;
+  color: #fff;
+}
+:root[data-theme='dark'] .primary:hover:not(:disabled) {
+  background: #1864ab;
+}
+:root[data-theme='dark'] .dialog {
+  background: #2e2e2e;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .dialog::backdrop {
+  background: #000000b3;
+}
+:root[data-theme='dark'] .class-option {
+  background: #2e2e2e;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .class-option:hover,
+:root[data-theme='dark'] .class-option.selected {
+  background: #4dabf71f;
+  border-color: #4dabf7;
+}
+:root[data-theme='dark'] .browse-mode {
+  background: #242424;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .browse-mode[aria-pressed='true'] {
+  background: #4dabf71f;
+  border-color: #4dabf7;
+}
+:root[data-theme='dark'] .mobile-export {
+  background: #1f1f1fee;
+  border-color: #424242;
+}
+:root[data-theme='dark'] .revision-notice {
+  background: #4dabf71f;
+  border-color: #4dabf766;
+  color: #8ec9fa;
+}
+:root[data-theme='dark'] .revision-notice:hover {
+  background: #4dabf72e;
+}
+:root[data-theme='dark'] .revision-new-dot {
+  background: #4dabf7;
+}
+:root[data-theme='dark'] .badge,
+:root[data-theme='dark'] .mode-badge,
+:root[data-theme='dark'] .lesson-mode-notice {
+  color: #8ec9fa;
+}
+:root[data-theme='dark'] .toast {
+  background: #3b3b3b;
+  color: #f8f9fa;
+}
+:root[data-theme='dark'] .high-contrast {
+  --ink: #f8f9fa;
+  --muted: #e9ecef;
+  --line: #adb5bd;
+  --teal: #a5d8ff;
+  --teal-dark: #a5d8ff;
+  --pale: #0d3b66;
+  --accent-text: #a5d8ff;
+  --accent-line: #a5d8ff;
+}
+:root[data-theme='dark'].high-contrast .lesson,
+:root[data-theme='dark'].high-contrast .lesson.alt,
+:root[data-theme='dark'].high-contrast .lesson.warm {
+  background: #242424;
+  color: #f8f9fa;
+  border: 2px solid #adb5bd;
+}
+:root[data-theme='dark'].high-contrast .lesson-meta,
+:root[data-theme='dark'].high-contrast .lesson-note,
+:root[data-theme='dark'].high-contrast .lesson-time {
+  color: #f8f9fa;
+}
+:root[data-theme='dark'].high-contrast .holiday-block {
+  background: #242424;
+  color: #f8f9fa;
+  border: 2px solid #adb5bd;
+}

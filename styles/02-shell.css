@@ -1,0 +1,404 @@
+/* ===== Shell: topbar, rail, source switch, calendar ===== */
+.topbar {
+  height: 68px;
+  background: var(--surface);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 20px;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: var(--ink);
+  flex-shrink: 1;
+  min-width: 0;
+}
+.wordmark > strong {
+  display: none;
+}
+.wordmark-label {
+  align-self: center;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  border-left: 1px solid var(--line);
+  padding-left: 16px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.wordmark-logo {
+  --wordmark-size: 45px;
+  display: block;
+  height: var(--wordmark-size);
+  width: auto;
+  flex-shrink: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+#rail-open {
+  display: none;
+}
+.icon-pill {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-pill:hover:not(:disabled) {
+  background: var(--surface-muted);
+  border-color: #ced4da;
+}
+.icon-pill .icon {
+  width: 18px;
+  height: 18px;
+}
+.theme-toggle {
+  justify-content: center;
+}
+.theme-toggle .icon {
+  width: 18px;
+  height: 18px;
+}
+@keyframes theme-toggle-switch {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(0.86);
+  }
+}
+@keyframes theme-icon-switch {
+  from {
+    transform: rotate(-90deg) scale(0.6);
+    opacity: 0.2;
+  }
+  to {
+    transform: rotate(0) scale(1);
+    opacity: 1;
+  }
+}
+.theme-toggle.theme-switching {
+  animation: theme-toggle-switch 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.theme-toggle.theme-switching .icon {
+  animation: theme-icon-switch 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.status-dot,
+.tiny-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.timezone {
+  display: none;
+}
+.app-shell {
+  display: grid;
+  grid-template-columns: clamp(200px, 16vw, 236px) minmax(0, 1fr);
+  min-height: calc(100vh - 68px);
+  transition: grid-template-columns 0.32s ease;
+}
+html[data-rail='hidden'] .app-shell {
+  grid-template-columns: 0px minmax(0, 1fr);
+}
+.rail {
+  padding: 24px 20px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-muted);
+  min-width: 0;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.26s ease,
+    padding 0.32s ease,
+    border-color 0.32s ease,
+    visibility 0s linear 0s;
+}
+html[data-rail='hidden'] .rail {
+  opacity: 0;
+  visibility: hidden;
+  padding-left: 0;
+  padding-right: 0;
+  border-right-color: transparent;
+  transition:
+    opacity 0.26s ease,
+    padding 0.32s ease,
+    border-color 0.32s ease,
+    visibility 0s linear 0.32s;
+}
+.eyebrow {
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+}
+.class-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  min-height: 64px;
+  width: 100%;
+  padding: 11px 13px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.class-switch:hover:not(:disabled) {
+  border-color: var(--accent-line);
+}
+.class-switch[data-mode='class'] {
+  --browse-cube: #2f9e44;
+  --browse-cube-glow: rgb(47 158 68 / 55%);
+}
+.class-switch[data-mode='lecturer'] {
+  --browse-cube: #e03131;
+  --browse-cube-glow: rgb(224 49 49 / 55%);
+}
+.class-switch-icon .icon,
+.class-switch-arrows .icon {
+  width: 17px;
+  height: 17px;
+}
+.class-switch-icon .icon {
+  color: var(--browse-cube);
+  animation: browse-cube-glow 2.8s ease-in-out infinite;
+}
+.class-switch-icon .cube-face {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.1;
+}
+.class-switch-icon .cube-top {
+  fill-opacity: 0.48;
+}
+.class-switch-icon .cube-left {
+  fill-opacity: 0.72;
+}
+@keyframes browse-cube-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 1px var(--browse-cube-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px var(--browse-cube-glow));
+  }
+}
+.class-switch-copy {
+  min-width: 0;
+  flex: 1;
+}
+.class-switch-copy strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.class-switch-copy small {
+  font-size: 12px;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.class-switch-arrows {
+  margin-left: auto;
+  color: var(--teal);
+}
+.toolbar-class-group {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.toolbar-class-group > .class-switch {
+  width: auto;
+  min-height: 42px;
+  padding: 6px 8px 6px 12px;
+  gap: 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  box-shadow: none;
+}
+.toolbar-class-group > .class-switch:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+.toolbar-class-group > .class-switch .class-switch-icon .icon,
+.toolbar-class-group > .class-switch-arrows .icon {
+  width: 15px;
+  height: 15px;
+}
+.toolbar-class-group > .class-switch .class-switch-copy strong {
+  font-size: 13px;
+  line-height: 1.2;
+}
+.toolbar-class-group > .class-switch .class-switch-copy small {
+  font-size: 11px;
+  line-height: 1.3;
+  margin-top: 1px;
+}
+.toolbar-class-group:has(> .class-switch:hover:not(:disabled)) {
+  border-color: var(--accent-line);
+}
+.rail-menu {
+  margin-top: 0;
+}
+.menu-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.menu-label .icon {
+  width: 17px;
+}
+.menu-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-left: auto;
+}
+.rail-menu p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 10px 2px 0;
+  line-height: 1.6;
+}
+.calendar-card {
+  margin-top: 36px;
+  padding: 18px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.calendar-card-icon {
+  display: flex;
+  background: var(--accent-soft);
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--accent-text);
+  margin-bottom: 14px;
+}
+.calendar-card h2 {
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+.calendar-card p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 8px 0 16px;
+}
+.calendar-card small {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.calendar-card .button {
+  font-size: 11px;
+  gap: 6px;
+  padding: 10px;
+  min-height: 40px;
+  background: var(--accent);
+  color: #fff;
+}
+.calendar-card .button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.calendar-card .button svg {
+  width: 16px;
+}
+.rail-bottom {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: auto;
+  padding-top: 40px;
+  color: var(--muted);
+}
+.rail-bottom .icon {
+  width: 15px;
+  height: 15px;
+  margin-top: 3px;
+}
+.rail-bottom strong {
+  font-size: 11px;
+  color: var(--ink);
+}
+.rail-bottom p {
+  font-size: 10px;
+  line-height: 1.8;
+  margin: 7px 0 9px;
+}
+.text-button {
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-text);
+  font-size: 11px;
+  text-decoration: none;
+  min-height: 32px;
+}
+.text-button:hover {
+  text-decoration: underline;
+}
+.text-button .icon {
+  width: 15px;
+  height: 15px;
+}
+.rail-bottom .text-button {
+  font-size: 10px;
+}

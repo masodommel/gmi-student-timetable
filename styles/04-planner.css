@@ -1,0 +1,312 @@
+/* ===== Planner: toolbar, week picker, search ===== */
+.planner {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.planner-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 17px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.planner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  min-width: 0;
+}
+.planner-actions > .revision-notice {
+  flex-shrink: 0;
+  display: none;
+}
+.revision-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 5px 10px;
+  border: 1px solid var(--accent-line);
+  border-radius: 99px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.revision-notice:hover {
+  background: #d0ebff;
+}
+.revision-new-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.week-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.icon-button {
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.icon-button:hover:not(:disabled) {
+  background: var(--surface-muted);
+  border-color: var(--accent-line);
+}
+.icon-button .icon {
+  width: 16px;
+  height: 16px;
+}
+.previous svg {
+  transform: rotate(180deg);
+}
+.week-title {
+  position: relative;
+  flex: 0 0 190px;
+  width: 190px;
+  min-width: 0;
+  text-align: center;
+}
+.week-title strong {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.week-title input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.week-open {
+  width: 100%;
+  padding: 3px 0;
+  border-radius: 7px;
+}
+.week-open:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+.today-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 11px;
+  background: var(--surface);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.today-button:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+.view-switch {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-muted);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.view-switch button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font-size: 11px;
+  min-height: 30px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+.view-switch button:hover {
+  color: var(--ink);
+}
+.view-switch .icon {
+  width: 13px;
+  height: 13px;
+}
+.view-switch .active {
+  background: var(--surface);
+  color: var(--accent-text);
+  box-shadow: var(--shadow-sm);
+}
+.week-picker {
+  position: relative;
+  width: calc(100vw - 40px);
+  max-width: 392px;
+  padding: 18px;
+}
+.week-picker .close-dialog {
+  position: absolute;
+  top: 18px;
+  right: 14px;
+  min-width: 36px;
+  min-height: 36px;
+}
+.week-picker .week-picker-heading {
+  display: grid;
+  grid-template-columns: auto 136px auto;
+  justify-content: start;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+@media (max-width: 359px) {
+  .week-picker .week-picker-heading {
+    grid-template-columns: auto 118px auto;
+  }
+  .week-picker .week-picker-heading .week-picker-nav,
+  .week-picker .week-picker-heading .close-dialog {
+    min-width: 36px;
+    min-height: 36px;
+  }
+  #week-picker .week-picker-heading h2 {
+    font-size: 15px;
+  }
+}
+.week-picker .week-picker-heading h2 {
+  overflow: hidden;
+  margin: 0;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 17px;
+}
+.week-picker-nav {
+  min-width: 38px;
+  min-height: 38px;
+}
+.week-picker-labels {
+  display: grid;
+  grid-template-columns: 28px repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 4px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.week-days {
+  display: grid;
+  grid-template-columns: 28px repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.week-number {
+  display: flex;
+  align-items: center;
+  padding-left: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.week-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.week-day:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+.week-day:disabled {
+  opacity: 0.35;
+}
+.week-day.outside {
+  color: var(--muted);
+}
+.week-day.today:not(.selected) {
+  background: var(--pale);
+  color: var(--teal-dark);
+}
+.week-day.selected {
+  background: var(--accent);
+  color: #fff;
+}
+.week-day.selected:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.week-picker-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+}
+.week-picker-foot .button {
+  min-height: 38px;
+  font-size: 12px;
+}
+.week-picker-hint {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+}
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 8px 10px;
+  min-height: 38px;
+}
+.search-field .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.search-field input {
+  border: 0;
+  outline: none;
+  background: transparent;
+  min-width: 0;
+  width: 100%;
+  color: var(--ink);
+  font-size: 12px;
+}
+.search-field:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.search-field input:focus-visible {
+  outline: none;
+}
+.planner-search {
+  flex: 0 1 260px;
+  min-width: 140px;
+  width: 260px;
+}

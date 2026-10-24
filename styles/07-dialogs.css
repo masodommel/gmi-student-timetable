@@ -1,0 +1,293 @@
+/* ===== Dialogs: export, lesson details, toast ===== */
+.dialog {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  max-width: 540px;
+  width: calc(100% - 36px);
+  padding: 24px;
+  color: var(--ink);
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  background: var(--surface);
+  box-shadow: 0 20px 60px #0f172a33;
+}
+.dialog::backdrop {
+  background: #0f172a80;
+  backdrop-filter: blur(4px);
+}
+.dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 13px;
+}
+.dialog-heading .eyebrow {
+  margin-bottom: 7px;
+}
+.dialog h2 {
+  font-size: 26px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+.dialog-heading .icon-button {
+  border: 0;
+  background: var(--paper);
+  min-width: 36px;
+  min-height: 36px;
+}
+.dialog-description {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.class-search {
+  min-height: 52px;
+  border-radius: 10px;
+  background: var(--paper);
+  margin-bottom: 8px;
+}
+.class-search input {
+  font-size: 15px;
+}
+.class-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 8px;
+  max-height: 390px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+.class-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  text-align: left;
+  min-height: 56px;
+}
+.class-option:hover,
+.class-option.selected {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+.class-option > span {
+  min-width: 0;
+}
+.class-option strong {
+  font-size: 15px;
+  display: block;
+  line-height: 1.3;
+}
+.class-option small {
+  font-size: 12px;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+}
+.class-option .icon {
+  width: 16px;
+  color: var(--teal);
+}
+.picker-empty {
+  font-size: 14px;
+  color: var(--muted);
+  padding: 24px 8px;
+}
+.export-class {
+  padding: 15px 17px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  margin: 20px 0 16px;
+}
+.export-class strong {
+  font-size: 15px;
+  display: block;
+}
+.export-class p {
+  font-size: 12.5px;
+  color: var(--accent-text);
+  margin-top: 5px;
+}
+.export-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 14px;
+  background: var(--amber-pale);
+  border-radius: 11px;
+  color: var(--amber);
+  margin: 17px 0;
+}
+.export-notice .icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+.download-link {
+  display: flex;
+  text-decoration: none;
+  font-size: 13px;
+  min-height: 50px;
+}
+.download-link .icon {
+  width: 19px;
+  height: 19px;
+}
+.export-dialog details {
+  border-bottom: 1px solid var(--line);
+  padding: 15px 0;
+}
+.export-dialog summary {
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  min-height: 25px;
+}
+.export-dialog details p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 10px;
+}
+.export-dialog details a {
+  font-size: 13px;
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  margin-top: 8px;
+}
+.export-dialog details .icon {
+  width: 12px;
+  height: 12px;
+}
+.calendar-import-label {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-top: 25px;
+}
+.export-footnote {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 19px;
+}
+.lesson-title-date {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.lesson-mode-notice {
+  padding: 13px 14px;
+  margin: 18px 0;
+  border: 1px solid var(--accent-line);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 13px;
+}
+.lesson-mode-notice p {
+  margin-top: 7px;
+  line-height: 1.7;
+}
+.lesson-dialog h2 {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+.lesson-class {
+  font-size: 12px;
+  color: var(--accent-text);
+  margin-bottom: 20px;
+}
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.detail-row > .icon {
+  color: var(--muted);
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+}
+.detail-row small {
+  font-size: 10px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 3px;
+}
+.detail-row strong {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.lesson-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 20px;
+}
+#lesson-content .button {
+  margin: 18px 8px 0 0;
+}
+.danger,
+.danger:hover:not(:disabled) {
+  border: 1px solid var(--amber);
+  background: var(--amber-pale);
+  color: var(--amber);
+}
+.about-content p {
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 17px 0;
+}
+.about-content a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  margin: 6px 0;
+}
+.about-content .icon {
+  width: 13px;
+}
+.toast {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: #1a1b1e;
+  color: #f8f9fa;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 12px;
+  max-width: calc(100% - 30px);
+  box-shadow: 0 8px 30px #0f172a4d;
+}
+.noscript {
+  position: fixed;
+  bottom: 0;
+  padding: 20px;
+  background: var(--amber-pale);
+  width: 100%;
+  text-align: center;
+}
+.mobile-export {
+  display: none;
+}

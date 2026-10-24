@@ -112,7 +112,7 @@ While the page is open, it checks for a newly published revision every 15 minute
 
 ```text
 index.html
-styles.css
+styles/**
 package.json
 package-lock.json
 tsconfig.json
