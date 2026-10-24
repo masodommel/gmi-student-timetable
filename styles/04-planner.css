@@ -213,14 +213,33 @@
   color: var(--muted);
 }
 .week-days {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.week-row {
   display: grid;
   grid-template-columns: 28px repeat(7, minmax(0, 1fr));
   gap: 4px;
 }
+.week-row--sb .week-number,
+.week-row--ex .week-number,
+.week-row--rw .week-number {
+  border-radius: 8px;
+}
+.week-row--sb .week-number {
+  background: var(--week-sb-bg);
+}
+.week-row--ex .week-number {
+  background: var(--week-ex-bg);
+}
+.week-row--rw .week-number {
+  background: var(--week-rw-bg);
+}
 .week-number {
   display: flex;
   align-items: center;
-  padding-left: 2px;
+  justify-content: center;
   font-size: 10px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;

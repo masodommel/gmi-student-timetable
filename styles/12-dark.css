@@ -27,6 +27,9 @@
   --holiday-text: #f2b8c0;
   --holiday-soft: #3f3336;
   --holiday-line: #8a5a63;
+  --week-sb-bg: #1f3327;
+  --week-ex-bg: #382525;
+  --week-rw-bg: #163322;
   --shadow-sm: 0 1px 2px #0000004d;
 }
 :root[data-theme='dark'] a {
