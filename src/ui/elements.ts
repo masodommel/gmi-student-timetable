@@ -4,6 +4,10 @@ export const elements = {
   main: byId('main'),
   toast: byId('toast'),
 
+  railToggle: byId<HTMLButtonElement>('rail-toggle'),
+  railOpen: byId<HTMLButtonElement>('rail-open'),
+  settingsButton: byId<HTMLButtonElement>('settings-button'),
+  settingsDialog: byId<HTMLDialogElement>('settings-dialog'),
   accessibilityButton: byId<HTMLButtonElement>('accessibility-button'),
   accessibilityDialog: byId<HTMLDialogElement>('accessibility-dialog'),
   themeToggle: byId<HTMLButtonElement>('theme-toggle'),

@@ -35,8 +35,7 @@
 .large-text .lesson-time,
 .large-text .dialog-description,
 .large-text .class-option small,
-.large-text .file-help,
-.large-text .settings-option-copy small {
+.large-text .file-help {
   font-size: 15px;
 }
 .large-text .class-option strong,

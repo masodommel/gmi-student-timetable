@@ -77,14 +77,14 @@
   margin-top: 4px;
 }
 .settings-option {
-  min-height: 46px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   gap: 11px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface);
-  padding: 11px 13px;
+  padding: 12px 14px;
   text-align: left;
   box-shadow: var(--shadow-sm);
 }
@@ -109,13 +109,6 @@
   font-size: 13px;
   font-weight: 650;
   letter-spacing: -0.01em;
-}
-.settings-option-copy small {
-  display: block;
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--muted);
-  margin-top: 2px;
 }
 .local-file-note {
   display: flex;

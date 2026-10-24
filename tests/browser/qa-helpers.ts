@@ -15,3 +15,10 @@ export const filterOnlineCard = async (page: Page): Promise<void> => {
   });
   await page.locator('.agenda-events .lesson').first().waitFor();
 };
+
+export type SettingsOption = 'Open timetable file' | 'Accessibility preferences' | 'Timetable information and status';
+
+export const openSettings = async (page: Page, option: SettingsOption): Promise<void> => {
+  await page.locator('#settings-button').click();
+  await page.getByRole('button', { name: option, exact: true }).click();
+};

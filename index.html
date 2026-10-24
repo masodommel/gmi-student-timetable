@@ -30,32 +30,8 @@
         >
           <span id="theme-icon" data-icon="moon"></span>
         </button>
-        <button
-          id="accessibility-button"
-          class="icon-pill"
-          aria-haspopup="dialog"
-          aria-label="Accessibility preferences"
-          title="Accessibility preferences"
-        >
-          <span data-icon="wheelchair"></span>
-        </button>
-        <button
-          id="quality-button"
-          class="icon-pill info-pill"
-          aria-haspopup="dialog"
-          aria-label="Timetable information and status"
-          title="Timetable info"
-        >
-          <span data-icon="info"></span>
-        </button>
-        <button
-          id="open-file-button"
-          class="icon-pill"
-          aria-haspopup="dialog"
-          aria-label="Open timetable file"
-          title="Open timetable file"
-        >
-          <span data-icon="upload"></span>
+        <button id="settings-button" class="icon-pill" aria-haspopup="dialog" aria-label="Settings" title="Settings">
+          <span data-icon="gear"></span>
         </button>
       </div>
     </header>
@@ -379,6 +355,36 @@
         <p id="edit-error" role="alert" hidden></p>
         <button id="save-edit" class="button primary" type="submit">Apply to local timetable</button>
       </form>
+    </dialog>
+    <dialog id="settings-dialog" class="dialog settings-dialog" aria-labelledby="settings-dialog-title">
+      <div class="dialog-heading">
+        <h2 id="settings-dialog-title">Settings</h2>
+        <button class="icon-button close-dialog" aria-label="Close settings"><span data-icon="close"></span></button>
+      </div>
+      <div class="settings-options">
+        <button
+          id="accessibility-button"
+          class="settings-option"
+          aria-haspopup="dialog"
+          aria-label="Accessibility preferences"
+        >
+          <span class="settings-option-icon" data-icon="wheelchair"></span>
+          <span class="settings-option-copy"><strong>Accessibility</strong></span>
+        </button>
+        <button
+          id="quality-button"
+          class="settings-option"
+          aria-haspopup="dialog"
+          aria-label="Timetable information and status"
+        >
+          <span class="settings-option-icon" data-icon="info"></span>
+          <span class="settings-option-copy"><strong>Info &amp; Status</strong></span>
+        </button>
+        <button id="open-file-button" class="settings-option" aria-haspopup="dialog" aria-label="Open timetable file">
+          <span class="settings-option-icon" data-icon="upload"></span>
+          <span class="settings-option-copy"><strong>Open a timetable file</strong></span>
+        </button>
+      </div>
     </dialog>
     <dialog id="privacy-dialog" class="dialog" aria-labelledby="privacy-title">
       <div class="dialog-heading">
