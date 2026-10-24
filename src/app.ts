@@ -8,11 +8,12 @@ import { initPicker } from './views/picker.js';
 import { initPreferences } from './views/preferences.js';
 import { initWeekPicker } from './views/week-picker.js';
 import { hydrateIcons, initShell } from './views/shell.js';
-import { initSettings } from './ui/chrome.js';
+import { initRail, initSettings } from './ui/chrome.js';
 import { initTheme } from './ui/theme.js';
 
 hydrateIcons();
 initTheme();
+initRail();
 initSettings();
 initShell();
 initNavigation();

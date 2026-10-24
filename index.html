@@ -16,8 +16,26 @@
   <body>
     <a class="skip-link" href="#main">Skip to timetable</a>
     <header class="topbar">
+      <button
+        id="rail-toggle"
+        class="icon-pill"
+        aria-pressed="false"
+        aria-label="Hide the class panel"
+        title="Hide the class panel"
+      >
+        <span data-icon="menu"></span>
+      </button>
+      <button
+        id="rail-open"
+        class="icon-pill rail-open"
+        type="button"
+        aria-label="Open the class panel"
+        title="Open the class panel"
+      >
+        <span data-icon="menu"></span>
+      </button>
       <a class="wordmark" href="./" aria-label="GMI Student Timetable home">
-        <img class="wordmark-logo" src="./gmi-logo.avif" alt="" width="1024" height="699" />
+        <img class="wordmark-logo" src="./gmi-logo.avif" alt="" width="1024" height="724" />
         <span class="wordmark-label">Student timetable</span>
       </a>
       <div class="header-actions">
@@ -163,8 +181,8 @@
         </div>
         <footer class="site-footer" aria-label="Cookies and privacy">
           <p>
-            <strong>Cookie notice.</strong> Only your theme choice is stored in a cookie. Class and accessibility
-            preferences stay in this browser, and timetable files never leave your device.
+            <strong>Cookie notice.</strong> Only your theme, view and class-panel choices are stored in cookies. Class
+            and accessibility preferences stay in this browser, and timetable files never leave your device.
           </p>
           <button id="privacy-button" class="text-button" aria-haspopup="dialog">Privacy policy</button>
         </footer>
@@ -397,7 +415,9 @@
         <p>Last updated 20 October 2026. This timetable runs in your browser and does not require an account.</p>
         <p>
           <strong>Cookies.</strong> If you switch themes, a <code>gmi-theme</code> cookie remembers that choice for up
-          to one year. It is not used for analytics, advertising or tracking.
+          to one year. Switching between the grid, week and agenda views stores a <code>gmi-view</code> cookie the same
+          way, and hiding or showing the class panel stores a <code>gmi-rail</code> cookie. None of these cookies are
+          used for analytics, advertising or tracking.
         </p>
         <p>
           <strong>On-device storage.</strong> Your selected class, seen timetable revision and accessibility preferences

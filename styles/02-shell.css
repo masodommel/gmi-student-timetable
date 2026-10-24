@@ -1,5 +1,6 @@
 /* ===== Shell: topbar, rail, source switch, calendar ===== */
 .topbar {
+  --header-control-size: clamp(38px, 2.6vw, 42px);
   height: 68px;
   background: var(--surface);
   color: var(--ink);
@@ -24,20 +25,21 @@
 }
 .wordmark-label {
   align-self: center;
-  height: 38px;
+  height: var(--header-control-size);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  line-height: 1;
   font-size: 13px;
   letter-spacing: 0.01em;
   border-left: 1px solid var(--line);
-  padding-left: 16px;
   color: var(--muted);
   white-space: nowrap;
 }
 .wordmark-logo {
-  --wordmark-size: 45px;
   display: block;
-  height: var(--wordmark-size);
+  height: calc(var(--header-control-size) * 1.03);
   width: auto;
   flex-shrink: 0;
 }
@@ -52,10 +54,10 @@
   display: none;
 }
 .icon-pill {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  min-height: 38px;
+  width: var(--header-control-size);
+  height: var(--header-control-size);
+  min-width: var(--header-control-size);
+  min-height: var(--header-control-size);
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 8px;

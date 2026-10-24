@@ -140,6 +140,7 @@
     font-size: 14px;
   }
   .topbar {
+    --header-control-size: 44px;
     height: 60px;
     padding: 0 16px;
     gap: 8px;
@@ -150,38 +151,14 @@
   .wordmark-label {
     display: none;
   }
-  .wordmark-logo {
-    --wordmark-size: 40px;
-  }
   .header-actions {
     gap: 6px;
-  }
-  .header-actions .icon-pill {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0;
-  }
-  .theme-toggle {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-    min-height: 44px;
-    padding: 0;
   }
   #rail-toggle {
     display: none;
   }
   #rail-open {
     display: inline-flex;
-  }
-  #rail-toggle,
-  #rail-open {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
   }
   .rail {
     display: none;
