@@ -1,5 +1,6 @@
 import { escapeHtml as esc, formatDate } from '../timetable/core.js';
 import { sourceSaysOnline } from '../timetable/notes.js';
+import type { DavStaff } from '../dav/index.js';
 import type { ClassRecord, SearchResult, TimetableEvent } from '../timetable/types.js';
 import { icon } from '../ui/icons.js';
 
@@ -61,6 +62,14 @@ export function editLessonButton(id: string): string {
   return `<button id="edit-lesson" class="button secondary" data-edit-id="${esc(id)}">Edit recurring lesson</button>`;
 }
 
+export function addLessonButton(id: string): string {
+  return `<button id="add-lesson" class="button secondary" data-add-lesson="${esc(id)}">Add a lesson like this</button>`;
+}
+
+export function deleteLessonButton(lessonId: number): string {
+  return `<button id="delete-lesson" class="button secondary" data-delete-lesson="${lessonId}">Delete lesson</button><p id="lesson-error" role="alert" hidden></p>`;
+}
+
 export function shareDialog(url: string): string {
   return `<h2 id="lesson-dialog-title">Share this week</h2><p class="dialog-description">Copy this link to share the selected class and week.</p><label class="search-field"><input id="share-link" type="text" aria-label="Class and week link" value="${esc(url)}" readonly></label>`;
 }
@@ -78,6 +87,21 @@ export function editPeriodOptions(periods: number[]): string {
         `<option value="${i + 1}">${String(Math.floor(start / 60)).padStart(2, '0')}:${String(start % 60).padStart(2, '0')} (period ${i + 1})</option>`,
     )
     .join('');
+}
+
+export function addSpanOptions(periods: number): string {
+  return Array.from({ length: Math.max(0, periods) }, (_, i) => i + 1)
+    .map((count) => `<option value="${count}">${count} period${count === 1 ? '' : 's'} long</option>`)
+    .join('');
+}
+
+export function addNamedOptions(list: DavStaff[], emptyLabel: string): string {
+  return [
+    `<option value="">${esc(emptyLabel)}</option>`,
+    ...[...list]
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+      .map((item) => `<option value="${esc(item.id)}">${esc(item.name)}</option>`),
+  ].join('');
 }
 
 export function exportDialog(

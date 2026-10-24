@@ -388,6 +388,37 @@
         <button id="save-edit" class="button primary" type="submit">Apply to local timetable</button>
       </form>
     </dialog>
+    <dialog id="add-dialog" class="dialog" aria-labelledby="add-title">
+      <div class="dialog-heading">
+        <h2 id="add-title">Add lesson</h2>
+        <button class="icon-button close-dialog" aria-label="Close lesson creator">
+          <span data-icon="close"></span>
+        </button>
+      </div>
+      <p class="dialog-description">
+        Adds a new recurring lesson to this class that repeats with the schedule of an existing lesson. Duration is the
+        number of consecutive periods it covers. Experimental DAV export: verify the downloaded copy in DaVinci before
+        distributing it.
+      </p>
+      <form id="add-form" class="preference-fields">
+        <label for="add-subject">Subject</label
+        ><select id="add-subject"></select>
+        <label for="add-day">Weekday</label
+        ><select id="add-day"></select>
+        <label for="add-period">Start period</label
+        ><select id="add-period"></select>
+        <label for="add-span">Duration</label
+        ><select id="add-span"></select>
+        <label for="add-lecturer">Lecturer</label
+        ><select id="add-lecturer"></select>
+        <label for="add-room">Room</label
+        ><select id="add-room"></select>
+        <label for="add-note">Lesson notes</label><textarea id="add-note" maxlength="255" rows="4"></textarea>
+        <label><input type="checkbox" id="add-keep-cells" /> Save anyway where another lesson already sits</label>
+        <p id="add-error" role="alert" hidden></p>
+        <button id="save-add" class="button primary" type="submit">Add to local timetable</button>
+      </form>
+    </dialog>
     <dialog id="settings-dialog" class="dialog settings-dialog" aria-labelledby="settings-dialog-title">
       <div class="dialog-heading">
         <h2 id="settings-dialog-title">Settings</h2>

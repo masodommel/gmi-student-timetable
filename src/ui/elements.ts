@@ -98,6 +98,20 @@ export const elements = {
   editError: byId('edit-error'),
   saveEdit: byId<HTMLButtonElement>('save-edit'),
 
+  addDialog: byId<HTMLDialogElement>('add-dialog'),
+  addForm: byId<HTMLFormElement>('add-form'),
+  addTitle: byId('add-title'),
+  addSubject: byId<HTMLSelectElement>('add-subject'),
+  addDay: byId<HTMLSelectElement>('add-day'),
+  addPeriod: byId<HTMLSelectElement>('add-period'),
+  addSpan: byId<HTMLSelectElement>('add-span'),
+  addLecturer: byId<HTMLSelectElement>('add-lecturer'),
+  addRoom: byId<HTMLSelectElement>('add-room'),
+  addNote: byId<HTMLTextAreaElement>('add-note'),
+  addKeepCells: byId<HTMLInputElement>('add-keep-cells'),
+  addError: byId('add-error'),
+  saveAdd: byId<HTMLButtonElement>('save-add'),
+
   preferenceInputs: ['large-text', 'high-contrast', 'reduce-motion', 'agenda-default'].map((id) => ({
     id,
     input: byId<HTMLInputElement>(id),
