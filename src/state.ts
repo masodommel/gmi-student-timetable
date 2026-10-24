@@ -5,7 +5,7 @@ import type { ClassDataset, ClassRecord, Manifest, TimetableEvent } from './time
 import { readStored, writeStored } from './ui/storage.js';
 
 export type Mode = 'class' | 'lecturer';
-export type View = 'week' | 'agenda';
+export type View = 'grid' | 'week' | 'agenda';
 
 export interface AppState {
   manifest: Manifest | null;
@@ -30,6 +30,7 @@ export interface AppState {
 
 export const CLASS_STORAGE_KEY = 'gmi-student-class';
 export const SEEN_REVISION_STORAGE_KEY = 'timetable-seen-revision';
+export const VIEW_COOKIE = 'gmi-view';
 
 export const media = window.matchMedia('(max-width: 700px)');
 
@@ -61,7 +62,23 @@ export const choices = (): ClassRecord[] =>
   state.mode === 'lecturer' ? state.manifest?.lecturers || [] : state.manifest?.classes || [];
 
 export function exceptionsFor(date: string): string[] {
-  return [...new Set((state.manifest?.exceptions || []).filter((item) => item.date === date).map((item) => item.name))];
+  return [
+    ...new Set(
+      (state.manifest?.exceptions || [])
+        .filter((item) => item.date === date && !(item.allDay ?? true))
+        .map((item) => item.name),
+    ),
+  ];
+}
+
+export function holidaysFor(date: string): string[] {
+  return [
+    ...new Set(
+      (state.manifest?.exceptions || [])
+        .filter((item) => item.date === date && (item.allDay ?? true))
+        .map((item) => item.name),
+    ),
+  ];
 }
 
 export function installLocal(result: DavDecoded, buffer: ArrayBuffer): void {

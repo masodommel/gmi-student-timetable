@@ -1,8 +1,8 @@
-import { exceptionsFor, state } from '../state.js';
+import { exceptionsFor, holidaysFor, state } from '../state.js';
 import { addDays, escapeHtml as esc, formatDate, localToday, minutes } from '../timetable/core.js';
 import type { TimetableEvent } from '../timetable/types.js';
 import { elements } from '../ui/elements.js';
-import { dayException, lessonCard, summaryItem } from './templates.js';
+import { dayException, holidayBlock, lessonCard, summaryItem } from './templates.js';
 
 export function renderWeek(events: TimetableEvent[]): string {
   const today = localToday();
@@ -10,7 +10,8 @@ export function renderWeek(events: TimetableEvent[]): string {
     const date = addDays(state.week, day);
     const lessons = events.filter((event) => event.date === date);
     const exceptions = exceptionsFor(date);
-    return `<section class="day-column ${day > 4 ? 'weekend' : ''}" aria-label="${esc(formatDate(date, { weekday: 'long', day: 'numeric', month: 'long' }))}"><h2 class="day-heading ${date === today ? 'current' : ''}"><span>${formatDate(date, { weekday: 'short' }).toUpperCase()}</span><strong>${formatDate(date, { day: 'numeric' })}</strong></h2>${exceptions.map(dayException).join('')}${lessons.length ? lessons.map(renderWeekCard).join('') : '<p class="no-day"><span></span>No classes</p>'}</section>`;
+    const holidays = holidaysFor(date);
+    return `<section class="day-column ${day > 4 ? 'weekend' : ''}" aria-label="${esc(formatDate(date, { weekday: 'long', day: 'numeric', month: 'long' }))}"><h2 class="day-heading ${date === today ? 'current' : ''}"><span>${formatDate(date, { weekday: 'short' }).toUpperCase()}</span><strong>${formatDate(date, { day: 'numeric' })}</strong></h2>${holidays.length ? `<div class="day-holiday" data-fill="true">${holidayBlock(holidays)}</div>` : exceptions.map(dayException).join('')}${holidays.length ? '' : lessons.length ? lessons.map(renderWeekCard).join('') : '<p class="no-day"><span></span>No classes</p>'}</section>`;
   }).join('')}</div>`;
 }
 

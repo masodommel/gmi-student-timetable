@@ -82,6 +82,7 @@ export const elements = {
   nextWeek: byId<HTMLButtonElement>('next-week'),
   todayButton: byId<HTMLButtonElement>('today-button'),
   weekView: byId<HTMLButtonElement>('week-view'),
+  gridView: byId<HTMLButtonElement>('grid-view'),
   agendaView: byId<HTMLButtonElement>('agenda-view'),
   schedule: byId('schedule'),
   subjectSearch: byId<HTMLInputElement>('subject-search'),

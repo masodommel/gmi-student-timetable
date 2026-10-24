@@ -23,7 +23,8 @@ test('student chooses a class, browses lessons, and downloads only its calendar'
   await page.locator(`[data-class-id="${classId}"]`).click();
   await expect(page.locator('#class-name')).toHaveText('Class');
   await expect(page.locator('#class-button')).toHaveAttribute('data-mode', 'class');
-  await expect(page.locator('.week-grid')).toBeVisible();
+  await expect(page.locator('#grid-view')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.timetable-grid')).toBeVisible();
   await expect(page.locator('.lesson').first()).toBeVisible();
   await expect(page.locator('#subject-search')).toBeVisible();
   await expect(page.locator('.summary-label')).toHaveText(['Lessons', 'Hours', 'Rooms']);
@@ -47,6 +48,8 @@ test('student chooses a class, browses lessons, and downloads only its calendar'
 
 test('shared class/week links, search, reload persistence and empty weeks work', async ({ page }) => {
   await page.goto('./' + selectedUrl);
+  await expect(page.locator('.timetable-grid')).toBeVisible();
+  await page.locator('#week-view').click();
   await expect(page.locator('.week-grid')).toBeVisible();
   await page.locator('#subject-search').fill('ESP 2052');
   await expect(page.locator('.lesson')).toHaveCount(1);
@@ -99,6 +102,7 @@ test('failed schedule requests offer retry rather than a blank planner', async (
 
 test('desktop weekly columns and narrow phone layout stay within the viewport', async ({ page }) => {
   await page.goto('./' + selectedUrl);
+  await page.locator('#week-view').click();
   await expect(page.locator('.day-column')).toHaveCount(7);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await dismissToast(page);

@@ -128,10 +128,14 @@ function renderShell(): void {
     elements.nextWeek.disabled = state.week >= monday(manifest.planningEnd);
     elements.todayButton.disabled = false;
   }
-  elements.weekView.classList.toggle('active', state.view === 'week');
-  elements.agendaView.classList.toggle('active', state.view === 'agenda');
-  elements.weekView.setAttribute('aria-pressed', String(state.view === 'week'));
-  elements.agendaView.setAttribute('aria-pressed', String(state.view === 'agenda'));
+  for (const [button, view] of [
+    [elements.gridView, 'grid'],
+    [elements.weekView, 'week'],
+    [elements.agendaView, 'agenda'],
+  ] as Array<[HTMLButtonElement, typeof state.view]>) {
+    button.classList.toggle('active', state.view === view);
+    button.setAttribute('aria-pressed', String(state.view === view));
+  }
 }
 
 export function initShell(): void {

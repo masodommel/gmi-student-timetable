@@ -33,6 +33,7 @@ export interface SearchableEvent {
 export interface CalendarException {
   date: string;
   name: string;
+  allDay: boolean;
 }
 
 export interface ManifestCounts {

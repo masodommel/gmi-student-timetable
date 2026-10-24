@@ -1,7 +1,8 @@
 import { addDays, clampWeek, localToday, validDate } from '../timetable/core.js';
-import { media, state, updateUrl } from '../state.js';
+import { media, state, updateUrl, type View } from '../state.js';
 import { delegate, on } from '../ui/dom.js';
 import { elements } from '../ui/elements.js';
+import { storeView } from './view-mode.js';
 import { render } from './shell.js';
 
 export function setWeek(date: string, preferredDay?: string): void {
@@ -31,14 +32,14 @@ export function initNavigation(): void {
   on(elements.nextWeek, 'click', () => setWeek(addDays(state.week, 7)));
   on(elements.todayButton, 'click', () => setWeek(localToday()));
   on(elements.weekDate, 'change', () => setWeek(elements.weekDate.value));
-  on(elements.weekView, 'click', () => {
-    state.view = 'week';
+  const setView = (view: View): void => {
+    state.view = view;
+    storeView(view);
     render();
-  });
-  on(elements.agendaView, 'click', () => {
-    state.view = 'agenda';
-    render();
-  });
+  };
+  on(elements.gridView, 'click', () => setView('grid'));
+  on(elements.weekView, 'click', () => setView('week'));
+  on(elements.agendaView, 'click', () => setView('agenda'));
   on(elements.subjectSearch, 'input', () => {
     state.query = elements.subjectSearch.value;
     render();
