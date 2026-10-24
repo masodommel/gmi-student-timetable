@@ -23,20 +23,45 @@ function renderWeekCard(event: TimetableEvent): string {
 }
 
 export function renderDayStrip(events: TimetableEvent[]): void {
-  elements.dayStrip.innerHTML = Array.from({ length: 7 }, (_, i) => {
-    const date = addDays(state.week, i);
-    return `<button class="day-tab ${date === state.day ? 'active' : ''} ${date === localToday() ? 'today' : ''}" data-day="${date}" aria-label="${esc(formatDate(date, { weekday: 'long', day: 'numeric', month: 'long' }))}" aria-pressed="${date === state.day}"><span>${formatDate(date, { weekday: 'short' })}</span><strong>${formatDate(date, { day: 'numeric' })}</strong><span class="day-marker" style="${events.some((event) => event.date === date) ? '' : 'visibility:hidden'}"></span></button>`;
-  }).join('');
+  const strip = elements.dayStrip;
+  if (strip.children.length !== 7) {
+    strip.innerHTML = Array.from(
+      { length: 7 },
+      () =>
+        '<button class="day-tab" type="button"><span></span><strong></strong><span class="day-marker"></span></button>',
+    ).join('');
+  }
+  const today = localToday();
+  Array.from(strip.children).forEach((child, index) => {
+    const button = child as HTMLButtonElement;
+    const date = addDays(state.week, index);
+    const active = date === state.day;
+    button.dataset.day = date;
+    button.querySelector('span')!.textContent = formatDate(date, { weekday: 'short' });
+    button.querySelector('strong')!.textContent = formatDate(date, { day: 'numeric' });
+    const className = `day-tab${active ? ' active' : ''}${date === today ? ' today' : ''}`;
+    if (button.className !== className) button.className = className;
+    button.setAttribute('aria-label', formatDate(date, { weekday: 'long', day: 'numeric', month: 'long' }));
+    button.setAttribute('aria-pressed', String(active));
+    const marker = button.querySelector<HTMLElement>('.day-marker')!;
+    marker.style.visibility = events.some((event) => event.date === date) ? '' : 'hidden';
+  });
 }
+
+let summaryKey = '';
 
 export function renderSummary(events: TimetableEvent[]): void {
   const hours = events.reduce((sum, event) => sum + minutes(event.end) - minutes(event.start), 0) / 60;
   const rooms = new Set(events.map((event) => event.room).filter(Boolean)).size;
-  elements.summary.innerHTML = [
+  const html = [
     { value: events.length, label: 'Lessons', icon: 'book' },
     { value: Number(hours.toFixed(1)), label: 'Hours', icon: 'clock' },
     { value: rooms, label: 'Rooms', icon: 'pin' },
   ]
     .map((item) => summaryItem(item.value, item.label, item.icon))
     .join('');
+  const key = `${state.week}|${state.mode}|${state.selected?.id || ''}|${html}`;
+  if (key === summaryKey) return;
+  summaryKey = key;
+  elements.summary.innerHTML = html;
 }

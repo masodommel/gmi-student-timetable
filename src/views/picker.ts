@@ -73,6 +73,19 @@ export function openClassPicker(): void {
   elements.classSearch.focus({ preventScroll: true });
 }
 
+const SWAP_CLASS = 'picker-swap';
+let swapTimer: number | undefined;
+
+function animatePickerSwap(mode: 'class' | 'lecturer'): void {
+  const dialog = elements.classDialog;
+  window.clearTimeout(swapTimer);
+  dialog.dataset.pickerSwap = mode === 'lecturer' ? 'next' : 'previous';
+  dialog.classList.remove(SWAP_CLASS);
+  void dialog.offsetWidth;
+  dialog.classList.add(SWAP_CLASS);
+  swapTimer = window.setTimeout(() => dialog.classList.remove(SWAP_CLASS), 400);
+}
+
 export async function selectClass(id: string, { preserveWeek = true }: { preserveWeek?: boolean } = {}): Promise<void> {
   const selected = choices().find((item) => item.id === id);
   const pickerOpen = elements.classDialog.open;
@@ -139,6 +152,7 @@ export function initPicker(): void {
   );
   for (const mode of ['class', 'lecturer'] as const)
     on(mode === 'class' ? elements.studentMode : elements.lecturerMode, 'click', () => {
+      const changed = state.mode !== mode;
       state.request?.abort();
       state.mode = mode;
       state.selected = null;
@@ -148,5 +162,6 @@ export function initPicker(): void {
       history.replaceState(null, '', location.pathname);
       render();
       openClassPicker();
+      if (changed) animatePickerSwap(mode);
     });
 }

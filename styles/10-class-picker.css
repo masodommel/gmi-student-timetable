@@ -1,11 +1,13 @@
 /* ===== Class picker: modes, filters, results ===== */
 
-.class-dialog[open] {
-  display: flex;
+.class-dialog {
   flex-direction: column;
   max-width: 720px;
   max-height: min(760px, calc(100dvh - 48px));
   overflow: hidden;
+}
+.class-dialog[open] {
+  display: flex;
 }
 .class-dialog .dialog-heading {
   flex: 0 0 auto;
@@ -92,7 +94,7 @@
   grid-column: 1/-1;
 }
 @media (max-width: 700px) {
-  .class-dialog[open] {
+  .class-dialog {
     margin: auto 0 0;
     width: 100%;
     max-width: none;
