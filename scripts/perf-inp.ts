@@ -16,6 +16,7 @@ const mime: Record<string, string> = {
   '.avif': 'image/avif',
 };
 const TARGET = 200;
+const BATCH_LABEL = process.env.PICKER_BATCH ?? '24';
 
 interface LongFrameScript {
   sourceURL?: string;
@@ -75,9 +76,6 @@ async function main(): Promise<void> {
     const page = await context.newPage();
     await page.goto(`${base}?class=99178435&week=2026-10-19`);
     await page.locator('.lesson').first().waitFor();
-    await page.locator('#compact-class-button').click();
-    await page.waitForFunction(() => document.querySelector('#class-results')?.getAttribute('aria-busy') !== 'true');
-    await page.waitForTimeout(300);
     const client = await context.newCDPSession(page);
     await client.send('Emulation.setCPUThrottlingRate', { rate: 6 });
     await page.evaluate(() => {
@@ -137,6 +135,22 @@ async function main(): Promise<void> {
       await page.waitForTimeout(300);
       return readPerf();
     };
+    const lessonBookmarks: Measurement[] = [];
+    for (let index = 0; index < 3; index += 1) {
+      await page.locator('.lesson').first().click();
+      const star = page.locator('.lesson-class-row .bookmark-star').first();
+      await star.waitFor();
+      await page.waitForTimeout(300);
+      await resetPerf();
+      await star.click();
+      await page.waitForTimeout(300);
+      lessonBookmarks.push(await readPerf());
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(100);
+    }
+    await page.locator('#compact-class-button').click();
+    await settle();
+    await page.waitForTimeout(300);
     const runs: Record<'lecturer' | 'student', Measurement[]> = { lecturer: [], student: [] };
     for (let index = 0; index < 3; index += 1) {
       runs.lecturer.push(await measure('lecturer-mode'));
@@ -149,6 +163,27 @@ async function main(): Promise<void> {
     await settle();
     await page.waitForTimeout(300);
     const rapid = await readPerf();
+    const bookmarks: Measurement[] = [];
+    const bookmark = page.locator('.class-option-row .bookmark-star').last();
+    await bookmark.scrollIntoViewIfNeeded();
+    for (let index = 0; index < 3; index += 1) {
+      await resetPerf();
+      await bookmark.click();
+      await page.waitForTimeout(300);
+      bookmarks.push(await readPerf());
+    }
+    const renderRuns: number[] = [];
+    for (let index = 0; index < 5; index += 1) {
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(100);
+      const started = performance.now();
+      await page.locator('#compact-class-button').click();
+      await settle();
+      await page.evaluate(
+        () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+      );
+      renderRuns.push(performance.now() - started);
+    }
     const median = (values: number[]): number => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
     const report = (label: string, measurements: Measurement[]): number => {
       const durations = measurements.map(({ duration }) => duration);
@@ -170,7 +205,17 @@ async function main(): Promise<void> {
     const lecturer = report('lecturer mode', runs.lecturer);
     const student = report('student mode', runs.student);
     const rapidSwitch = report('rapid switch', [rapid]);
-    if (![lecturer, student, rapidSwitch].every((value) => Number.isFinite(value) && value < TARGET))
+    const bookmarking = report('picker bookmark toggle', bookmarks);
+    const lessonBookmarking = report('lesson bookmark toggle', lessonBookmarks);
+    console.log(
+      `picker full render: ${median(renderRuns).toFixed(1)} ms (median of ${renderRuns.length}; result batch ${BATCH_LABEL})`,
+    );
+    console.log(`  runs: ${renderRuns.map((duration) => duration.toFixed(1)).join(', ')} ms`);
+    if (
+      ![lecturer, student, rapidSwitch, bookmarking, lessonBookmarking].every(
+        (value) => Number.isFinite(value) && value < TARGET,
+      )
+    )
       process.exitCode = 1;
   } finally {
     await browser.close();

@@ -3,8 +3,8 @@ import { classDetails, searchClasses } from '../timetable/class-search.js';
 import { clampWeek, escapeHtml as esc, localToday } from '../timetable/core.js';
 import type { ClassDataset, ClassRecord, Manifest, SearchResult } from '../timetable/types.js';
 import {
+  bookmarkIndex,
   bookmarkVersion,
-  isBookmarked,
   syncBookmarkStars,
   toggleBookmark,
   type BookmarkKind,
@@ -17,9 +17,9 @@ import { classOptionRow } from './templates.js';
 import { isAbort } from '../errors.js';
 import { openDialog, render, renderModeChrome, toast } from './shell.js';
 
-const FIRST_RESULT_BATCH = 8;
+const FIRST_RESULT_BATCH = 6;
 const RESULT_BATCH = 24;
-const SKELETON_ROWS = 8;
+const SKELETON_ROWS = 6;
 
 let filtersManifest: Manifest | null = null;
 let renderedManifest: Manifest | null = null;
@@ -39,6 +39,34 @@ let lecturerIndex: LecturerIndexEntry[] = [];
 let lecturerResults: SearchResult<ClassRecord>[] = [];
 let allClassesManifest: Manifest | null = null;
 let allClasses: SearchResult<ClassRecord>[] = [];
+
+interface BookmarkOrder {
+  classes: SearchResult<ClassRecord>[];
+  version: number;
+  result: SearchResult<ClassRecord>[];
+}
+
+const bookmarkOrders: Record<BookmarkKind, BookmarkOrder | null> = { class: null, lecturer: null };
+
+function bookmarkFirst(classes: SearchResult<ClassRecord>[], kind: BookmarkKind): SearchResult<ClassRecord>[] {
+  const marked = bookmarkIndex(kind);
+  if (!marked.size) return classes;
+  const version = bookmarkVersion();
+  const cached = bookmarkOrders[kind];
+  if (cached && cached.classes === classes && cached.version === version) return cached.result;
+  const result = classes.filter((item) => marked.has(item.name));
+  const bookmarked = result.length;
+  if (bookmarked) for (const item of classes) if (!marked.has(item.name)) result.push(item);
+  const ordered = bookmarked ? result : classes;
+  bookmarkOrders[kind] = { classes, version, result: ordered };
+  return ordered;
+}
+
+function warmBookmarkResults(manifest: Manifest): void {
+  lecturerSearchIndex(manifest);
+  bookmarkFirst(lecturerResults, 'lecturer');
+  bookmarkFirst(allClassResults(manifest), 'class');
+}
 
 function lecturerSearchIndex(manifest: Manifest): LecturerIndexEntry[] {
   if (lecturerIndexManifest === manifest) return lecturerIndex;
@@ -77,9 +105,7 @@ function collectResults(manifest: Manifest, kind: BookmarkKind): SearchResult<Cl
         ? searchClasses(manifest.classes, query, { programme, semester, group })
         : allClassResults(manifest);
   }
-  const marked = new Set(classes.filter((item) => isBookmarked(kind, item.name)).map((item) => item.name));
-  if (!marked.size) return classes;
-  return [...classes].sort((a, b) => Number(marked.has(b.name)) - Number(marked.has(a.name)));
+  return bookmarkFirst(classes, kind);
 }
 
 let skeletonTemplate: HTMLTemplateElement | null = null;
@@ -169,18 +195,6 @@ function invalidateResults(): void {
   renderedKey = '';
 }
 
-function reorderBookmarkedRows(kind: BookmarkKind): void {
-  const rows = [...elements.classResults.querySelectorAll<HTMLElement>('.class-option-row')];
-  rows.sort((a, b) => {
-    const aName = a.querySelector<HTMLElement>('[data-bookmark-name]')?.dataset.bookmarkName || '';
-    const bName = b.querySelector<HTMLElement>('[data-bookmark-name]')?.dataset.bookmarkName || '';
-    return Number(isBookmarked(kind, bName)) - Number(isBookmarked(kind, aName));
-  });
-  const fragment = document.createDocumentFragment();
-  for (const row of rows) fragment.append(row);
-  elements.classResults.append(fragment);
-}
-
 function prepareClassPicker(): void {
   const manifest = state.manifest;
   if (!manifest) return;
@@ -218,7 +232,9 @@ export function warmClassPicker(): void {
   if (!state.manifest || elements.classDialog.open) return;
   const manifest = state.manifest;
   idle(() => {
-    if (state.manifest === manifest && !elements.classDialog.open) prepareClassPicker();
+    if (state.manifest !== manifest || elements.classDialog.open) return;
+    prepareClassPicker();
+    warmBookmarkResults(manifest);
   });
 }
 
@@ -347,10 +363,8 @@ export function initPicker(): void {
   delegate<HTMLElement>(elements.classResults, '[data-bookmark-kind]', 'click', (button) => {
     const kind = button.dataset.bookmarkKind;
     if (kind !== 'class' && kind !== 'lecturer') return;
-    const bookmarked = toggleBookmark(kind, button.dataset.bookmarkName || '');
-    syncBookmarkStars(elements.classResults);
-    reorderBookmarkedRows(kind);
-    if (bookmarked) elements.classResults.scrollTo({ top: 0, behavior: 'smooth' });
+    toggleBookmark(kind, button.dataset.bookmarkName || '');
+    syncBookmarkStars(button);
   });
   for (const mode of ['class', 'lecturer'] as const)
     on(mode === 'class' ? elements.studentMode : elements.lecturerMode, 'click', () =>

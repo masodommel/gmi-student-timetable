@@ -2,15 +2,18 @@
 
 ## 26 October 2026 - Faster picker, bookmarks and mobile polish
 
-- Cut class-picker switch latency by caching class metadata and search results, precompiling option rows, rendering the first 8 results before idle-rendering later 24-row batches, and containing picker layout. Mode switches now update only the dialog immediately and defer the background planner render by 300 ms.
-- Added `npm run perf:picker`, a median-of-3 browser benchmark at 412×915 with 6× CPU throttling. Final medians: lecturer 112 ms, student 128 ms, rapid switch 128 ms, all below the 200 ms target.
-- Added class and lecturer bookmarks stored in a `gmi-bookmarks` cookie (maximum 40). Star controls appear in the picker and lesson details, and bookmarked picker rows move to the top.
+- Cut class-picker switch latency by caching class metadata and search results, precompiling option rows, rendering the first 6 results and 6 skeleton rows before idle-rendering later 24-row batches, and containing picker layout. Mode switches now update only the dialog immediately and defer the background planner render by 300 ms.
+- Benchmarked 24- vs 14-row result batches: median full picker renders were 1.34 s vs 2.68 s at 6× CPU, so the 24-row batch was kept.
+- Added `npm run perf:picker`, a median-of-3 browser benchmark at 412×915 with 6× CPU throttling covering mode switches, full picker renders and picker/lesson bookmark toggles. All measured interaction medians remain below the 200 ms target.
+- Added class and lecturer bookmarks stored in a `gmi-bookmarks` cookie (maximum 40). Star controls appear in the picker and lesson details, and bookmarked rows sort to the top when picker results render.
+- Bookmark toggles now update only the pressed star and keep the open result order stable instead of rebuilding the full list, removing the long INP stall. The amber highlight follows desktop hover and touch presses instead of sticking after tap, and mobile star targets are slightly larger.
+- Bookmark state is warmed at startup with constant-time class/lecturer lookup sets, and bookmark-first picker results are precomputed during picker warmup so saved bookmarks are active and ordered on first open.
 - Prewarmed interaction animations, avoided restarting an in-flight picker swap during rapid mode changes, and added mobile week-arrow tap feedback.
 - Polished the mobile picker with stable viewport sizing, a bottom-sheet shadow and backdrop transitions; hover styling now applies only on hover-capable devices.
 - Removed the redundant below-planner strip, simplified the planner footnote, and updated the cookie notice and privacy text to cover bookmark storage.
 - Tuned header logo sizing and strengthened the dark-theme logo glow.
 - Fixed the first week-view lesson card so it aligns with the holiday band.
-- Added browser coverage for bookmark ordering, rapid mode switching, animation prewarm, week-arrow feedback, holiday alignment and the updated footer.
+- Added browser coverage for bookmark ordering and prewarming, mobile star sizing, rapid mode switching, animation prewarm, week-arrow feedback, holiday alignment and the updated footer.
 
 ## 26 October 2026 - Fix Cloudflare watch paths for data commits
 

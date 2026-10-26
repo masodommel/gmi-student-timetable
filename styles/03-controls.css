@@ -48,7 +48,12 @@ main {
   border-radius: 7px;
   color: #d9a400;
 }
-.bookmark-star:hover {
+@media (hover: hover) {
+  .bookmark-star:hover {
+    background: var(--amber-pale);
+  }
+}
+.bookmark-star:active {
   background: var(--amber-pale);
 }
 .bookmark-star .icon {

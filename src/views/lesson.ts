@@ -134,7 +134,7 @@ export function initLesson(): void {
     const kind = button.dataset.bookmarkKind;
     if (kind !== 'class' && kind !== 'lecturer') return;
     toggleBookmark(kind, button.dataset.bookmarkName || '');
-    syncBookmarkStars(elements.lessonContent);
+    syncBookmarkStars(button);
   });
   delegate<HTMLButtonElement>(elements.lessonContent, '[data-delete-lesson]', 'click', async (button) => {
     const lessonId = Number(button.dataset.deleteLesson);
