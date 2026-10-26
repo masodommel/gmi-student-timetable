@@ -39,6 +39,59 @@ test('mobile source status sits inside the browse bar without the book icon', as
   expect(revision.y + revision.height).toBeLessThanOrEqual(browse.y + browse.height);
   await expect(page.locator('.mobile-source-group')).toHaveCSS('display', 'flex');
 });
+test('interaction animations are prewarmed and the mobile picker swap animates', async ({ page }) => {
+  type PrewarmState = Window & { prewarmSeen?: boolean; swapSeen?: boolean };
+  await page.addInitScript(() => {
+    const state = window as PrewarmState;
+    state.prewarmSeen = false;
+    state.swapSeen = false;
+    document.addEventListener(
+      'animationstart',
+      (event) => {
+        if ((event as AnimationEvent).animationName === 'picker-swap-in') state.swapSeen = true;
+      },
+      true,
+    );
+    const observer = new MutationObserver(() => {
+      if (!document.querySelector('.motion-prewarm')) return;
+      state.prewarmSeen = true;
+      observer.disconnect();
+    });
+    observer.observe(document, { childList: true, subtree: true });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await page.locator('#compact-class-button').click();
+  await page.locator('#lecturer-mode').click();
+  await expect.poll(() => page.evaluate(() => Boolean((window as PrewarmState).swapSeen))).toBe(true);
+  await expect.poll(() => page.evaluate(() => Boolean((window as PrewarmState).prewarmSeen))).toBe(true);
+});
+test('mode switches keep focus, show progress and settle on the latest mode', async ({ page }) => {
+  const manifest = await readManifest();
+  await page.setViewportSize({ width: 412, height: 915 });
+  await page.goto('./?class=99178435&week=2026-10-19');
+  await page.locator('#compact-class-button').click();
+  const busy = await page.evaluate(() => {
+    document.getElementById('lecturer-mode')!.click();
+    return document.getElementById('class-results')!.getAttribute('aria-busy');
+  });
+  expect(busy).toBe('true');
+  await expect(page.locator('#lecturer-mode')).toBeFocused();
+  await expect(page.locator('#class-dialog-title')).toHaveText('Find a Lecturer');
+  await page.evaluate(() => {
+    document.getElementById('student-mode')!.click();
+    document.getElementById('lecturer-mode')!.click();
+  });
+  await expect(page.locator('#class-dialog-title')).toHaveText('Find a Lecturer');
+  await expect(page.locator('#lecturer-mode')).toBeFocused();
+  await expect(page.locator('#class-results')).not.toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('#class-results .class-option:not(.skeleton-option)')).toHaveCount(
+    manifest.lecturers.length,
+  );
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.choice-panel')).toBeVisible();
+  await expect(page.locator('.choice-panel button')).toContainText('Find a lecturer');
+});
 test('desktop date area keeps the week controls fixed', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('./?class=99178435&week=2026-10-19');
@@ -64,6 +117,8 @@ test('desktop date area keeps the week controls fixed', async ({ page }) => {
 test('cookie notice opens the privacy policy', async ({ page }) => {
   await page.goto('./?class=99178435&week=2026-10-19');
   await expect(page.locator('.site-footer')).toContainText('Cookie notice.');
+  await expect(page.locator('.below-planner')).toHaveCount(0);
+  await expect(page.locator('.site-footer')).toHaveCSS('border-top-width', '0px');
   await page.locator('#privacy-button').click();
   await expect(page.getByRole('heading', { name: 'Privacy policy' })).toBeVisible();
   await expect(page.locator('#privacy-dialog')).toContainText('gmi-theme');

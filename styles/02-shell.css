@@ -39,7 +39,7 @@
 }
 .wordmark-logo {
   display: block;
-  height: calc(var(--header-control-size) * 1.03);
+  height: calc(var(--header-control-size) * 1.02);
   width: auto;
   flex-shrink: 0;
 }

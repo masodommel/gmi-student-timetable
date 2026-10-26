@@ -61,6 +61,15 @@
   overscroll-behavior: contain;
   padding-right: 4px;
 }
+.class-option-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+.class-option-row .class-option {
+  min-width: 0;
+}
 .class-option {
   width: 100%;
   display: flex;
@@ -72,6 +81,8 @@
   border-radius: 9px;
   text-align: left;
   min-height: 56px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 56px;
 }
 .class-option:hover,
 .class-option.selected {
@@ -206,10 +217,16 @@
   font-size: 26px;
   margin-bottom: 8px;
 }
+.lesson-class-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 20px;
+}
 .lesson-class {
   font-size: 12px;
   color: var(--accent-text);
-  margin-bottom: 20px;
+  min-width: 0;
 }
 .detail-row {
   display: flex;
@@ -234,6 +251,10 @@
 .detail-row strong {
   font-weight: 500;
   overflow-wrap: anywhere;
+}
+.detail-row > .bookmark-star {
+  align-self: center;
+  margin-left: auto;
 }
 .lesson-flags {
   display: flex;

@@ -80,6 +80,9 @@
     background 0.15s;
   overflow-wrap: anywhere;
 }
+.day-column > .lesson:first-of-type {
+  margin-top: 0;
+}
 .lesson:hover {
   border-color: #74b3e8;
   background: #ecf6ff;
@@ -418,7 +421,7 @@
   justify-content: space-between;
   padding: 12px 18px;
   border-top: 1px solid var(--line);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   gap: 12px;
 }

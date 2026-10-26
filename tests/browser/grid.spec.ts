@@ -116,6 +116,36 @@ test('mobile keeps the agenda and never writes a view cookie', async ({ page }) 
   expect(cookies.find((cookie) => cookie.name === 'gmi-view')).toBeUndefined();
 });
 
+test('mobile week arrows show tap feedback without leaving a sticky highlight', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./' + selectedUrl);
+  const nextWeek = page.locator('#next-week');
+  const before = await nextWeek.evaluate((button) => getComputedStyle(button).backgroundColor);
+  const feedback = await nextWeek.evaluate(async (element) => {
+    const button = element as HTMLButtonElement;
+    button.click();
+    await new Promise(requestAnimationFrame);
+    return {
+      className: button.className,
+      background: getComputedStyle(button).backgroundColor,
+      animations: button.getAnimations().map((item) => (item as CSSAnimation).animationName),
+    };
+  });
+  expect(feedback.className).toContain('week-step-tap');
+  expect(feedback.background).not.toBe(before);
+  expect(feedback.animations).toContain('week-step-tap');
+  await expect(nextWeek).not.toHaveClass(/week-step-tap/);
+  await expect(nextWeek).toHaveCSS('background-color', before);
+});
+
+test('week view aligns the first class card with the holiday card', async ({ page }) => {
+  await page.goto('./?class=112094645&week=2026-10-26');
+  await page.locator('#week-view').click();
+  const holiday = (await page.locator('.day-holiday .holiday-block').boundingBox())!;
+  const firstCard = (await page.locator('.day-column').nth(1).locator('.lesson').first().boundingBox())!;
+  expect(Math.abs(holiday.y - firstCard.y)).toBeLessThan(1);
+});
+
 test('all-day holidays overwrite the lessons in the grid, week and agenda views', async ({ page }) => {
   await page.goto('./');
   await openSettings(page, 'Open timetable file');

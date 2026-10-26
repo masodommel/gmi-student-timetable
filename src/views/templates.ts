@@ -2,6 +2,7 @@ import { escapeHtml as esc, formatDate } from '../timetable/core.js';
 import { sourceSaysOnline } from '../timetable/notes.js';
 import type { DavStaff } from '../dav/index.js';
 import type { ClassRecord, SearchResult, TimetableEvent } from '../timetable/types.js';
+import { bookmarkButton, type BookmarkKind } from '../ui/bookmarks.js';
 import { icon } from '../ui/icons.js';
 
 export function statePanel(
@@ -42,16 +43,39 @@ export function lessonCard(event: TimetableEvent, options: LessonCardOptions): s
   return `<button class="lesson ${tone === 1 ? 'alt' : tone === 2 ? 'warm' : ''}" data-event-id="${event.id}" aria-label="${esc(event.subject)}, ${esc(event.start)} to ${esc(event.end)}, ${esc(event.room || 'room not listed')}, ${esc(event.date)}, ${esc(event.className || options.className)}${event.exception ? ' calendar exception' : ''}${event.overlap ? ' overlapping entry' : ''}${online ? ', online source note' : ''}"><span class="lesson-time">${icon('clock')}${esc(event.start)} – ${esc(event.end)}${online ? '<span class="badge mode-badge">Online</span>' : ''}</span><h3>${esc(event.subject)}</h3>${options.lecturerMode ? `<span class="lesson-meta">${esc(event.className)}</span>` : ''}<span class="lesson-meta">${icon('pin')}<span>${esc(event.room || 'Room not listed')}</span></span>${event.lecturer ? `<span class="lesson-meta">${icon('person')}<span>${esc(event.lecturer)}</span></span>` : ''}${event.note ? `<p class="lesson-note">${esc(event.note)}</p>` : ''}${event.exception ? '<span class="badge amber">Calendar exception</span>' : ''}${event.overlap ? '<span class="badge amber">Overlapping entry</span>' : ''}</button>`;
 }
 
-export function classOption(item: SearchResult<ClassRecord>, selected: boolean): string {
-  return `<button class="class-option ${selected ? 'selected' : ''}" data-class-id="${item.id}" ${selected ? 'aria-current="true"' : ''}><span><strong>${esc(item.name)}</strong><small>${item.fuzzy ? 'Close match · ' : ''}${item.eventCount ? `${item.eventCount} entries` : 'No entries'}</small></span>${icon(selected ? 'check' : 'chevron')}</button>`;
+let classOptionTemplates: { selected: HTMLTemplateElement; plain: HTMLTemplateElement } | null = null;
+
+function getClassOptionTemplates(): { selected: HTMLTemplateElement; plain: HTMLTemplateElement } {
+  if (classOptionTemplates) return classOptionTemplates;
+  const create = (selected: boolean): HTMLTemplateElement => {
+    const template = document.createElement('template');
+    template.innerHTML = `<div class="class-option-row"><button class="class-option${selected ? ' selected' : ''}"${selected ? ' aria-current="true"' : ''}><span><strong></strong><small></small></span>${icon(selected ? 'check' : 'chevron')}</button><button type="button" class="bookmark-star">${icon('star')}</button></div>`;
+    return template;
+  };
+  classOptionTemplates = { selected: create(true), plain: create(false) };
+  return classOptionTemplates;
 }
 
-export function detailRow(symbol: string, label: string, value: unknown): string {
-  return `<div class="detail-row">${icon(symbol)}<div><small>${label}</small><strong>${esc(value)}</strong></div></div>`;
+export function classOptionRow(item: SearchResult<ClassRecord>, selected: boolean, kind: BookmarkKind): HTMLElement {
+  const template = getClassOptionTemplates()[selected ? 'selected' : 'plain'];
+  const row = (template.content.cloneNode(true) as DocumentFragment).firstElementChild as HTMLElement;
+  row.querySelector<HTMLElement>('.class-option')!.dataset.classId = item.id;
+  row.querySelector('strong')!.textContent = item.name;
+  row.querySelector('small')!.textContent =
+    `${item.fuzzy ? 'Close match · ' : ''}${item.eventCount ? `${item.eventCount} entries` : 'No entries'}`;
+  const bookmark = row.querySelector<HTMLElement>('.bookmark-star')!;
+  bookmark.dataset.bookmarkKind = kind;
+  bookmark.dataset.bookmarkName = item.name;
+  return row;
+}
+
+export function detailRow(symbol: string, label: string, value: unknown, action = ''): string {
+  return `<div class="detail-row">${icon(symbol)}<div><small>${label}</small><strong>${esc(value)}</strong></div>${action}</div>`;
 }
 
 export function lessonDetails(event: TimetableEvent, className: string): string {
-  return `<p class="lesson-title-date">${formatDate(event.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p><h2 id="lesson-dialog-title">${esc(event.subject)}</h2><p class="lesson-class">${esc(event.className || className)}</p>${detailRow('clock', 'TIME · KUALA LUMPUR', `${event.start} – ${event.end}`)}${detailRow('pin', 'ROOM', event.room || 'Not listed in source')}${detailRow('person', 'LECTURER', event.lecturer || 'Not listed in source')}${event.note ? detailRow('info', 'NOTES', event.note) : ''}<div class="lesson-flags">${event.exception ? `<span class="badge amber">${esc(event.exception)} — calendar exception</span>` : ''}${event.overlap ? '<span class="badge amber">Overlaps another class entry. Check with your lecturer.</span>' : ''}</div>`;
+  const classLabel = event.className || className;
+  return `<p class="lesson-title-date">${formatDate(event.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p><h2 id="lesson-dialog-title">${esc(event.subject)}</h2>${classLabel ? `<div class="lesson-class-row"><p class="lesson-class">${esc(classLabel)}</p>${bookmarkButton('class', classLabel)}</div>` : ''}${detailRow('clock', 'TIME · KUALA LUMPUR', `${event.start} – ${event.end}`)}${detailRow('pin', 'ROOM', event.room || 'Not listed in source')}${detailRow('person', 'LECTURER', event.lecturer || 'Not listed in source', event.lecturer ? bookmarkButton('lecturer', event.lecturer) : '')}${event.note ? detailRow('info', 'NOTES', event.note) : ''}<div class="lesson-flags">${event.exception ? `<span class="badge amber">${esc(event.exception)} — calendar exception</span>` : ''}${event.overlap ? '<span class="badge amber">Overlaps another class entry. Check with your lecturer.</span>' : ''}</div>`;
 }
 
 export function onlineNoteNotice(message: string): string {

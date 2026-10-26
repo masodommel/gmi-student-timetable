@@ -40,6 +40,24 @@ export function openDialog(dialog: HTMLDialogElement): void {
   if (!dialog.open) dialog.showModal();
 }
 
+export function renderModeChrome({ dialogOnly = false }: { dialogOnly?: boolean } = {}): void {
+  elements.studentMode.setAttribute('aria-pressed', String(state.mode === 'class'));
+  elements.lecturerMode.setAttribute('aria-pressed', String(state.mode === 'lecturer'));
+  elements.classDialogDescription.textContent =
+    state.mode === 'lecturer'
+      ? 'Search by lecturer or resource name.'
+      : state.localFile
+        ? 'Choose a class from this file.'
+        : 'Search by class, programme or group.';
+  if (dialogOnly) return;
+  const modeLabel = state.mode === 'lecturer' ? 'Lecturer' : 'Class';
+  elements.className.textContent = modeLabel;
+  elements.compactClassName.textContent = modeLabel;
+  elements.classButton.dataset.mode = state.mode;
+  elements.compactClassButton.dataset.mode = state.mode;
+  elements.mobileExportLabel.textContent = state.mode === 'lecturer' ? 'LECTURER CALENDAR' : 'YOUR CLASS CALENDAR';
+}
+
 export function render(): void {
   const focusedDay = document.activeElement instanceof HTMLElement ? document.activeElement.dataset.day : undefined;
   if (focusedDay)
@@ -53,19 +71,12 @@ function renderShell(): void {
   const ready = Boolean(manifest);
   const selected = state.selected;
   const usable = Boolean(selected && !state.loading && !state.error);
-  elements.studentMode.setAttribute('aria-pressed', String(state.mode === 'class'));
   elements.studentMode.disabled = elements.lecturerMode.disabled = !ready;
-  elements.lecturerMode.setAttribute('aria-pressed', String(state.mode === 'lecturer'));
+  renderModeChrome();
   elements.davExport.disabled = !state.davBuffer;
   elements.davExport.hidden = !state.davBuffer;
   elements.davHint.hidden = !state.davBuffer;
-  const modeLabel = state.mode === 'lecturer' ? 'Lecturer' : 'Class';
-  elements.className.textContent = modeLabel;
-  elements.compactClassName.textContent = modeLabel;
-  elements.classButton.dataset.mode = state.mode;
-  elements.compactClassButton.dataset.mode = state.mode;
   elements.mobileClassName.textContent = selected?.name || '';
-  elements.mobileExportLabel.textContent = state.mode === 'lecturer' ? 'LECTURER CALENDAR' : 'YOUR CLASS CALENDAR';
   elements.classButton.disabled = elements.compactClassButton.disabled = !ready;
   const shareButton = elements.shareButton;
   shareButton.disabled = !usable || state.localFile;
@@ -105,12 +116,6 @@ function renderShell(): void {
       : 'Loading timetable source details…';
   const lastChecked = state.lastCheckedAt ? formatTimestamp(state.lastCheckedAt) : 'pending';
   elements.aboutSyncDescription.textContent = `The sync service checks the GMI timetable inbox every 15 minutes, and this page checks while open. Last checked: ${lastChecked}.${state.lastCheckFailed ? ' The last check could not reach the server.' : ''}`;
-  elements.classDialogDescription.textContent =
-    state.mode === 'lecturer'
-      ? 'Search by lecturer or resource name.'
-      : state.localFile
-        ? 'Choose a class from this file.'
-        : 'Search by class, programme or group.';
   elements.exportTriggers.forEach((button) => {
     button.disabled = !usable || !selected?.eventCount;
   });

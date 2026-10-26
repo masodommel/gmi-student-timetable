@@ -2,6 +2,7 @@ import { addDays } from '../timetable/core.js';
 import { sourceSaysOnline } from '../timetable/notes.js';
 import { addLesson, deleteLesson, editDav } from '../dav/index.js';
 import { installLocal, state } from '../state.js';
+import { syncBookmarkStars, toggleBookmark } from '../ui/bookmarks.js';
 import { closest, delegate, on } from '../ui/dom.js';
 import { elements } from '../ui/elements.js';
 import {
@@ -129,6 +130,12 @@ export function initLesson(): void {
   delegate<HTMLElement>(elements.lessonContent, '[data-add-lesson]', 'click', (button) =>
     openAddLesson(button.dataset.addLesson || ''),
   );
+  delegate<HTMLElement>(elements.lessonContent, '[data-bookmark-kind]', 'click', (button) => {
+    const kind = button.dataset.bookmarkKind;
+    if (kind !== 'class' && kind !== 'lecturer') return;
+    toggleBookmark(kind, button.dataset.bookmarkName || '');
+    syncBookmarkStars(elements.lessonContent);
+  });
   delegate<HTMLButtonElement>(elements.lessonContent, '[data-delete-lesson]', 'click', async (button) => {
     const lessonId = Number(button.dataset.deleteLesson);
     if (!Number.isInteger(lessonId)) return;

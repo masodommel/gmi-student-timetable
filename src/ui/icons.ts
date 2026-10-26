@@ -15,6 +15,7 @@ const paths = {
   share: '<path d="M12 16V3m-4 4 4-4 4 4M5 13v7h14v-7"/>',
   upload: '<path d="M12 16V4m-4 4 4-4 4 4M5 20h14"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
+  star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/>',
   close: '<path d="m6 6 12 12M6 18 18 6"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>',
   external: '<path d="M14 3h7v7m0-7L10 14M10 3H3v18h18v-7"/>',

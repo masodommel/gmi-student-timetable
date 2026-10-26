@@ -11,6 +11,7 @@ import { initViewMode } from './views/view-mode.js';
 import { initGrid } from './views/grid.js';
 import { hydrateIcons, initShell } from './views/shell.js';
 import { initRail, initSettings } from './ui/chrome.js';
+import { prewarmAnimations } from './ui/motion.js';
 import { initTheme } from './ui/theme.js';
 
 hydrateIcons();
@@ -27,6 +28,7 @@ initLesson();
 initExport();
 initFilePicker();
 initDavExport();
+prewarmAnimations();
 void initialize();
 startAutoRefresh();
 initPreferences();

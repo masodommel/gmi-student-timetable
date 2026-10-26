@@ -376,19 +376,8 @@
   }
   .planner-footer {
     padding: 13px;
-    font-size: 9px;
+    font-size: 11px;
     display: block;
-  }
-  .below-planner {
-    padding: 16px 0 5px;
-    display: block;
-  }
-  .below-planner p {
-    font-size: 10px;
-    line-height: 1.8;
-  }
-  .below-planner .text-button {
-    display: none;
   }
   .site-footer {
     align-items: flex-start;
@@ -556,7 +545,6 @@
   .toolbar-class-group,
   .mobile-export,
   .view-switch,
-  .below-planner,
   .header-actions,
   .planner-search,
   .planner-footer,

@@ -2,7 +2,7 @@ import { choices, state, storedClassId } from '../state.js';
 import { addDays, clampWeek, localToday, validDate } from '../timetable/core.js';
 import type { Manifest } from '../timetable/types.js';
 import { fetchJson } from '../ui/http.js';
-import { selectClass } from './picker.js';
+import { selectClass, warmClassPicker } from './picker.js';
 import { render } from './shell.js';
 
 const AUTO_REFRESH_INTERVAL = 15 * 60 * 1000;
@@ -27,6 +27,7 @@ export async function initialize(): Promise<void> {
     const id = query.get(state.mode) || (state.mode === 'class' ? storedClassId() : '');
     if (choices().some((item) => item.id === id)) await selectClass(id);
     else render();
+    warmClassPicker();
   } catch {
     if (generation !== state.generation) return;
     state.lastCheckedAt = new Date();

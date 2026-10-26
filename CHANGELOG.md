@@ -1,5 +1,17 @@
 # Changelog
 
+## 26 October 2026 - Faster picker, bookmarks and mobile polish
+
+- Cut class-picker switch latency by caching class metadata and search results, precompiling option rows, rendering the first 8 results before idle-rendering later 24-row batches, and containing picker layout. Mode switches now update only the dialog immediately and defer the background planner render by 300 ms.
+- Added `npm run perf:picker`, a median-of-3 browser benchmark at 412×915 with 6× CPU throttling. Final medians: lecturer 112 ms, student 128 ms, rapid switch 128 ms, all below the 200 ms target.
+- Added class and lecturer bookmarks stored in a `gmi-bookmarks` cookie (maximum 40). Star controls appear in the picker and lesson details, and bookmarked picker rows move to the top.
+- Prewarmed interaction animations, avoided restarting an in-flight picker swap during rapid mode changes, and added mobile week-arrow tap feedback.
+- Polished the mobile picker with stable viewport sizing, a bottom-sheet shadow and backdrop transitions; hover styling now applies only on hover-capable devices.
+- Removed the redundant below-planner strip, simplified the planner footnote, and updated the cookie notice and privacy text to cover bookmark storage.
+- Tuned header logo sizing and strengthened the dark-theme logo glow.
+- Fixed the first week-view lesson card so it aligns with the holiday band.
+- Added browser coverage for bookmark ordering, rapid mode switching, animation prewarm, week-arrow feedback, holiday alignment and the updated footer.
+
 ## 26 October 2026 - Fix Cloudflare watch paths for data commits
 
 - Switched the Cloudflare production watch paths from `**` patterns to single `*` globs (`src/*`, `styles/*`, `public/*`, `scripts/*`). Cloudflare only evaluates `*`, which already matches nested paths, so `public/**` never matched any `public/data` or `public/calendars` file and the R04M data-only commit was skipped (`skip_reason: path_config`) until it was deployed manually.

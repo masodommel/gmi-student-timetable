@@ -48,12 +48,12 @@ test('header control sizes match at desktop and mobile', async ({ page }) => {
   const logo = await page.locator('.wordmark-logo').evaluate((el) => el.getBoundingClientRect().height);
   const button = await page.locator('#rail-toggle').evaluate((el) => el.getBoundingClientRect().height);
   const label = await page.locator('.wordmark-label').evaluate((el) => el.getBoundingClientRect().height);
-  expect(Math.abs(logo / 1.18 - button)).toBeLessThan(0.5);
+  expect(Math.abs(logo / 1.02 - button)).toBeLessThan(0.5);
   expect(Math.abs(label - button)).toBeLessThan(0.5);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator('.wordmark-label')).toBeHidden();
   const logoMobile = await page.locator('.wordmark-logo').evaluate((el) => el.getBoundingClientRect().height);
   const buttonMobile = await page.locator('#rail-open').evaluate((el) => el.getBoundingClientRect().height);
-  expect(Math.abs(logoMobile / 1.18 - buttonMobile)).toBeLessThan(0.5);
+  expect(Math.abs(logoMobile / 1.02 - buttonMobile)).toBeLessThan(0.5);
 });

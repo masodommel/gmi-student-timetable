@@ -15,12 +15,18 @@ export function normalizeClass(value: string): string {
     .trim()
     .replace(/\s+/g, ' ');
 }
+const detailsCache = new Map<string, ClassDetails>();
+
 export function classDetails(name: string): ClassDetails {
+  const cached = detailsCache.get(name);
+  if (cached) return cached;
   const text = normalizeClass(name);
   const semester = /\bsem (\d+)\b/.exec(text)?.[1] || '';
   const programmes = [...new Set(name.toUpperCase().match(/\b(?:D[A-Z]{3}|GAPP|GUFP|GDVT|BELT|MTM)\b/g) || [])];
   const group = /\bteam (\d+)\b/.exec(text)?.[1] || (semester ? / (\d+)$/.exec(text)?.[1] || '' : '');
-  return { text, semester, programmes, group: text === `sem ${semester}` ? '' : group };
+  const details = { text, semester, programmes, group: text === `sem ${semester}` ? '' : group };
+  detailsCache.set(name, details);
+  return details;
 }
 function near(a: string, b: string): boolean {
   if (a.length < 3 || Math.abs(a.length - b.length) > 1) return false;

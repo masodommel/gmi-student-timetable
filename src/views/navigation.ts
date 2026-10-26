@@ -28,8 +28,38 @@ export function initNavigation(): void {
     if (date < state.manifest.planningStart || date > state.manifest.planningEnd) return;
     setWeek(date, date);
   };
-  on(elements.previousWeek, 'click', () => setWeek(addDays(state.week, -7)));
-  on(elements.nextWeek, 'click', () => setWeek(addDays(state.week, 7)));
+  const pointerActivated = new WeakSet<HTMLButtonElement>();
+  const feedbackTimers = new WeakMap<HTMLButtonElement, number>();
+  const pulseWeekStep = (button: HTMLButtonElement): void => {
+    if (!media.matches) return;
+    clearTimeout(feedbackTimers.get(button));
+    button.classList.remove('week-step-tap');
+    void button.offsetWidth;
+    button.classList.add('week-step-tap');
+    feedbackTimers.set(
+      button,
+      window.setTimeout(() => {
+        button.classList.remove('week-step-tap');
+        feedbackTimers.delete(button);
+      }, 320),
+    );
+  };
+  const clearPointerFocus = (button: HTMLButtonElement, event: MouseEvent): void => {
+    if (event.detail === 0 && !pointerActivated.has(button)) return;
+    pointerActivated.delete(button);
+    requestAnimationFrame(() => button.blur());
+  };
+  for (const [button, offset] of [
+    [elements.previousWeek, -7],
+    [elements.nextWeek, 7],
+  ] as const) {
+    on(button, 'pointerdown', () => pointerActivated.add(button), { passive: true });
+    on<HTMLButtonElement, MouseEvent>(button, 'click', (event) => {
+      pulseWeekStep(button);
+      setWeek(addDays(state.week, offset));
+      clearPointerFocus(button, event);
+    });
+  }
   on(elements.todayButton, 'click', () => setWeek(localToday()));
   on(elements.weekDate, 'change', () => setWeek(elements.weekDate.value));
   const setView = (view: View): void => {

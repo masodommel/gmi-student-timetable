@@ -58,8 +58,8 @@
   border-color: #424242;
 }
 :root[data-theme='dark'] .wordmark-logo {
-  filter: drop-shadow(0 0 2px rgb(255 255 255 / 60%)) drop-shadow(0 0 9px rgb(255 255 255 / 34%))
-    drop-shadow(0 0 20px rgb(255 255 255 / 16%));
+  filter: drop-shadow(0 0 4px rgb(255 255 255 / 60%)) drop-shadow(0 0 18px rgb(255 255 255 / 40%))
+    drop-shadow(0 0 40px rgb(255 255 255 / 22%)) drop-shadow(0 0 70px rgb(255 255 255 / 12%));
   animation: logo-glow 5s ease-in-out infinite;
 }
 :root[data-theme='dark'] .icon-pill {
@@ -135,6 +135,9 @@
   border-color: #424242;
   color: #c9c9c9;
 }
+:root[data-theme='dark'] .bookmark-star {
+  color: #ffd43b;
+}
 :root[data-theme='dark'] .class-filters {
   --filter-arrow: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9c9c9' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
@@ -153,10 +156,12 @@
 :root[data-theme='dark'] .toolbar-class-group > .class-switch:hover:not(:disabled) {
   background: #333;
 }
-:root[data-theme='dark'] .secondary:hover:not(:disabled),
-:root[data-theme='dark'] .icon-button:hover:not(:disabled) {
-  background: #3b3b3b;
-  border-color: #4dabf7;
+@media (hover: hover) {
+  :root[data-theme='dark'] .secondary:hover:not(:disabled),
+  :root[data-theme='dark'] .icon-button:hover:not(:disabled) {
+    background: #3b3b3b;
+    border-color: #4dabf7;
+  }
 }
 :root[data-theme='dark'] .view-switch {
   background: #1f1f1f;

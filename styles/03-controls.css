@@ -35,6 +35,29 @@ main {
   width: 16px;
   height: 16px;
 }
+.bookmark-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 7px;
+  color: #d9a400;
+}
+.bookmark-star:hover {
+  background: var(--amber-pale);
+}
+.bookmark-star .icon {
+  width: 17px;
+  height: 17px;
+}
+.bookmark-star[aria-pressed='true'] .icon {
+  fill: currentColor;
+}
 .full {
   width: 100%;
 }

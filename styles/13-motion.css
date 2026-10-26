@@ -38,6 +38,34 @@
 .week-picker-nav:active:not(:disabled) {
   transform: scale(0.9);
 }
+@keyframes week-step-tap {
+  0% {
+    transform: scale(0.9);
+    background-color: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  55% {
+    transform: scale(1.03);
+    background-color: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  100% {
+    transform: scale(1);
+    background-color: var(--surface);
+    border-color: var(--line);
+  }
+}
+@media (max-width: 700px) {
+  #previous-week:active:not(:disabled),
+  #next-week:active:not(:disabled) {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  #previous-week.week-step-tap,
+  #next-week.week-step-tap {
+    animation: week-step-tap 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
 @keyframes day-pill-in {
   0% {
     transform: scale(0.94);
@@ -128,15 +156,26 @@
 }
 @media (max-width: 700px) {
   :is(.class-dialog, .export-dialog, .lesson-dialog) {
-    transition-duration: 0.18s, 0.32s, 0.32s, 0.32s;
+    will-change: transform, opacity;
+    transition-duration: 0.18s, 0.26s, 0.26s, 0.26s;
   }
   :is(.class-dialog, .export-dialog, .lesson-dialog):not([open]) {
     transform: translateY(100%);
+  }
+  .dialog::backdrop {
+    transition-property: display, overlay;
+    transition-duration: 0.26s;
+  }
+  .dialog:not([open])::backdrop {
+    opacity: 1;
   }
   @starting-style {
     :is(.class-dialog, .export-dialog, .lesson-dialog)[open] {
       opacity: 0;
       transform: translateY(100%);
+    }
+    .dialog[open]::backdrop {
+      opacity: 1;
     }
   }
   .mobile-export:not([hidden]) {
@@ -169,4 +208,57 @@
 }
 .browse-mode:active {
   transform: scale(0.97);
+}
+@media (max-width: 700px) {
+  #class-dialog.picker-swap
+    :is(#class-dialog-title, .dialog-description, .class-search, .class-filters, .class-results-toolbar) {
+    animation-duration: 0.2s;
+  }
+}
+.motion-prewarm {
+  position: fixed;
+  top: -100px;
+  left: -100px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  contain: strict;
+}
+.motion-prewarm > i {
+  display: block;
+  width: 1px;
+  height: 1px;
+  will-change: transform, opacity;
+}
+.motion-prewarm [data-motion-prewarm='month-slide-next'] {
+  animation: month-slide-next 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.motion-prewarm [data-motion-prewarm='month-slide-previous'] {
+  animation: month-slide-previous 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.motion-prewarm [data-motion-prewarm='day-pill-in'] {
+  animation: day-pill-in 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.motion-prewarm [data-motion-prewarm='week-step-tap'] {
+  animation: week-step-tap 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.motion-prewarm [data-motion-prewarm='notice-in'] {
+  animation: notice-in 0.2s ease both;
+}
+.motion-prewarm [data-motion-prewarm='toast-in'] {
+  animation: toast-in 0.22s ease both;
+}
+.motion-prewarm [data-motion-prewarm='mobile-export-in'] {
+  animation: mobile-export-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.motion-prewarm [data-motion-prewarm='picker-swap-in'] {
+  animation: picker-swap-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.motion-prewarm [data-motion-prewarm='theme-toggle-switch'] {
+  animation: theme-toggle-switch 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.motion-prewarm [data-motion-prewarm='theme-icon-switch'] {
+  animation: theme-icon-switch 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }

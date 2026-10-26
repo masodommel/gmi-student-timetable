@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "optimize:logo": "tsx scripts/optimize-logo.ts",
+    "perf:picker": "tsx scripts/perf-inp.ts",
     "test": "npm run format:check && npm run typecheck && tsx scripts/check-data.ts && node --import tsx --test tests/core.test.ts tests/academic-calendar.test.ts tests/dav.test.ts tests/class-search.test.ts tests/online-notes.test.ts tests/publish-source.test.ts tests/prepare-dav.test.ts tests/build.test.ts",
     "test:e2e": "playwright test"
   },

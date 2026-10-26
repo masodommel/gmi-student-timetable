@@ -1,20 +1,4 @@
 /* ===== Pages: footers, states, loading, agenda ===== */
-.below-planner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 16px 1px;
-}
-.below-planner p {
-  font-size: 10px;
-  color: var(--muted);
-}
-.below-planner strong {
-  color: var(--ink);
-  font-weight: 500;
-  margin-right: 5px;
-}
 .site-footer {
   display: flex;
   align-items: center;
@@ -26,6 +10,11 @@
   color: var(--muted);
   font-size: 11px;
   line-height: 1.7;
+}
+@media (min-width: 701px) {
+  .site-footer {
+    border-top: 0;
+  }
 }
 .site-footer p {
   max-width: none;
@@ -94,12 +83,12 @@
 @keyframes logo-glow {
   0%,
   100% {
-    filter: drop-shadow(0 0 2px rgb(255 255 255 / 60%)) drop-shadow(0 0 9px rgb(255 255 255 / 34%))
-      drop-shadow(0 0 20px rgb(255 255 255 / 16%));
+    filter: drop-shadow(0 0 4px rgb(255 255 255 / 60%)) drop-shadow(0 0 18px rgb(255 255 255 / 40%))
+      drop-shadow(0 0 40px rgb(255 255 255 / 22%)) drop-shadow(0 0 70px rgb(255 255 255 / 12%));
   }
   50% {
-    filter: drop-shadow(0 0 2px rgb(255 255 255 / 68%)) drop-shadow(0 0 11px rgb(255 255 255 / 42%))
-      drop-shadow(0 0 22px rgb(255 255 255 / 26%));
+    filter: drop-shadow(0 0 5px rgb(255 255 255 / 70%)) drop-shadow(0 0 24px rgb(255 255 255 / 50%))
+      drop-shadow(0 0 50px rgb(255 255 255 / 32%)) drop-shadow(0 0 85px rgb(255 255 255 / 20%));
   }
 }
 .agenda-list {
