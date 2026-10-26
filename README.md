@@ -78,7 +78,7 @@ Timetable updates flow from Gmail to the public site without manual data commits
 
 Source selection uses the revision date in the original filename first, then the email time, so a late-arriving older email cannot replace a newer revision. The workflow skips an already-published hash, refuses to roll back to an older revision unless manually forced, and skips corrupt or incomplete sources with a warning. Public `push` runs tests and builds from the checked-in data without needing the private archive.
 
-The derived-data commit carries no CI skip tag. Cloudflare Pages skips builds for commits tagged `[skip ci]`, `[skip actions]` and similar flags, which would leave the public data stale. Instead, `pages.yml` skips its own jobs for `push` events whose head commit message starts with `publish timetable revision`, so the bot commit does not rerun the workflow while Cloudflare still builds it because `public/**` is a production watch path.
+The derived-data commit carries no CI skip tag. Cloudflare Pages skips builds for commits tagged `[skip ci]`, `[CI Skip]`, `[CF-Pages-Skip]` and the other documented variants, which would leave the public data stale. `[skip actions]` only affects GitHub Actions and is not a Cloudflare flag. Instead, `pages.yml` skips its own jobs for `push` events whose head commit message starts with `publish timetable revision`, so the bot commit does not rerun the workflow while Cloudflare still builds it because `public/*` is a production watch path.
 
 Raw DAV files stay in the private repository. The public repository and site publish derived data only, the original binary is never committed or served publicly. The workflow fails if a `.dav` is tracked publicly or appears in `public/` or `dist/`.
 
@@ -115,20 +115,23 @@ While the page is open, it checks for a newly published revision every 15 minute
 
 ```text
 index.html
-styles/**
+styles/*
 package.json
 package-lock.json
 tsconfig.json
 tsconfig.node.json
-src/**
-public/**
-scripts/**
+src/*
+public/*
+scripts/*
 ```
+
+- Watch paths deliberately use single `*` globs: Cloudflare treats `*` as matching any characters, including `/`, so `public/*` covers nested files such as `public/data/<id>.json` and `public/calendars/<id>.ics`. A `**` pattern is not evaluated by the path matcher, so such a push is skipped with `skip_reason: path_config` — that is what left the R04M data-only commit without an automatic deployment.
 
 - A new timetable source produces one derived-data commit under `public/`, which triggers one production build. Large code changes under `src/`, `scripts/` or the root build files also trigger one build.
 - Pushes that only touch `.github/`, `tests/`, `README.md`, `design/`, `apps-script/` or `github-pages/` do not trigger Cloudflare. The dev live page covers those changes without consuming Cloudflare builds.
 - Cloudflare's free plan allows 500 builds per month. This path filter and the disabled preview deployments keep production well below that limit.
-- Never add skip tags such as `[skip ci]` or `[skip actions]` to the derived-data commit message. GitHub and Cloudflare Pages both honor them, and Cloudflare would skip the production build.
+- A `Skipped` / "No deployment available" deployment means Cloudflare never started the build; it is not a build failure. The deployment API records the reason (`commit_message`, `path_config`, `branch_config`, `production_deployments_disabled`, …). Manual "Create deployment" / "Retry deployment" runs bypass these checks, so a successful manual deployment does not validate watch paths; look for the `Cloudflare Pages` check run on the commit instead, because a skipped build creates none.
+- Never add Cloudflare skip flags (`[skip ci]`, `[CI Skip]`, `[CI-Skip]`, `[Skip CI]`, `[Skip-CI]`, `[CF-Pages-Skip]`) to the derived-data commit message; Cloudflare would skip the production build. `[skip actions]` only affects GitHub Actions — the workflow guard in `pages.yml`, not a tag, is what stops the bot commit from rerunning the workflow.
 - Cloudflare Pages compresses HTML, CSS, JavaScript and JSON with Brotli or Gzip at the edge.
 
 ### GitHub Pages (redirect or dev live page)

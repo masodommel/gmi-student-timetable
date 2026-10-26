@@ -1,5 +1,11 @@
 # Changelog
 
+## 26 October 2026 - Fix Cloudflare watch paths for data commits
+
+- Switched the Cloudflare production watch paths from `**` patterns to single `*` globs (`src/*`, `styles/*`, `public/*`, `scripts/*`). Cloudflare only evaluates `*`, which already matches nested paths, so `public/**` never matched any `public/data` or `public/calendars` file and the R04M data-only commit was skipped (`skip_reason: path_config`) until it was deployed manually.
+- Corrected the skip-flag guidance: Cloudflare honors `[skip ci]`, `[CI Skip]`, `[CF-Pages-Skip]` and similar documented flags, while `[skip actions]` only affects GitHub Actions.
+- Added deployment troubleshooting notes: `Skipped` / "No deployment available" means the build never started, and manual deployments bypass watch paths so they cannot validate the automatic configuration.
+
 ## 24 October 2026 - Split stylesheet into source files
 
 - Split `styles.css` into ordered files under `styles/`, concatenated and minified into a single `dist/styles.css` at build time.
