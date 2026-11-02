@@ -2,7 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sourceSaysOnline } from '../src/timetable/notes.js';
 test('online labels need explicit source notes and never follow missing rooms', () => {
-  const onlineNotes = ['Online Class', 'ONLINE CLASS via Teams', 'Class: online', 'Online'];
+  const onlineNotes = [
+    'Online Class',
+    'ONLINE CLASS via Teams',
+    'Class: online',
+    'Online',
+    'Online Replacement Class',
+    'Online Replacement Class (PH)',
+    'Online Replacement Class 21/9',
+    'Replacement Class (Online)',
+    'Replacement Class (Online Class)',
+    'Replacement Class (online) MaulidurRasul',
+    'Online - CNC & MEM CLASS ONLY',
+  ];
   for (const note of onlineNotes) assert.equal(sourceSaysOnline({ note }), true, note);
 
   const offlineNotes = [
@@ -14,6 +26,9 @@ test('online labels need explicit source notes and never follow missing rooms', 
     'Offline class',
     'Online class not held',
     'Online class preparation',
+    'Online replacement class cancelled',
+    'Online replacement class preparation',
+    'Replacement class (online quiz)',
   ];
   for (const note of offlineNotes) assert.equal(sourceSaysOnline({ note }), false, note);
 
