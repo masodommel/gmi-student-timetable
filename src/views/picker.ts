@@ -279,11 +279,13 @@ export async function selectClass(id: string, { preserveWeek = true }: { preserv
   window.clearTimeout(modeRenderTimer);
   pendingRender = false;
   elements.classDialog.close();
-  render();
+  const cache = mode === 'lecturer' ? lecturerCache : classCache;
+  const cached = cache.get(id);
+  // On a cache hit the final render below runs in this same task, so the loading render would never paint.
+  if (!cached) render();
   try {
-    const cache = mode === 'lecturer' ? lecturerCache : classCache;
     const dataset =
-      cache.get(id) ||
+      cached ||
       (await fetchJson<ClassDataset>(
         mode === 'lecturer' ? `./lecturers/${id}.json` : `./data/${id}.json`,
         controller.signal,

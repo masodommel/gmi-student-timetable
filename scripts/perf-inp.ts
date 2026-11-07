@@ -32,6 +32,7 @@ interface LongFrame extends PerformanceEntry {
 
 interface PerfWindow extends Window {
   __interaction?: { duration: number; target: string };
+  __keyInteraction?: number;
   __longTasks?: number[];
   __longFrames?: Array<{ duration: number; blocking: number; scripts: string[] }>;
 }
@@ -86,6 +87,8 @@ async function main(): Promise<void> {
       new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           const event = entry as PerformanceEventTiming;
+          if (event.interactionId && event.name.startsWith('key'))
+            perf.__keyInteraction = Math.max(perf.__keyInteraction ?? 0, event.duration);
           if (!event.interactionId || event.name !== 'click') continue;
           perf.__interaction = {
             duration: event.duration,
@@ -114,6 +117,7 @@ async function main(): Promise<void> {
       page.evaluate(() => {
         const perf = window as PerfWindow;
         perf.__interaction = undefined;
+        perf.__keyInteraction = undefined;
         perf.__longTasks = [];
         perf.__longFrames = [];
       });
@@ -172,10 +176,32 @@ async function main(): Promise<void> {
       await page.waitForTimeout(300);
       bookmarks.push(await readPerf());
     }
+    const typing: Measurement[] = [];
+    const search = page.locator('#class-search');
+    for (const query of ['dmch 1', 'dmhc sem 3', 'dswe']) {
+      await search.fill('');
+      await settle();
+      await page.waitForTimeout(300);
+      await search.focus();
+      await resetPerf();
+      await page.keyboard.type(query, { delay: 120 });
+      await settle();
+      await page.waitForTimeout(300);
+      const measurement = await readPerf();
+      typing.push({
+        ...measurement,
+        duration: await page.evaluate(() => (window as PerfWindow).__keyInteraction ?? 0),
+      });
+    }
+    await search.fill('');
+    await settle();
+    await page.waitForTimeout(300);
     const renderRuns: number[] = [];
+    const opens: Measurement[] = [];
     for (let index = 0; index < 5; index += 1) {
       await page.keyboard.press('Escape');
       await page.waitForTimeout(100);
+      await resetPerf();
       const started = performance.now();
       await page.locator('#compact-class-button').click();
       await settle();
@@ -183,6 +209,8 @@ async function main(): Promise<void> {
         () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
       );
       renderRuns.push(performance.now() - started);
+      await page.waitForTimeout(300);
+      opens.push(await readPerf());
     }
     const median = (values: number[]): number => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
     const report = (label: string, measurements: Measurement[]): number => {
@@ -207,12 +235,14 @@ async function main(): Promise<void> {
     const rapidSwitch = report('rapid switch', [rapid]);
     const bookmarking = report('picker bookmark toggle', bookmarks);
     const lessonBookmarking = report('lesson bookmark toggle', lessonBookmarks);
+    const typed = report('search typing (worst keystroke per query)', typing);
+    const opened = report('open picker', opens);
     console.log(
       `picker full render: ${median(renderRuns).toFixed(1)} ms (median of ${renderRuns.length}; result batch ${BATCH_LABEL})`,
     );
     console.log(`  runs: ${renderRuns.map((duration) => duration.toFixed(1)).join(', ')} ms`);
     if (
-      ![lecturer, student, rapidSwitch, bookmarking, lessonBookmarking].every(
+      ![lecturer, student, rapidSwitch, bookmarking, lessonBookmarking, typed, opened].every(
         (value) => Number.isFinite(value) && value < TARGET,
       )
     )

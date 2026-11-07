@@ -182,6 +182,15 @@
     animation: mobile-export-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
 }
+/* The infinite drop-shadow glows can't run on the compositor (filters that move pixels), so keep each on
+   its own layer: every frame re-rasterises just the small glyph, not the surrounding header/content.
+   Only while they actually animate, so the static reduced-motion rendering is untouched. */
+@media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+  :root[data-theme='dark']:not(.reduce-motion) .wordmark-logo,
+  :root:not(.reduce-motion) .class-switch-icon .icon {
+    will-change: filter;
+  }
+}
 
 @keyframes picker-swap-in {
   from {
